@@ -705,7 +705,13 @@ export default function App() {
         body: JSON.stringify({ prompt })
       });
       const data = await res.json();
-      const text = data.text || "无法获取建议，请稍后再试。";
+      if (!res.ok || !data.text) {
+        const errMsg = data.error || data.detail || "未知错误";
+        setAiText("错误：" + errMsg);
+        setAiLoading(false);
+        return;
+      }
+      const text = data.text;
       let i = 0;
       const iv = setInterval(() => {
         setAiText(t => t + text[i]);

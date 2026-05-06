@@ -23,10 +23,23 @@ export default async function handler(req, res) {
       }),
     });
 
+    if (!response.ok) {
+      const err = await response.text();
+      console.error("Anthropic API error:", err);
+      return res.status(500).json({ error: "Anthropic API error", detail: err });
+    }
+
     const data = await response.json();
-    const text = data.content?.[0]?.text || "无法获取建议，请稍后再试。";
-    res.status(200).json({ text });
+    console.log("Anthropic response:", JSON.stringify(data).slice(0, 200));
+
+    const text = data?.content?.[0]?.text;
+    if (!text) {
+      return res.status(500).json({ error: "Empty response from Anthropic", raw: data });
+    }
+
+    return res.status(200).json({ text });
   } catch (err) {
-    res.status(500).json({ error: "API error", detail: err.message });
+    console.error("Handler error:", err);
+    return res.status(500).json({ error: "Server error", detail: err.message });
   }
 }
