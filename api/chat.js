@@ -8,12 +8,17 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing prompt" });
   }
 
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: "API key not configured. Please set ANTHROPIC_API_KEY in Vercel Environment Variables." });
+  }
+
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
@@ -23,23 +28,21 @@ export default async function handler(req, res) {
       }),
     });
 
-    if (!response.ok) {
-      const err = await response.text();
-      console.error("Anthropic API error:", err);
-      return res.status(500).json({ error: "Anthropic API error", detail: err });
-    }
-
     const data = await response.json();
-    console.log("Anthropic response:", JSON.stringify(data).slice(0, 200));
+
+    if (!response.ok) {
+      return res.status(500).json({
+        error: `Anthropic error ${response.status}: ${data?.error?.message || JSON.stringify(data)}`
+      });
+    }
 
     const text = data?.content?.[0]?.text;
     if (!text) {
-      return res.status(500).json({ error: "Empty response from Anthropic", raw: data });
+      return res.status(500).json({ error: "Empty response", raw: JSON.stringify(data) });
     }
 
     return res.status(200).json({ text });
   } catch (err) {
-    console.error("Handler error:", err);
-    return res.status(500).json({ error: "Server error", detail: err.message });
+    return res.status(500).json({ error: "Server error: " + err.message });
   }
 }
