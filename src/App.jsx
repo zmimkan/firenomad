@@ -699,17 +699,13 @@ export default function App() {
 语气像有丰富经验的旅居FIRE族前辈，真实接地气。`;
 
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [{ role: "user", content: prompt }]
-        })
+        body: JSON.stringify({ prompt })
       });
       const data = await res.json();
-      const text = data.content?.[0]?.text || "无法获取建议，请稍后再试。";
+      const text = data.text || "无法获取建议，请稍后再试。";
       let i = 0;
       const iv = setInterval(() => {
         setAiText(t => t + text[i]);
