@@ -17,15 +17,15 @@ export default async function handler(req, res) {
 
   // Reduced max_tokens to save quota
   // AI personal analysis: 800 (was 2000) — 200-word answer needs ~400 tokens
-  // Community search: 1500 (web_search needs more for JSON output)
+  // Community search: 1000 (web_search needs some, but reduce to save quota)
   const body = {
     model: "claude-sonnet-4-5",
-    max_tokens: useWebSearch ? 1500 : 800,
+    max_tokens: useWebSearch ? 1000 : 800,
     messages: msgs,
   };
 
   if (useWebSearch) {
-    body.tools = [{ type: "web_search_20250305", name: "web_search", max_uses: 3 }];
+    body.tools = [{ type: "web_search_20250305", name: "web_search", max_uses: 2 }];
   }
 
   try {

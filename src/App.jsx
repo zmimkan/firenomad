@@ -11,7 +11,7 @@ const T = {
     tabs: ["成本", "签证", "医保", "安全", "社区"],
     sec: { tips: "省钱贴士", visa: "签证类型", health: "医疗体系", ins: "保险建议", safety: "安全状况", culture: "文化考量", community: "实时讨论攻略" },
     ai: { title: "AI 个性化分析", askBtn: "请 AI 个性化分析", loading: "分析中", placeholder: "继续问 AI...（Enter 发送）", send: "发送", you: "你", aiLabel: "AI 分析", aiFollow: "AI 跟进", err: "错误", net: "网络问题，请稍后重试" },
-    community: { refresh: "↻ 刷新", loading: "📡 AI 正在搜索 Reddit/小红书/知乎... 约需 10-20 秒", noResults: "暂无结果，请刷新重试", hint: "最近 60 天 · AI 已汇总热门论坛最新讨论", openLink: "查看 ↗" },
+    community: { refresh: "↻ 刷新", loading: "📡 AI 正在搜索 Reddit... 约需 10-20 秒", noResults: "AI 未找到相关帖子。请使用下方直链", hint: "AI 抓取 Reddit 帖子（约 10-20 秒）", openLink: "查看 ↗", directTitle: "或直接到论坛搜索：" },
     suggested: ["如果我想带家人一起来，签证怎么办？", "如果带宠物搬过去，要注意什么？", "比较这个城市和其他热门 FIRE 城市哪个更适合我？"],
     cost: { Monthly: "月均总计", Housing: "住宿", Food: "餐饮", Transit: "交通", Leisure: "娱乐", Health: "医保" },
     close: "✕",
@@ -25,7 +25,7 @@ const T = {
     tabs: ["Cost", "Visa", "Health", "Safety", "Community"],
     sec: { tips: "Insider Notes", visa: "Visa Types", health: "Healthcare", ins: "Insurance", safety: "Safety", culture: "Culture", community: "Live Discussions" },
     ai: { title: "AI Personal Analysis", askBtn: "Ask AI · Personal Analysis", loading: "Analyzing", placeholder: "Follow up with AI... (Enter)", send: "Send", you: "You", aiLabel: "AI Analysis", aiFollow: "AI Follow-up", err: "Error", net: "Network issue" },
-    community: { refresh: "↻ Refresh", loading: "📡 AI searching Reddit/Xiaohongshu/Zhihu... 10-20s", noResults: "No results, try refresh", hint: "Last 60 days · AI-curated from popular forums", openLink: "View ↗" },
+    community: { refresh: "↻ Refresh", loading: "📡 AI searching Reddit... 10-20s", noResults: "AI didn't find specific posts. Use direct links below", hint: "AI scraping Reddit threads (~10-20s)", openLink: "View ↗", directTitle: "Or search directly:" },
     suggested: ["What visa options exist for bringing my family?", "What should I know about relocating with pets?", "Compare this city with other popular FIRE destinations for me"],
     cost: { Monthly: "Monthly", Housing: "Housing", Food: "Food", Transit: "Transit", Leisure: "Leisure", Health: "Health" },
     close: "✕",
@@ -6299,8 +6299,8 @@ export default function App() {
     setCommunityData(null);
 
     const prompt = lang === "zh"
-      ? `搜索 ${selected.name.zh} (${selected.name.en}) 关于 FIRE/退休/旅居/数字游民的最新社区讨论。在 Reddit、小红书、知乎、Bogleheads 等热门论坛中找 4-6 个最相关、最近 60 天内的帖子。\n\n以 JSON 数组格式返回，每个对象包含：source（reddit/xhs/zhihu/bogleheads/other），title（讨论标题），snippet（30-50 字摘要），url（原帖链接），date（如"3 天前"），stats（如"↑ 412 · 💬 89"）。\n\n只返回 JSON，无其他文字。`
-      : `Search for recent FIRE/retirement/expat/digital-nomad discussions about ${selected.name.en}. Find 4-6 most relevant posts from last 60 days on Reddit, Xiaohongshu, Zhihu, Bogleheads etc.\n\nReturn as JSON array, each object: source (reddit/xhs/zhihu/bogleheads/other), title, snippet (30-50 words), url, date (e.g. "3 days ago"), stats (e.g. "↑ 412 · 💬 89").\n\nJSON only, no other text.`;
+      ? `用 web_search 搜索 "site:reddit.com ${selected.name.en} FIRE retire" 和 "site:reddit.com ${selected.name.en} expat" 找 3-5 个讨论帖。\n\n返回 JSON 数组，每个对象：source（"reddit"），title（原标题），snippet（30 字中文简述帖子内容），url（真实 URL），date（粗略时间如"最近"或"2024"），stats（"discussion thread"）。\n\n只输出 JSON，不要解释。即使找到 2-3 个也返回。`
+      : `Use web_search for "site:reddit.com ${selected.name.en} FIRE retire" and "site:reddit.com ${selected.name.en} expat". Find 3-5 thread links.\n\nReturn JSON array, each: source ("reddit"), title (original), snippet (30 words summary), url (real), date (approx like "recent" or "2024"), stats ("discussion thread").\n\nJSON only, no explanation. Return 2-3 if that's all you find.`;
 
     try {
       const res = await fetch("/api/chat", {
@@ -6435,18 +6435,10 @@ export default function App() {
           </div>
         )}
         {!communityLoading && communityData && !Array.isArray(communityData) && communityData.error && (
-          <div style={{ padding:"16px 0" }}>
-            <div style={{ fontSize:11, color:"#c45c6e", marginBottom:10, fontWeight:400 }}>
-              ⚠ {communityData.error}
+          <div style={{ padding:"12px 0" }}>
+            <div style={{ fontSize:11, color:"#8a8884", fontWeight:300, lineHeight:1.6 }}>
+              {t.community.noResults}
             </div>
-            {communityData.raw && (
-              <details style={{ fontSize:10, color:"#6b6864", fontWeight:300 }}>
-                <summary style={{ cursor:"pointer", marginBottom:8 }}>查看 AI 原始回复 / Show raw response</summary>
-                <pre style={{ background:"rgba(212,175,55,0.04)", padding:"10px", borderRadius:2, fontSize:10, color:"#a8a59f", whiteSpace:"pre-wrap", maxHeight:200, overflow:"auto", fontFamily:"monospace" }}>
-                  {communityData.raw}
-                </pre>
-              </details>
-            )}
           </div>
         )}
         {!communityLoading && Array.isArray(communityData) && communityData.length > 0 && (
@@ -6488,6 +6480,33 @@ export default function App() {
               );
             })}
           </>
+        )}
+
+        {/* ALWAYS-VISIBLE: Direct platform search links */}
+        {!communityLoading && (
+          <div style={{ marginTop: 20, paddingTop: 16, borderTop:"0.5px solid rgba(212,175,55,0.1)" }}>
+            <div style={{ fontSize:9, letterSpacing:2.5, color:"#6b6864", textTransform:"uppercase", marginBottom:10, fontWeight:300 }}>
+              {t.community.directTitle}
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+              {[
+                { label:"Reddit", url:`https://www.reddit.com/search/?q=${encodeURIComponent(selected.name.en + " FIRE retire expat")}&sort=top&t=year`, c:"#ff8d4a", bg:"rgba(255,69,0,0.08)", b:"rgba(255,69,0,0.3)" },
+                { label:"小红书", url:`https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(selected.name.zh + " 旅居 FIRE")}`, c:"#ff708a", bg:"rgba(255,36,66,0.08)", b:"rgba(255,36,66,0.3)" },
+                { label:"知乎", url:`https://www.zhihu.com/search?type=content&q=${encodeURIComponent(selected.name.zh + " FIRE 退休")}`, c:"#4ba3ff", bg:"rgba(0,132,255,0.08)", b:"rgba(0,132,255,0.3)" },
+                { label:"Bogleheads", url:`https://www.bogleheads.org/forum/search.php?keywords=${encodeURIComponent(selected.name.en + " retire")}`, c:"#7dd3a8", bg:"rgba(125,211,168,0.08)", b:"rgba(125,211,168,0.3)" },
+              ].map(p => (
+                <a key={p.label} href={p.url} target="_blank" rel="noopener noreferrer" style={{
+                  padding:"8px 10px", borderRadius:2, fontSize:10, fontWeight:500,
+                  background: p.bg, color: p.c, border:`0.5px solid ${p.b}`,
+                  textDecoration:"none", display:"flex", alignItems:"center", justifyContent:"space-between",
+                  letterSpacing:0.3,
+                }}>
+                  <span>{p.label}</span>
+                  <span style={{ fontSize:9, opacity:0.7 }}>↗</span>
+                </a>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     );
