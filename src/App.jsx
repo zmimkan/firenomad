@@ -6299,8 +6299,8 @@ export default function App() {
     setCommunityData(null);
 
     const prompt = lang === "zh"
-      ? `用 web_search 搜索 "site:reddit.com ${selected.name.en} FIRE retire" 和 "site:reddit.com ${selected.name.en} expat" 找 3-5 个讨论帖。\n\n返回 JSON 数组，每个对象：source（"reddit"），title（原标题），snippet（30 字中文简述帖子内容），url（真实 URL），date（粗略时间如"最近"或"2024"），stats（"discussion thread"）。\n\n只输出 JSON，不要解释。即使找到 2-3 个也返回。`
-      : `Use web_search for "site:reddit.com ${selected.name.en} FIRE retire" and "site:reddit.com ${selected.name.en} expat". Find 3-5 thread links.\n\nReturn JSON array, each: source ("reddit"), title (original), snippet (30 words summary), url (real), date (approx like "recent" or "2024"), stats ("discussion thread").\n\nJSON only, no explanation. Return 2-3 if that's all you find.`;
+      ? `用 web_search 找 ${selected.name.en} 关于 FIRE/退休/旅居/数字游民的讨论帖、文章、博客（任何来源都可以）。\n\n返回 JSON 数组（2-6 个结果即可），每个对象：source（"reddit"/"blog"/"forum"/"news"/"other"），title（原标题），snippet（30 字中文简述），url（真实链接），date（如"2024"或"最近"，没有就空字符串），stats（如"thread"，没有就空字符串）。\n\n只输出 JSON。找到几个返回几个。`
+      : `Use web_search to find ANY threads, articles, or blogs about ${selected.name.en} FIRE/retire/expat/nomad living.\n\nReturn JSON array (2-6 results is fine), each: source ("reddit"/"blog"/"forum"/"news"/"other"), title, snippet (30 words), url (real), date (e.g. "2024" or "recent" or ""), stats ("thread" or "").\n\nJSON only. Return whatever you find.`;
 
     try {
       const res = await fetch("/api/chat", {
@@ -6452,15 +6452,18 @@ export default function App() {
                 xhs: {bg:"rgba(255,36,66,0.15)", color:"#ff708a", border:"rgba(255,36,66,0.3)"},
                 zhihu: {bg:"rgba(0,132,255,0.15)", color:"#4ba3ff", border:"rgba(0,132,255,0.3)"},
                 bogleheads: {bg:"rgba(125,211,168,0.15)", color:"#7dd3a8", border:"rgba(125,211,168,0.3)"},
+                blog: {bg:"rgba(212,175,55,0.12)", color:"#d4af37", border:"rgba(212,175,55,0.3)"},
+                forum: {bg:"rgba(180,140,210,0.15)", color:"#c8a8e0", border:"rgba(180,140,210,0.3)"},
+                news: {bg:"rgba(140,200,200,0.15)", color:"#a0d8d8", border:"rgba(140,200,200,0.3)"},
                 other: {bg:"rgba(168,165,159,0.15)", color:"#a8a59f", border:"rgba(168,165,159,0.3)"}
               };
               const sc = srcColors[thread.source] || srcColors.other;
-              const srcLabels = { reddit:"Reddit", xhs:"小红书", zhihu:"知乎", bogleheads:"Bogleheads", other:"Other" };
+              const srcLabels = { reddit:"Reddit", xhs:"小红书", zhihu:"知乎", bogleheads:"Bogleheads", blog:lang==="zh"?"博客":"Blog", forum:lang==="zh"?"论坛":"Forum", news:lang==="zh"?"新闻":"News", other:lang==="zh"?"其他":"Other" };
               return (
                 <div key={i} style={{ padding:"12px 0", borderBottom:"0.5px solid rgba(212,175,55,0.08)" }}>
                   <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
                     <span style={{ fontSize:9, padding:"2px 7px", borderRadius:8, fontWeight:500, background:sc.bg, color:sc.color, border:`0.5px solid ${sc.border}` }}>{srcLabels[thread.source] || thread.source}</span>
-                    <span style={{ fontSize:9, color:"#6b6864" }}>{thread.date}</span>
+                    {thread.date && <span style={{ fontSize:9, color:"#6b6864" }}>{thread.date}</span>}
                   </div>
                   <div style={{ fontSize:12, color:"#e8e6df", lineHeight:1.5, fontWeight:400, marginBottom:4 }}>
                     {thread.title}
@@ -6469,7 +6472,7 @@ export default function App() {
                     {thread.snippet}
                   </div>
                   <div style={{ display:"flex", gap:12, fontSize:9, color:"#6b6864", alignItems:"center" }}>
-                    <span>{thread.stats}</span>
+                    {thread.stats && <span>{thread.stats}</span>}
                     {thread.url && (
                       <a href={thread.url} target="_blank" rel="noopener noreferrer" style={{ color:"#d4af37", textDecoration:"none", marginLeft:"auto", fontSize:9, letterSpacing:1, textTransform:"uppercase" }}>
                         {t.community.openLink}
