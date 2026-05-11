@@ -11,7 +11,7 @@ const T = {
     tabs: ["成本", "签证", "医保", "安全", "社区"],
     sec: { tips: "省钱贴士", visa: "签证类型", health: "医疗体系", ins: "保险建议", safety: "安全状况", culture: "文化考量", community: "实时讨论攻略" },
     ai: { title: "AI 个性化分析", askBtn: "请 AI 个性化分析", loading: "分析中", placeholder: "继续问 AI...（Enter 发送）", send: "发送", you: "你", aiLabel: "AI 分析", aiFollow: "AI 跟进", err: "错误", net: "网络问题，请稍后重试" },
-    community: { refresh: "↻ 刷新", loading: "📡 正在搜索最新社区讨论...", noResults: "暂无结果，请刷新重试", hint: "最近 30 天 · AI 已汇总热门论坛最新讨论", openLink: "查看 ↗" },
+    community: { refresh: "↻ 刷新", loading: "📡 AI 正在搜索 Reddit/小红书/知乎... 约需 10-20 秒", noResults: "暂无结果，请刷新重试", hint: "最近 60 天 · AI 已汇总热门论坛最新讨论", openLink: "查看 ↗" },
     suggested: ["如果我想带家人一起来，签证怎么办？", "如果带宠物搬过去，要注意什么？", "比较这个城市和其他热门 FIRE 城市哪个更适合我？"],
     cost: { Monthly: "月均总计", Housing: "住宿", Food: "餐饮", Transit: "交通", Leisure: "娱乐", Health: "医保" },
     close: "✕",
@@ -25,7 +25,7 @@ const T = {
     tabs: ["Cost", "Visa", "Health", "Safety", "Community"],
     sec: { tips: "Insider Notes", visa: "Visa Types", health: "Healthcare", ins: "Insurance", safety: "Safety", culture: "Culture", community: "Live Discussions" },
     ai: { title: "AI Personal Analysis", askBtn: "Ask AI · Personal Analysis", loading: "Analyzing", placeholder: "Follow up with AI... (Enter)", send: "Send", you: "You", aiLabel: "AI Analysis", aiFollow: "AI Follow-up", err: "Error", net: "Network issue" },
-    community: { refresh: "↻ Refresh", loading: "📡 Searching latest community discussions...", noResults: "No results, try refresh", hint: "Last 30 days · AI-curated from popular forums", openLink: "View ↗" },
+    community: { refresh: "↻ Refresh", loading: "📡 AI searching Reddit/Xiaohongshu/Zhihu... 10-20s", noResults: "No results, try refresh", hint: "Last 60 days · AI-curated from popular forums", openLink: "View ↗" },
     suggested: ["What visa options exist for bringing my family?", "What should I know about relocating with pets?", "Compare this city with other popular FIRE destinations for me"],
     cost: { Monthly: "Monthly", Housing: "Housing", Food: "Food", Transit: "Transit", Leisure: "Leisure", Health: "Health" },
     close: "✕",
@@ -6122,6 +6122,7 @@ export default function App() {
   const [conversation, setConversation] = useState([]); // { role:"user"|"assistant", text }
   const [aiLoading, setAiLoading] = useState(false);
   const [followInput, setFollowInput] = useState("");
+  const [aiExpanded, setAiExpanded] = useState(true);
   const [communityData, setCommunityData] = useState(null);
   const [communityLoading, setCommunityLoading] = useState(false);
   const mapRef = useRef(null);
@@ -6248,25 +6249,19 @@ export default function App() {
     let prompt;
     if (!isFollowUp) {
       prompt = lang === "zh"
-        ? `你是 FIRE 财务独立提前退休专家。用户是 ${p.label} FIRE 类型（目标 ${t.fireRange[fireType]}），考虑在 ${selected.country.zh}·${selected.name.zh} 旅居。该城市对此类型适合度评级：${fitLabel}。月均生活成本 ${selected.costs[0].val}。\n\n请用中文提供约 200 字个性化分析，涵盖：1) 为什么是"${fitLabel}" 2) 签证建议 3) 医保策略 4) 常被忽略的实用提示。语气像有经验的旅居 FIRE 前辈。`
-        : `You're a FIRE expert. User is ${p.label} FIRE (target ${t.fireRange[fireType]}), considering living in ${selected.country.en}·${selected.name.en}. Compatibility rating: ${fitLabel}. Monthly cost ${selected.costs[0].val}.\n\nProvide ~200 words analysis in English: 1) Why "${fitLabel}" 2) Visa recommendation 3) Health insurance strategy 4) Often-overlooked practical tip. Tone: experienced FIRE peer.`;
+        ? `FIRE 专家。用户 ${p.label} FIRE（${t.fireRange[fireType]}），考虑 ${selected.name.zh}（${fitLabel}，月 ${selected.costs[0].val}）。\n\n用中文 120 字回答：1) 为何"${fitLabel}" 2) 签证建议 3) 实用提示。简洁有料。`
+        : `FIRE expert. User ${p.label} FIRE (${t.fireRange[fireType]}), considering ${selected.name.en} (${fitLabel}, ${selected.costs[0].val}/mo).\n\nIn 120 words English: 1) Why "${fitLabel}" 2) Visa tip 3) Practical insight. Concise.`;
     } else {
-      // Build messages from conversation history
-      const messages = [];
-      // first message: initial context
-      const initialContext = lang === "zh"
-        ? `用户在了解 ${selected.country.zh}·${selected.name.zh}（${p.label} FIRE 类型，月均 ${selected.costs[0].val}）。继续用中文回答用户后续问题。`
-        : `User is exploring ${selected.country.en}·${selected.name.en} (${p.label} FIRE, monthly ${selected.costs[0].val}). Continue in English.`;
-      messages.push({ role:"user", content: initialContext });
-      messages.push({ role:"assistant", content: conversation[0]?.text || "OK" });
-      for (let i = 1; i < newConv.length; i++) {
-        messages.push({ role: newConv[i].role, content: newConv[i].text });
-      }
+      // Compact context: only send latest user question + brief city context (not full history)
+      const lastUserMsg = newConv[newConv.length - 1].text;
+      const compactPrompt = lang === "zh"
+        ? `城市 ${selected.name.zh}（${p.label} FIRE，月 ${selected.costs[0].val}）。问题：${lastUserMsg}\n\n用中文 120 字内回答。`
+        : `City ${selected.name.en} (${p.label} FIRE, ${selected.costs[0].val}/mo). Q: ${lastUserMsg}\n\nAnswer in English, under 120 words.`;
 
       try {
         const res = await fetch("/api/chat", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages })
+          body: JSON.stringify({ prompt: compactPrompt })
         });
         const data = await res.json();
         if (!res.ok || !data.text) {
@@ -6314,24 +6309,33 @@ export default function App() {
       });
       const data = await res.json();
       if (!res.ok || !data.text) {
-        setCommunityData([]);
+        setCommunityData({ error: data?.error || "网络错误 / Network error", raw: "" });
       } else {
-        // Extract JSON from response
-        const text = data.text;
-        const jsonMatch = text.match(/\[[\s\S]*\]/);
-        if (jsonMatch) {
+        // Robust JSON extraction: handle markdown code fences, extra text
+        let text = data.text.trim();
+        // Strip ```json ... ``` or ``` ... ``` wrappers
+        text = text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "").trim();
+        // Find first [ and last ]
+        const start = text.indexOf("[");
+        const end = text.lastIndexOf("]");
+        if (start !== -1 && end !== -1 && end > start) {
+          const jsonStr = text.substring(start, end + 1);
           try {
-            const parsed = JSON.parse(jsonMatch[0]);
-            setCommunityData(parsed);
+            const parsed = JSON.parse(jsonStr);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setCommunityData(parsed);
+            } else {
+              setCommunityData({ error: "AI 返回了空数组", raw: data.text });
+            }
           } catch (e) {
-            setCommunityData([]);
+            setCommunityData({ error: "JSON 解析失败 / Parse failed", raw: data.text });
           }
         } else {
-          setCommunityData([]);
+          setCommunityData({ error: "AI 未返回 JSON 格式 / Not JSON", raw: data.text });
         }
       }
-    } catch {
-      setCommunityData([]);
+    } catch (err) {
+      setCommunityData({ error: "请求失败 / Request failed", raw: String(err) });
     }
     setCommunityLoading(false);
   }
@@ -6430,12 +6434,22 @@ export default function App() {
             {t.community.loading}
           </div>
         )}
-        {!communityLoading && communityData && communityData.length === 0 && (
-          <div style={{ fontSize:11, color:"#8a8884", fontWeight:300, padding:"20px 0" }}>
-            {t.community.noResults}
+        {!communityLoading && communityData && !Array.isArray(communityData) && communityData.error && (
+          <div style={{ padding:"16px 0" }}>
+            <div style={{ fontSize:11, color:"#c45c6e", marginBottom:10, fontWeight:400 }}>
+              ⚠ {communityData.error}
+            </div>
+            {communityData.raw && (
+              <details style={{ fontSize:10, color:"#6b6864", fontWeight:300 }}>
+                <summary style={{ cursor:"pointer", marginBottom:8 }}>查看 AI 原始回复 / Show raw response</summary>
+                <pre style={{ background:"rgba(212,175,55,0.04)", padding:"10px", borderRadius:2, fontSize:10, color:"#a8a59f", whiteSpace:"pre-wrap", maxHeight:200, overflow:"auto", fontFamily:"monospace" }}>
+                  {communityData.raw}
+                </pre>
+              </details>
+            )}
           </div>
         )}
-        {!communityLoading && communityData && communityData.length > 0 && (
+        {!communityLoading && Array.isArray(communityData) && communityData.length > 0 && (
           <>
             <div style={{ fontSize:10, color:"#6b6864", fontStyle:"italic", marginBottom:12, fontWeight:300 }}>
               {t.community.hint}
@@ -6628,10 +6642,15 @@ export default function App() {
               </div>
 
               {/* AI CHAT SECTION */}
-              <div style={{ padding:"14px 20px 16px", borderTop:"0.5px solid rgba(212,175,55,0.1)", flexShrink:0, background:"#0a0a0c" }}>
-                <div style={{ fontSize:9, letterSpacing:3, color:"#d4af37", textTransform:"uppercase", marginBottom:10, fontWeight:400, display:"flex", alignItems:"center", gap:8 }}>
+              <div style={{ padding:"14px 20px 16px", borderTop:"0.5px solid rgba(212,175,55,0.1)", flexShrink:0, background:"#0a0a0c", maxHeight: aiExpanded ? "45%" : "auto", overflowY: aiExpanded ? "auto" : "visible" }}>
+                <div style={{ fontSize:9, letterSpacing:3, color:"#d4af37", textTransform:"uppercase", marginBottom: aiExpanded ? 10 : 0, fontWeight:400, display:"flex", alignItems:"center", gap:8, cursor:"pointer" }} onClick={() => setAiExpanded(!aiExpanded)}>
                   <span>✦</span> {t.ai.title}
+                  <span style={{ marginLeft:"auto", fontSize:11, color:"#6b6864", fontWeight:300, letterSpacing:0 }}>
+                    {aiExpanded ? "▾" : "▸"}
+                  </span>
                 </div>
+
+                {aiExpanded && (<>
 
                 {/* Initial Ask button (only show if no conversation yet) */}
                 {conversation.length === 0 && !aiLoading && (
@@ -6654,7 +6673,7 @@ export default function App() {
 
                 {/* Conversation history */}
                 {conversation.length > 0 && (
-                  <div style={{ background:"rgba(212,175,55,0.04)", border:"0.5px solid rgba(212,175,55,0.15)", borderRadius:2, padding:"12px 14px", marginBottom:10, maxHeight:240, overflowY:"auto" }}>
+                  <div style={{ background:"rgba(212,175,55,0.04)", border:"0.5px solid rgba(212,175,55,0.15)", borderRadius:2, padding:"12px 14px", marginBottom:10, maxHeight:200, overflowY:"auto" }}>
                     {conversation.map((msg, i) => (
                       <div key={i} style={{ marginBottom:10, ...(msg.role==="user" ? { borderLeft:"1px solid rgba(212,175,55,0.3)", paddingLeft:10, color:"#8a8884", fontStyle:"italic" } : { color:"#c8c5bd" }) }}>
                         <div style={{ fontSize:8, letterSpacing:2, color:"#6b6864", textTransform:"uppercase", marginBottom:4, fontWeight:400 }}>
@@ -6709,6 +6728,8 @@ export default function App() {
                     }}>{t.ai.send}</button>
                   </div>
                 )}
+
+                </>)}
               </div>
             </div>
           )}

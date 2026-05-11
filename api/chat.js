@@ -15,14 +15,17 @@ export default async function handler(req, res) {
 
   const msgs = messages || [{ role: "user", content: prompt }];
 
+  // Reduced max_tokens to save quota
+  // AI personal analysis: 800 (was 2000) — 200-word answer needs ~400 tokens
+  // Community search: 1500 (web_search needs more for JSON output)
   const body = {
     model: "claude-sonnet-4-5",
-    max_tokens: 2000,
+    max_tokens: useWebSearch ? 1500 : 800,
     messages: msgs,
   };
 
   if (useWebSearch) {
-    body.tools = [{ type: "web_search_20250305", name: "web_search", max_uses: 5 }];
+    body.tools = [{ type: "web_search_20250305", name: "web_search", max_uses: 3 }];
   }
 
   try {
@@ -39,6 +42,12 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
+      // Friendlier error for rate limit
+      if (response.status === 429) {
+        return res.status(429).json({
+          error: "API 用量已达上限，请等 1 分钟再试 / Rate limit reached, please wait 1 minute"
+        });
+      }
       return res.status(500).json({
         error: `Anthropic error ${response.status}: ${data?.error?.message || JSON.stringify(data)}`
       });
