@@ -1,21 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 
-// ─── CITY DATA ────────────────────────────────────────────────────────────────
-// fit: how well each FIRE type suits this city
-// lean/regular/fat/barista/coast = "great" | "ok" | "poor"
-// monthlyMin: realistic minimum for each FIRE type in this city
+// ─── DATA: 30+ cities ───────────────────────────────────────────────────────
 const CITIES = [
-  {
-    id:"chiang_mai", name:"清迈", flag:"🇹🇭", country:"泰国", lat:18.79, lng:98.98,
-    sub:"东南亚FIRE族首选·数字游民天堂",
-    baseCost:900,
+  // ASIA
+  { id:"chiang_mai", name:"清迈", country:"泰国", region:"东南亚", lat:18.79, lng:98.98,
+    sub:"东南亚 FIRE 族首选 · 数字游民天堂",
     fit:{ lean:"great", regular:"great", fat:"ok", barista:"great", coast:"great" },
     fitNote:{
-      lean:"月均$900，完全在预算内，是全球Lean FIRE最佳目的地之一",
-      regular:"月均$900-1,400，Regular FIRE绰绰有余，可升级住宿和生活品质",
-      fat:"生活成本过低，Fat FIRE族资产闲置，建议新加坡/迪拜作为枢纽",
+      lean:"月均 $900，完全在预算内，全球 Lean FIRE 最佳目的地之一",
+      regular:"Regular FIRE 绰绰有余，可升级住宿和生活品质",
+      fat:"生活成本过低，资产闲置，建议配合新加坡作为枢纽",
       barista:"数字游民社区发达，半退休边工作边生活极理想",
-      coast:"被动收入$1,500/月即可舒适生活，Coast FIRE很容易覆盖"
+      coast:"$1,500/月被动收入即可舒适生活，Coast FIRE 很容易覆盖"
     },
     costs:[
       { label:"月均总计", val:"$900", src:"https://www.numbeo.com/cost-of-living/in/Chiang-Mai" },
@@ -23,49 +19,429 @@ const CITIES = [
       { label:"餐饮", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Chiang-Mai" },
       { label:"交通", val:"$80", src:"https://www.grab.com" },
       { label:"娱乐", val:"$150", src:"https://www.numbeo.com/cost-of-living/in/Chiang-Mai" },
-      { label:"医保估算", val:"$100", src:"https://safetywing.com" },
+      { label:"医保", val:"$100", src:"https://safetywing.com" },
     ],
     tips:[
-      { t:"本地市场食材便宜40-60%，自煮省更多", src:"https://www.numbeo.com/cost-of-living/in/Chiang-Mai" },
-      { t:"租摩托车$60-80/月，比Grab省一半", src:"https://www.expatistan.com/cost-of-living/chiang-mai" },
-      { t:"避开尼曼路，古城内找房省$100-150/月", src:"https://www.facebook.com/groups/chiangmaiexpats" },
+      { t:"本地市场食材便宜 40–60%，自煮省更多", src:"https://www.numbeo.com/cost-of-living/in/Chiang-Mai" },
+      { t:"租摩托车 $60–80/月，比 Grab 省一半", src:"https://www.expatistan.com/cost-of-living/chiang-mai" },
+      { t:"避开尼曼路，古城内找房省 $100–150/月", src:"https://www.facebook.com/groups/chiangmaiexpats" },
     ],
     visa:[
-      { t:"旅游签", d:"落地免签30天，可延至90天", cl:"green", l:"✓ 免签", src:"https://www.thaievisa.go.th" },
-      { t:"泰精英签", d:"一次性$15k-30k，可住5-20年，FIRE族长居首选", cl:"green", l:"✓ 长居首选", src:"https://www.thailandelite.com" },
-      { t:"LTR长期签", d:"年收入$80k或资产$250k+，10年有效", cl:"yellow", l:"⚠ 有门槛", src:"https://ltr.boi.go.th" },
+      { t:"旅游签", d:"落地免签 30 天，可延至 90 天", cl:"green", l:"✓ 免签", src:"https://www.thaievisa.go.th" },
+      { t:"泰精英签", d:"$15k–30k，可住 5–20 年，FIRE 长居首选", cl:"green", l:"✓ 长居首选", src:"https://www.thailandelite.com" },
+      { t:"LTR 长期签", d:"年收入 $80k 或资产 $250k+，10 年有效", cl:"yellow", l:"⚠ 有门槛", src:"https://ltr.boi.go.th" },
     ],
     health:[
-      { t:"Bangkok Hospital清迈院，国际私立，英语服务完善", src:"https://www.bangkokhospital.com/chiangmai" },
-      { t:"诊所看诊$20-50，比欧美便宜80%", src:"https://www.internationalinsurance.com/thailand/health-insurance.php" },
-      { t:"牙科/眼科性价比极高，医疗旅游热门目的地", src:"https://www.mdtourismthailand.org" },
+      { t:"Bangkok Hospital 国际私立，英语完善", src:"https://www.bangkokhospital.com/chiangmai" },
+      { t:"诊所看诊 $20–50，比欧美便宜 80%", src:"https://www.internationalinsurance.com/thailand/health-insurance.php" },
     ],
     ins:[
-      { t:"SafetyWing $45/月，全球覆盖，最受FIRE族欢迎", src:"https://safetywing.com/nomad-insurance" },
-      { t:"Cigna/Aetna $80-200/月，保障更全面", src:"https://www.cigna.com/international" },
-      { t:"退休签(OA)需投保：$2.4k门诊+$8.9k住院", src:"https://www.immigration.go.th" },
+      { t:"SafetyWing $45/月，全球覆盖", src:"https://safetywing.com/nomad-insurance" },
+      { t:"Cigna/Aetna $80–200/月，保障更全", src:"https://www.cigna.com/international" },
     ],
     safety:[
       { t:"泰国最安全城市，外国人犯罪目标极少", src:"https://www.numbeo.com/crime/in/Chiang-Mai" },
       { t:"主要风险：交通事故，务必戴安全帽", src:"https://www.who.int/thailand/news/detail/road-safety" },
     ],
     culture:[
-      { t:"入庙需脱鞋着装保守，对佛像保持尊重", src:"https://www.tourismthailand.org/Articles/etiquette-in-thailand" },
-      { t:"皇室话题绝对回避，冒犯君主罪可判入狱", src:"https://www.bbc.com/news/world-asia-29628191" },
-      { t:"清迈华人社区发达，中文餐馆/学校众多", src:"https://www.chiangmaiexpats.com" },
+      { t:"入庙脱鞋着装保守，对佛像保持尊重", src:"https://www.tourismthailand.org/Articles/etiquette-in-thailand" },
+      { t:"皇室话题绝对回避（冒犯君主罪严苛）", src:"https://www.bbc.com/news/world-asia-29628191" },
     ],
   },
-  {
-    id:"lisbon", name:"里斯本", flag:"🇵🇹", country:"葡萄牙", lat:38.72, lng:-9.14,
-    sub:"欧洲最具性价比·D7签证天堂",
-    baseCost:2000,
+  { id:"bangkok", name:"曼谷", country:"泰国", region:"东南亚", lat:13.75, lng:100.50,
+    sub:"国际都市 · 生活选择多元",
+    fit:{ lean:"ok", regular:"great", fat:"great", barista:"great", coast:"ok" },
+    fitNote:{
+      lean:"$1,400 接近上限，但可行，需选好区域",
+      regular:"Regular FIRE 理想都市选择，国际化资源丰富",
+      fat:"Fat FIRE 在曼谷可享受顶级生活，亚洲枢纽",
+      barista:"商业氛围浓，远程工作机会多",
+      coast:"$1,400/月被动收入勉强够，需谨慎规划"
+    },
+    costs:[
+      { label:"月均总计", val:"$1,400", src:"https://www.numbeo.com/cost-of-living/in/Bangkok" },
+      { label:"住宿", val:"$600", src:"https://www.numbeo.com/cost-of-living/in/Bangkok" },
+      { label:"餐饮", val:"$300", src:"https://www.numbeo.com/cost-of-living/in/Bangkok" },
+      { label:"交通", val:"$100", src:"https://www.bts.co.th" },
+      { label:"娱乐", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Bangkok" },
+      { label:"医保", val:"$120", src:"https://safetywing.com" },
+    ],
+    tips:[
+      { t:"BTS/MRT 月票 $35", src:"https://www.bts.co.th" },
+      { t:"Sukhumvit 区贵，Ari/Ladprao 性价比好", src:"https://nomadlist.com/bangkok" },
+    ],
+    visa:[
+      { t:"泰国全国签证", d:"旅游签/精英签/LTR 同清迈", cl:"green", l:"✓", src:"https://www.thailandelite.com" },
+    ],
+    health:[
+      { t:"Bumrungrad 国际医院，全亚洲最知名", src:"https://www.bumrungrad.com" },
+    ],
+    ins:[
+      { t:"Bupa Thailand $80–150/月", src:"https://www.bupa.co.th" },
+    ],
+    safety:[
+      { t:"交通拥堵是最大挑战，犯罪率低", src:"https://www.numbeo.com/crime/in/Bangkok" },
+    ],
+    culture:[
+      { t:"比清迈更国际化，英语普及", src:"https://www.tourismthailand.org" },
+    ],
+  },
+  { id:"ho_chi_minh", name:"胡志明市", country:"越南", region:"东南亚", lat:10.82, lng:106.63,
+    sub:"超低成本 · 活力年轻城市",
+    fit:{ lean:"great", regular:"great", fat:"ok", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"全球生活成本最低高品质旅居地之一",
+      regular:"Regular FIRE 在越南可过非常高品质的生活",
+      fat:"生活成本过低，但签证长期居留有限制",
+      barista:"咖啡馆文化浓厚，远程工作绝佳",
+      coast:"$700/月即可舒适生活，但需注意签证续签"
+    },
+    costs:[
+      { label:"月均总计", val:"$700", src:"https://www.numbeo.com/cost-of-living/in/Ho-Chi-Minh-City" },
+      { label:"住宿", val:"$250", src:"https://www.numbeo.com/cost-of-living/in/Ho-Chi-Minh-City" },
+      { label:"餐饮", val:"$150", src:"https://www.numbeo.com/cost-of-living/in/Ho-Chi-Minh-City" },
+      { label:"交通", val:"$60", src:"https://www.grab.com/vn" },
+      { label:"娱乐", val:"$120", src:"https://www.numbeo.com/cost-of-living/in/Ho-Chi-Minh-City" },
+      { label:"医保", val:"$80", src:"https://safetywing.com" },
+    ],
+    tips:[
+      { t:"街边越南粉 $1–2，咖啡 $0.5", src:"https://www.numbeo.com/cost-of-living/in/Ho-Chi-Minh-City" },
+      { t:"摩托车抢包风险，手机不要外露", src:"https://travel.state.gov" },
+    ],
+    visa:[
+      { t:"电子签证（E-Visa）", d:"90 天，境内可延", cl:"green", l:"✓ 方便", src:"https://www.evisa.gov.vn" },
+      { t:"无 FIRE 长期签", d:"长居有限制", cl:"red", l:"✗ 长居挑战", src:"https://vietnam.gov.vn" },
+    ],
+    health:[
+      { t:"FV Hospital/Vinmec 国际私立", src:"https://www.fvhospital.com" },
+    ],
+    ins:[
+      { t:"SafetyWing $45/月强烈推荐", src:"https://safetywing.com" },
+    ],
+    safety:[
+      { t:"摩托车密度极高，过马路需小心", src:"https://www.numbeo.com/crime/in/Ho-Chi-Minh-City" },
+    ],
+    culture:[
+      { t:"年轻一代英语进步飞速", src:"https://ef.com/epi" },
+    ],
+  },
+  { id:"hanoi", name:"河内", country:"越南", region:"东南亚", lat:21.03, lng:105.85,
+    sub:"千年古都 · 文化深度体验",
+    fit:{ lean:"great", regular:"great", fat:"ok", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"$650/月可舒适生活，全球最便宜首都之一",
+      regular:"Regular FIRE 可过奢华生活",
+      fat:"生活成本过低，但文化深度无可替代",
+      barista:"老城区咖啡馆远程工作绝佳",
+      coast:"成本极低，Coast FIRE 容易达成"
+    },
+    costs:[
+      { label:"月均总计", val:"$650", src:"https://www.numbeo.com/cost-of-living/in/Hanoi" },
+      { label:"住宿", val:"$220", src:"https://www.numbeo.com/cost-of-living/in/Hanoi" },
+      { label:"餐饮", val:"$140", src:"https://www.numbeo.com/cost-of-living/in/Hanoi" },
+      { label:"交通", val:"$50", src:"https://www.grab.com/vn" },
+      { label:"娱乐", val:"$100", src:"https://www.numbeo.com/cost-of-living/in/Hanoi" },
+      { label:"医保", val:"$80", src:"https://safetywing.com" },
+    ],
+    tips:[
+      { t:"老城区（Old Quarter）是文化心脏，但喧闹", src:"https://nomadlist.com/hanoi" },
+      { t:"湖区（Tay Ho）外国人聚集，更安静", src:"https://nomadlist.com/hanoi" },
+    ],
+    visa:[
+      { t:"电子签证 90 天", d:"境内可延", cl:"green", l:"✓", src:"https://www.evisa.gov.vn" },
+    ],
+    health:[
+      { t:"Vinmec 河内院国际水准", src:"https://vinmec.com" },
+    ],
+    ins:[
+      { t:"SafetyWing/国际医保必备", src:"https://safetywing.com" },
+    ],
+    safety:[
+      { t:"整体安全，扒手在景点存在", src:"https://www.numbeo.com/crime/in/Hanoi" },
+    ],
+    culture:[
+      { t:"千年文化，比胡志明市更传统", src:"https://whc.unesco.org" },
+    ],
+  },
+  { id:"bali", name:"巴厘岛", country:"印尼", region:"东南亚", lat:-8.41, lng:115.19,
+    sub:"数字游民天堂 · 灵性旅居地",
+    fit:{ lean:"great", regular:"great", fat:"ok", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"$1,000/月可过精彩生活，乌布/Canggu 选择多",
+      regular:"Regular FIRE 可享受顶级别墅生活",
+      fat:"成本过低，但海岛风情独特",
+      barista:"全球最大数字游民社区之一",
+      coast:"$1,000/月被动收入即可舒适旅居"
+    },
+    costs:[
+      { label:"月均总计", val:"$1,000", src:"https://www.numbeo.com/cost-of-living/in/Bali" },
+      { label:"住宿", val:"$400", src:"https://www.numbeo.com/cost-of-living/in/Bali" },
+      { label:"餐饮", val:"$220", src:"https://www.numbeo.com/cost-of-living/in/Bali" },
+      { label:"交通", val:"$70", src:"https://www.grab.com/id" },
+      { label:"娱乐", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Bali" },
+      { label:"医保", val:"$110", src:"https://safetywing.com" },
+    ],
+    tips:[
+      { t:"Canggu 数字游民聚集，乌布更灵性", src:"https://nomadlist.com/canggu" },
+      { t:"租摩托车 $50–80/月必需品", src:"https://www.balirentalmotorbike.com" },
+    ],
+    visa:[
+      { t:"B211A 旅游签", d:"60 天，可延 4 次至 180 天", cl:"green", l:"✓ 方便", src:"https://www.imigrasi.go.id" },
+      { t:"E33G 数字游民签", d:"1 年，需远程工作证明", cl:"yellow", l:"⚠ 需证明", src:"https://molina.imigrasi.go.id" },
+    ],
+    health:[
+      { t:"BIMC Hospital 库塔分院，外籍人士首选", src:"https://www.bimcbali.com" },
+    ],
+    ins:[
+      { t:"World Nomads/SafetyWing 必备", src:"https://www.worldnomads.com" },
+    ],
+    safety:[
+      { t:"整体安全，骑摩托需谨慎", src:"https://www.numbeo.com/crime/in/Denpasar" },
+    ],
+    culture:[
+      { t:"巴厘印度教文化深厚，仪式繁多", src:"https://www.indonesia.travel" },
+    ],
+  },
+  { id:"penang", name:"槟城", country:"马来西亚", region:"东南亚", lat:5.41, lng:100.33,
+    sub:"美食天堂 · MM2H 签证友好",
+    fit:{ lean:"great", regular:"great", fat:"ok", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"$1,000/月舒适生活，美食成本极低",
+      regular:"Regular FIRE 可过奢侈海岛生活",
+      fat:"生活成本偏低，但环境优美",
+      barista:"英语普及，远程工作便利",
+      coast:"MM2H 签证 + 低成本，Coast FIRE 极适合"
+    },
+    costs:[
+      { label:"月均总计", val:"$1,000", src:"https://www.numbeo.com/cost-of-living/in/Penang" },
+      { label:"住宿", val:"$400", src:"https://www.numbeo.com/cost-of-living/in/Penang" },
+      { label:"餐饮", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Penang" },
+      { label:"交通", val:"$80", src:"https://www.rapidkl.com.my" },
+      { label:"娱乐", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Penang" },
+      { label:"医保", val:"$120", src:"https://www.aia.com.my" },
+    ],
+    tips:[
+      { t:"美食世界级，街边小贩 $2–3 一餐", src:"https://www.cnn.com/travel/article/penang-best-food-cities/index.html" },
+      { t:"乔治市世界文化遗产，租房选择多", src:"https://whc.unesco.org/en/list/1223" },
+    ],
+    visa:[
+      { t:"MM2H 第二家园", d:"定存 50 万令吉（$11k），10 年居留", cl:"green", l:"✓ FIRE 首选", src:"https://www.mm2h.gov.my" },
+    ],
+    health:[
+      { t:"Gleneagles 槟城国际水准", src:"https://www.gleneagles.com.my/penang" },
+    ],
+    ins:[
+      { t:"AIA/Prudential $60–150/月", src:"https://www.aia.com.my" },
+    ],
+    safety:[
+      { t:"槟城整体非常安全", src:"https://www.numbeo.com/crime/in/George-Town-Penang-Malaysia" },
+    ],
+    culture:[
+      { t:"华人占多数，华语广东话通用", src:"https://www.tourism.gov.my" },
+    ],
+  },
+  { id:"manila", name:"马尼拉", country:"菲律宾", region:"东南亚", lat:14.60, lng:120.98,
+    sub:"英语通用 · 海岛跳板",
+    fit:{ lean:"great", regular:"great", fat:"ok", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"$1,000/月可舒适生活，英语零障碍",
+      regular:"Regular FIRE 可过非常体面的生活",
+      fat:"生活成本偏低",
+      barista:"英语普及，远程工作天堂",
+      coast:"成本低，被动收入容易覆盖"
+    },
+    costs:[
+      { label:"月均总计", val:"$1,000", src:"https://www.numbeo.com/cost-of-living/in/Manila" },
+      { label:"住宿", val:"$400", src:"https://www.numbeo.com/cost-of-living/in/Manila" },
+      { label:"餐饮", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Manila" },
+      { label:"交通", val:"$80", src:"https://www.grab.com/ph" },
+      { label:"娱乐", val:"$180", src:"https://www.numbeo.com/cost-of-living/in/Manila" },
+      { label:"医保", val:"$140", src:"https://safetywing.com" },
+    ],
+    tips:[
+      { t:"BGC 是外籍人士首选区域，最安全", src:"https://nomadlist.com/manila" },
+      { t:"7000+ 海岛，旅行成本极低", src:"https://www.philippines.travel" },
+    ],
+    visa:[
+      { t:"SRRV 退休签", d:"$10k–50k 存款，永久居留", cl:"green", l:"✓ 退休友好", src:"https://www.pra.gov.ph" },
+    ],
+    health:[
+      { t:"St. Luke's Medical Center 亚洲顶尖", src:"https://www.stlukes.com.ph" },
+    ],
+    ins:[
+      { t:"SafetyWing/Cigna $45–150/月", src:"https://safetywing.com" },
+    ],
+    safety:[
+      { t:"避开特定贫民区，BGC/Makati 安全", src:"https://www.numbeo.com/crime/in/Manila" },
+    ],
+    culture:[
+      { t:"英语官方语言之一，沟通无障碍", src:"https://ef.com/epi" },
+    ],
+  },
+  { id:"taipei", name:"台北", country:"台湾", region:"东南亚", lat:25.03, lng:121.57,
+    sub:"华语环境 · 全球最佳医保",
+    fit:{ lean:"ok", regular:"great", fat:"great", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"$1,500 接近上限，但医保极便宜可抵消",
+      regular:"Regular FIRE 完美选择，华语 + 顶级医疗",
+      fat:"Fat FIRE 在台北可过精致生活",
+      barista:"国际化都市，远程工作便利",
+      coast:"健保 $30–50/月 + 低成本，Coast FIRE 极佳"
+    },
+    costs:[
+      { label:"月均总计", val:"$1,500", src:"https://www.numbeo.com/cost-of-living/in/Taipei" },
+      { label:"住宿", val:"$600", src:"https://www.numbeo.com/cost-of-living/in/Taipei" },
+      { label:"餐饮", val:"$350", src:"https://www.numbeo.com/cost-of-living/in/Taipei" },
+      { label:"交通", val:"$80", src:"https://english.metro.taipei" },
+      { label:"娱乐", val:"$250", src:"https://www.numbeo.com/cost-of-living/in/Taipei" },
+      { label:"医保", val:"$50", src:"https://www.nhi.gov.tw" },
+    ],
+    tips:[
+      { t:"健保月费 $30–50，全球最划算", src:"https://www.nhi.gov.tw" },
+      { t:"夜市 $3–5 吃饱一餐", src:"https://www.taipeitravel.net" },
+    ],
+    visa:[
+      { t:"Gold Card 数字游民签", d:"专业人才，1–3 年含工作权", cl:"yellow", l:"⚠ 技能门槛", src:"https://goldcard.nat.gov.tw" },
+    ],
+    health:[
+      { t:"全民健保全球最佳之一，6 月后可加入", src:"https://www.nhi.gov.tw" },
+    ],
+    ins:[
+      { t:"健保为主，富邦/国泰补充 $30–80/月", src:"https://www.cathaylife.com.tw" },
+    ],
+    safety:[
+      { t:"亚洲最安全地区之一", src:"https://www.numbeo.com/crime/in/Taipei" },
+    ],
+    culture:[
+      { t:"华语主流，热情好客", src:"https://www.taiwan.gov.tw" },
+    ],
+  },
+  { id:"kuala_lumpur", name:"吉隆坡", country:"马来西亚", region:"东南亚", lat:3.14, lng:101.69,
+    sub:"英语通用 · MM2H 签证",
+    fit:{ lean:"ok", regular:"great", fat:"great", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"$1,200 接近上限，但英语通用降低适应成本",
+      regular:"Regular FIRE 极适合，MM2H 签证理想",
+      fat:"Fat FIRE 在吉隆坡可享受国际化便利",
+      barista:"英语普及 + 国际化，远程工作便利",
+      coast:"MM2H + 低成本，Coast FIRE 极适合"
+    },
+    costs:[
+      { label:"月均总计", val:"$1,200", src:"https://www.numbeo.com/cost-of-living/in/Kuala-Lumpur" },
+      { label:"住宿", val:"$450", src:"https://www.numbeo.com/cost-of-living/in/Kuala-Lumpur" },
+      { label:"餐饮", val:"$250", src:"https://www.numbeo.com/cost-of-living/in/Kuala-Lumpur" },
+      { label:"交通", val:"$100", src:"https://www.grab.com/my" },
+      { label:"娱乐", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Kuala-Lumpur" },
+      { label:"医保", val:"$120", src:"https://www.aia.com.my" },
+    ],
+    tips:[
+      { t:"MM2H 是 FIRE 长居最佳方案", src:"https://www.mm2h.gov.my" },
+      { t:"Grab 市区 $2–5/次", src:"https://www.grab.com/my" },
+    ],
+    visa:[
+      { t:"MM2H 第二家园", d:"定存 50 万令吉（$11k），10 年居留", cl:"green", l:"✓ FIRE 设计", src:"https://www.mm2h.gov.my" },
+      { t:"DE Rantau 数字游民签", d:"月收入 $2,400+", cl:"yellow", l:"⚠ 收入门槛", src:"https://mdec.my/derantau" },
+    ],
+    health:[
+      { t:"Gleneagles/Pantai 私立国际水准", src:"https://www.gleneagles.com.my" },
+    ],
+    ins:[
+      { t:"AIA/Prudential $60–150/月", src:"https://www.aia.com.my" },
+    ],
+    safety:[
+      { t:"整体安全，旅游区扒手注意", src:"https://www.numbeo.com/crime/in/Kuala-Lumpur" },
+    ],
+    culture:[
+      { t:"华人 23%，华语广东话通用", src:"https://www.tourism.gov.my" },
+    ],
+  },
+  { id:"singapore", name:"新加坡", country:"新加坡", region:"东南亚", lat:1.35, lng:103.82,
+    sub:"亚洲枢纽 · 顶级安全和医疗",
+    fit:{ lean:"poor", regular:"poor", fat:"great", barista:"ok", coast:"poor" },
+    fitNote:{
+      lean:"$3,000 远超 Lean 预算，完全不适合",
+      regular:"勉强可行，但生活质量受限",
+      fat:"Fat FIRE 亚洲首选，世界级一切",
+      barista:"成本高，需高收入兼职才可行",
+      coast:"被动收入需 $3,000+，挑战极大"
+    },
+    costs:[
+      { label:"月均总计", val:"$3,000", src:"https://www.numbeo.com/cost-of-living/in/Singapore" },
+      { label:"住宿", val:"$1,500", src:"https://www.numbeo.com/cost-of-living/in/Singapore" },
+      { label:"餐饮", val:"$500", src:"https://www.numbeo.com/cost-of-living/in/Singapore" },
+      { label:"交通", val:"$150", src:"https://www.smrt.com.sg" },
+      { label:"娱乐", val:"$400", src:"https://www.numbeo.com/cost-of-living/in/Singapore" },
+      { label:"医保", val:"$300", src:"https://www.moh.gov.sg" },
+    ],
+    tips:[
+      { t:"小贩中心 $3–5 吃饭，市区交通便利", src:"https://www.visitsingapore.com" },
+      { t:"组屋市场租金低于公寓 30%", src:"https://www.hdb.gov.sg" },
+    ],
+    visa:[
+      { t:"Global Investor Programme", d:"$2.5M 投资可获 PR", cl:"yellow", l:"⚠ 高门槛", src:"https://www.edb.gov.sg" },
+    ],
+    health:[
+      { t:"亚洲顶级医疗，世界排名前 5", src:"https://www.moh.gov.sg" },
+    ],
+    ins:[
+      { t:"国际医保 $200–500/月", src:"https://www.aia.com.sg" },
+    ],
+    safety:[
+      { t:"全球最安全国家之一", src:"https://www.numbeo.com/crime/in/Singapore" },
+    ],
+    culture:[
+      { t:"多元种族，英语为行政语言", src:"https://www.gov.sg" },
+    ],
+  },
+  { id:"osaka", name:"大阪", country:"日本", region:"东南亚", lat:34.69, lng:135.50,
+    sub:"文化深度 · 全球最安全",
+    fit:{ lean:"poor", regular:"ok", fat:"great", barista:"ok", coast:"poor" },
+    fitNote:{
+      lean:"$2,100 超出预算，且无 FIRE 签证",
+      regular:"勉强可行，但签证最大挑战",
+      fat:"Fat FIRE 文化体验地，需努力解决签证",
+      barista:"高度人才签需技能",
+      coast:"签证几乎无解，不推荐"
+    },
+    costs:[
+      { label:"月均总计", val:"$2,100", src:"https://www.numbeo.com/cost-of-living/in/Osaka" },
+      { label:"住宿", val:"$800", src:"https://www.numbeo.com/cost-of-living/in/Osaka" },
+      { label:"餐饮", val:"$500", src:"https://www.numbeo.com/cost-of-living/in/Osaka" },
+      { label:"交通", val:"$150", src:"https://www.osakametro.co.jp/en" },
+      { label:"娱乐", val:"$300", src:"https://www.numbeo.com/cost-of-living/in/Osaka" },
+      { label:"医保", val:"$200", src:"https://www.mhlw.go.jp" },
+    ],
+    tips:[
+      { t:"比东京便宜 30–40%，日本 FIRE 最佳选择", src:"https://www.numbeo.com/cost-of-living/compare_cities.jsp?country1=Japan&city1=Osaka&country2=Japan&city2=Tokyo" },
+    ],
+    visa:[
+      { t:"免签 90 天", d:"短期测试", cl:"green", l:"✓ 免签", src:"https://www.mofa.go.jp" },
+      { t:"无 FIRE 签", d:"无被动收入/退休签", cl:"red", l:"✗ 长居挑战", src:"https://www.immi-moj.go.jp" },
+    ],
+    health:[
+      { t:"国民健保 $100–200/月，居留 3 月可加入", src:"https://www.mhlw.go.jp" },
+    ],
+    ins:[
+      { t:"过渡期 SafetyWing $45/月", src:"https://safetywing.com" },
+    ],
+    safety:[
+      { t:"全球最安全国家之一", src:"https://www.numbeo.com/crime/in/Osaka" },
+    ],
+    culture:[
+      { t:"垃圾分类极严，公共安静", src:"https://www.jnto.go.jp" },
+    ],
+  },
+
+  // EUROPE
+  { id:"lisbon", name:"里斯本", country:"葡萄牙", region:"欧洲", lat:38.72, lng:-9.14,
+    sub:"欧洲性价比之王 · D7 签证天堂",
     fit:{ lean:"poor", regular:"great", fat:"ok", barista:"great", coast:"ok" },
     fitNote:{
-      lean:"月均$2,000超出Lean FIRE预算，生活需相当节俭，建议改考虑东欧或东南亚",
-      regular:"Regular FIRE最佳欧洲选择，D7签证专为被动收入设计，申根区自由行",
-      fat:"生活成本可接受，但Fat FIRE族可考虑瑞士/摩纳哥获得更高地位",
-      barista:"D8数字游民签+半退休收入，非常适合，欧洲生活质量高",
-      coast:"需要月被动收入$2,000+才能舒适生活，Coast FIRE需确认收入是否足够"
+      lean:"$2,000 超 Lean 预算，需节俭",
+      regular:"Regular FIRE 最佳欧洲选择，D7 签证为 FIRE 而生",
+      fat:"成本可接受，但 Fat FIRE 可考虑更高端",
+      barista:"D8 数字游民签 + 半退休理想",
+      coast:"被动收入 $2,000+ 才舒适"
     },
     costs:[
       { label:"月均总计", val:"$2,000", src:"https://www.numbeo.com/cost-of-living/in/Lisbon" },
@@ -73,96 +449,268 @@ const CITIES = [
       { label:"餐饮", val:"$400", src:"https://www.numbeo.com/cost-of-living/in/Lisbon" },
       { label:"交通", val:"$80", src:"https://www.carris.pt" },
       { label:"娱乐", val:"$350", src:"https://www.numbeo.com/cost-of-living/in/Lisbon" },
-      { label:"医保估算", val:"$200", src:"https://www.advancedcarept.com" },
+      { label:"医保", val:"$200", src:"https://www.advancedcarept.com" },
     ],
     tips:[
-      { t:"D7被动收入签专为FIRE族设计，月收入$1,100+即可申请", src:"https://www.sef.pt/en/pages/homepage.aspx" },
-      { t:"申根区居留，可自由往返26个欧洲国家", src:"https://ec.europa.eu/home-affairs/schengen-area_en" },
-      { t:"NHR税制前10年税务优惠，需专业税务顾问规划", src:"https://www.pwc.pt/en/fiscalidade/nhr.html" },
+      { t:"D7 签证月收入 $1,100+ 即可申请", src:"https://www.sef.pt" },
+      { t:"申根居留可自由往返 26 国", src:"https://ec.europa.eu/home-affairs/schengen-area_en" },
     ],
     visa:[
-      { t:"D7被动收入签", d:"月被动收入$1,100+，5年后可申请永居", cl:"green", l:"✓ FIRE首选", src:"https://www.sef.pt/en/pages/conteudo-detalhe.aspx?nID=100" },
-      { t:"D8数字游民签", d:"月收入$3,200+，Barista FIRE适用", cl:"yellow", l:"⚠ 收入门槛", src:"https://www.sef.pt" },
-      { t:"黄金签证", d:"投资50万欧元+基金，5年可永居", cl:"yellow", l:"⚠ 高资产门槛", src:"https://www.sef.pt/en/pages/conteudo-detalhe.aspx?nID=97" },
+      { t:"D7 被动收入签", d:"月被动收入 $1,100+", cl:"green", l:"✓ FIRE 首选", src:"https://www.sef.pt" },
+      { t:"D8 数字游民签", d:"月收入 $3,200+", cl:"yellow", l:"⚠ 收入门槛", src:"https://www.sef.pt" },
     ],
     health:[
-      { t:"SNS国家医疗系统注册后费用极低，D7签持有者可加入", src:"https://www.sns.gov.pt/en/" },
-      { t:"私立Luz Saude医院网络，英语服务完善", src:"https://www.luzsaude.pt/en/" },
-      { t:"欧盟成员国医疗水准，公立等待时间较长", src:"https://ec.europa.eu/health/state/glance_en" },
+      { t:"SNS 国家医疗 D7 后可加入，费用极低", src:"https://www.sns.gov.pt/en" },
     ],
     ins:[
-      { t:"SNS国家医疗（D7签注册后，费用极低）", src:"https://www.sns.gov.pt/en/" },
-      { t:"私立补充Médis/AdvanceCare $50-150/月", src:"https://www.medis.pt" },
-      { t:"申请签证前需购买全面旅行医保（最低3万欧元保额）", src:"https://www.sef.pt" },
+      { t:"私立 Médis $50–150/月", src:"https://www.medis.pt" },
     ],
     safety:[
-      { t:"全球和平指数前10名，欧洲最安全国家之一", src:"https://www.visionofhumanity.org/maps/#/" },
-      { t:"里斯本扒手问题较突出，28号电车/旅游景点尤其注意", src:"https://www.numbeo.com/crime/in/Lisbon" },
+      { t:"全球最和平国家前 10", src:"https://www.visionofhumanity.org" },
     ],
     culture:[
-      { t:"法多音乐文化深入人心，Alfama区周末可体验现场", src:"https://whc.unesco.org/en/list/1481" },
-      { t:"午餐是正餐，1-3pm多数本地餐厅营业，晚餐通常8pm后", src:"https://www.visitportugal.com" },
-      { t:"英语在年轻一代普及，旅游区服务人员英语通", src:"https://ef.com/epi" },
+      { t:"法多音乐 Alfama 区周末体验", src:"https://www.visitportugal.com" },
     ],
   },
-  {
-    id:"barcelona", name:"巴塞罗那", flag:"🇪🇸", country:"西班牙", lat:41.39, lng:2.16,
-    sub:"地中海生活·加泰文化之都",
-    baseCost:2400,
+  { id:"porto", name:"波尔图", country:"葡萄牙", region:"欧洲", lat:41.16, lng:-8.63,
+    sub:"葡萄酒之都 · 比里斯本便宜",
+    fit:{ lean:"ok", regular:"great", fat:"ok", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"$1,600 比里斯本便宜 20%，Lean 边缘",
+      regular:"Regular FIRE 极佳，欧洲最具性价比",
+      fat:"Fat FIRE 可过非常精致的生活",
+      barista:"D8 + 半退休理想",
+      coast:"$1,600 被动收入即可舒适"
+    },
+    costs:[
+      { label:"月均总计", val:"$1,600", src:"https://www.numbeo.com/cost-of-living/in/Porto" },
+      { label:"住宿", val:"$700", src:"https://www.idealista.pt" },
+      { label:"餐饮", val:"$320", src:"https://www.numbeo.com/cost-of-living/in/Porto" },
+      { label:"交通", val:"$60", src:"https://www.metrodoporto.pt" },
+      { label:"娱乐", val:"$280", src:"https://www.numbeo.com/cost-of-living/in/Porto" },
+      { label:"医保", val:"$170", src:"https://www.advancedcarept.com" },
+    ],
+    tips:[
+      { t:"波尔图比里斯本便宜 20%，生活品质相同", src:"https://www.numbeo.com/cost-of-living/compare_cities.jsp?country1=Portugal&city1=Porto&country2=Portugal&city2=Lisbon" },
+      { t:"葡萄酒、海鲜文化丰富", src:"https://www.visitportugal.com" },
+    ],
+    visa:[
+      { t:"D7 被动收入签", d:"同葡萄牙全国", cl:"green", l:"✓ FIRE 首选", src:"https://www.sef.pt" },
+    ],
+    health:[
+      { t:"SNS 国家医疗", src:"https://www.sns.gov.pt/en" },
+    ],
+    ins:[
+      { t:"私立医保 $50–150/月", src:"https://www.medis.pt" },
+    ],
+    safety:[
+      { t:"葡萄牙全国安全", src:"https://www.numbeo.com/crime/in/Porto" },
+    ],
+    culture:[
+      { t:"葡萄酒文化历史悠久", src:"https://www.visitportoandnorth.travel" },
+    ],
+  },
+  { id:"berlin", name:"柏林", country:"德国", region:"欧洲", lat:52.52, lng:13.40,
+    sub:"创意之都 · 自由开放氛围",
+    fit:{ lean:"poor", regular:"ok", fat:"great", barista:"great", coast:"poor" },
+    fitNote:{
+      lean:"$2,400 超 Lean 预算",
+      regular:"勉强可行，柏林相对其他德国城市便宜",
+      fat:"Fat FIRE 在柏林可享受顶级文化生活",
+      barista:"自由职业签 + 半退休理想",
+      coast:"被动收入需 $2,400+，挑战大"
+    },
+    costs:[
+      { label:"月均总计", val:"$2,400", src:"https://www.numbeo.com/cost-of-living/in/Berlin" },
+      { label:"住宿", val:"$1,100", src:"https://www.numbeo.com/cost-of-living/in/Berlin" },
+      { label:"餐饮", val:"$500", src:"https://www.numbeo.com/cost-of-living/in/Berlin" },
+      { label:"交通", val:"$100", src:"https://www.bvg.de" },
+      { label:"娱乐", val:"$400", src:"https://www.numbeo.com/cost-of-living/in/Berlin" },
+      { label:"医保", val:"$300", src:"https://www.tk.de" },
+    ],
+    tips:[
+      { t:"自由职业签（Freiberufler）适合 FIRE", src:"https://service.berlin.de" },
+      { t:"租房市场极紧张，提前规划", src:"https://www.immobilienscout24.de" },
+    ],
+    visa:[
+      { t:"自由职业签", d:"需证明收入和客户", cl:"yellow", l:"⚠ 复杂", src:"https://service.berlin.de" },
+    ],
+    health:[
+      { t:"公立 + 私立医保选择", src:"https://www.bundesgesundheitsministerium.de" },
+    ],
+    ins:[
+      { t:"TK 公立 $200–400/月", src:"https://www.tk.de" },
+    ],
+    safety:[
+      { t:"整体安全，部分区域夜间注意", src:"https://www.numbeo.com/crime/in/Berlin" },
+    ],
+    culture:[
+      { t:"创意文化、夜生活、艺术之都", src:"https://www.visitberlin.de" },
+    ],
+  },
+  { id:"amsterdam", name:"阿姆斯特丹", country:"荷兰", region:"欧洲", lat:52.37, lng:4.90,
+    sub:"运河之城 · 国际化高质量",
+    fit:{ lean:"poor", regular:"poor", fat:"great", barista:"ok", coast:"poor" },
+    fitNote:{
+      lean:"成本远超预算",
+      regular:"Regular 也偏紧，住房成本极高",
+      fat:"Fat FIRE 可享欧洲精致生活",
+      barista:"DAFT 创业签可行",
+      coast:"被动收入压力大"
+    },
+    costs:[
+      { label:"月均总计", val:"$3,200", src:"https://www.numbeo.com/cost-of-living/in/Amsterdam" },
+      { label:"住宿", val:"$1,800", src:"https://www.pararius.com" },
+      { label:"餐饮", val:"$600", src:"https://www.numbeo.com/cost-of-living/in/Amsterdam" },
+      { label:"交通", val:"$120", src:"https://www.gvb.nl" },
+      { label:"娱乐", val:"$450", src:"https://www.numbeo.com/cost-of-living/in/Amsterdam" },
+      { label:"医保", val:"$250", src:"https://www.zorgwijzer.nl" },
+    ],
+    tips:[
+      { t:"DAFT 美荷友好条约创业签 $4,500 投资", src:"https://ind.nl/en" },
+      { t:"自行车文化，无需汽车", src:"https://www.iamsterdam.com" },
+    ],
+    visa:[
+      { t:"DAFT 美籍创业签", d:"$4,500 商业投资", cl:"yellow", l:"⚠ 仅美籍", src:"https://ind.nl/en" },
+    ],
+    health:[
+      { t:"强制基础医保约 $150/月", src:"https://www.government.nl/topics/health-insurance" },
+    ],
+    ins:[
+      { t:"基础医保 + 补充 $50/月", src:"https://www.zorgwijzer.nl" },
+    ],
+    safety:[
+      { t:"非常安全，自行车小偷常见", src:"https://www.numbeo.com/crime/in/Amsterdam" },
+    ],
+    culture:[
+      { t:"英语普及度全欧最高", src:"https://ef.com/epi" },
+    ],
+  },
+  { id:"barcelona", name:"巴塞罗那", country:"西班牙", region:"欧洲", lat:41.39, lng:2.16,
+    sub:"地中海生活 · 加泰文化",
     fit:{ lean:"poor", regular:"ok", fat:"great", barista:"ok", coast:"poor" },
     fitNote:{
-      lean:"月均$2,400远超Lean FIRE预算，不推荐",
-      regular:"勉强可行，非盈利签需月收入$2,800+，生活需较节俭",
-      fat:"Fat FIRE理想欧洲生活地，地中海气候+文化+美食+海滩",
-      barista:"西班牙数字游民签+半退休收入，生活质量极高",
-      coast:"被动收入需超过$2,400才够，Coast FIRE挑战较大"
+      lean:"远超预算",
+      regular:"勉强可行，非盈利签需月 $2,800+",
+      fat:"Fat FIRE 理想欧洲选择",
+      barista:"数字游民签可行",
+      coast:"被动收入需 $2,400+"
     },
     costs:[
       { label:"月均总计", val:"$2,400", src:"https://www.numbeo.com/cost-of-living/in/Barcelona" },
-      { label:"住宿", val:"$1,200", src:"https://www.idealista.com/en/news/residential-rental-spain/barcelona" },
+      { label:"住宿", val:"$1,200", src:"https://www.idealista.com" },
       { label:"餐饮", val:"$500", src:"https://www.numbeo.com/cost-of-living/in/Barcelona" },
       { label:"交通", val:"$100", src:"https://www.tmb.cat" },
       { label:"娱乐", val:"$350", src:"https://www.numbeo.com/cost-of-living/in/Barcelona" },
-      { label:"医保估算", val:"$200", src:"https://www.sanitas.es" },
+      { label:"医保", val:"$200", src:"https://www.sanitas.es" },
     ],
     tips:[
-      { t:"非盈利活动签（Non-Lucrative）需证明月收入$2,800+", src:"https://www.exteriores.gob.es/Consulados/MIAMI/en/ServiciosConsulares/Pages/index.aspx?scco=Estados+Unidos&scd=14&scca=Visas&scs=Non-lucrative+Residence+Visa" },
-      { t:"比马德里生活成本高约20%，但海滩文化值得", src:"https://www.numbeo.com/cost-of-living/compare_cities.jsp?country1=Spain&city1=Barcelona&country2=Spain&city2=Madrid" },
-      { t:"2024年严格管控旅游公寓，找房需提前规划", src:"https://www.barcelona.cat/habitatge" },
+      { t:"非盈利签需月收入 $2,800+", src:"https://www.exteriores.gob.es" },
+      { t:"加泰语 + 西班牙语双语", src:"https://www.barcelona.cat/en" },
     ],
     visa:[
-      { t:"非盈利活动签", d:"月$2,800+，每年续签，5年后永居", cl:"green", l:"✓ FIRE主要路径", src:"https://www.exteriores.gob.es" },
-      { t:"数字游民签DNV", d:"2023年新推，月$2,600+，1年可续", cl:"yellow", l:"⚠ 需收入证明", src:"https://www.interior.gob.es/opencms/es/prensa/notas-de-prensa/2023/05/1213_notaprensa.html" },
-      { t:"黄金签证", d:"2024年巴塞罗那已停止新申请", cl:"red", l:"✗ 已停止", src:"https://www.boe.es/diario_boe/txt.php?id=BOE-A-2024-3996" },
+      { t:"非盈利活动签", d:"月 $2,800+，5 年永居", cl:"green", l:"✓ FIRE 路径", src:"https://www.exteriores.gob.es" },
+      { t:"数字游民签 DNV", d:"月 $2,600+", cl:"yellow", l:"⚠ 需证明", src:"https://www.interior.gob.es" },
     ],
     health:[
-      { t:"SNS国家医疗系统，非盈利签持有者通常可加入", src:"https://www.sanidad.gob.es/en/home.htm" },
-      { t:"私立Sanitas/Quironsalud英语服务完善", src:"https://www.sanitas.es/sanitas/seguros/es/particulares/index.html" },
+      { t:"SNS 加入后几乎免费", src:"https://www.sanidad.gob.es" },
     ],
     ins:[
-      { t:"Sanitas/DKV私立保险 $80-150/月", src:"https://www.sanitas.es" },
-      { t:"申请Non-Lucrative签时需提供私人医保证明", src:"https://www.exteriores.gob.es" },
+      { t:"Sanitas/DKV $80–150/月", src:"https://www.sanitas.es" },
     ],
     safety:[
-      { t:"扒手问题全欧最严重之一，兰布拉大道/地铁需特别注意", src:"https://www.numbeo.com/crime/in/Barcelona" },
-      { t:"整体人身安全良好，暴力犯罪少", src:"https://www.osac.gov/Country/Spain/Content/Detail/Report/47c8c8b8" },
+      { t:"扒手问题严重，景点小心", src:"https://www.numbeo.com/crime/in/Barcelona" },
     ],
     culture:[
-      { t:"西班牙语+加泰语双语城市，英语在旅游区通用", src:"https://www.barcelona.cat/en/" },
-      { t:"晚餐8-11pm才是正常时间，南欧生活节奏慢", src:"https://www.spain.info/en/culture/" },
+      { t:"晚餐 8–11pm，南欧节奏", src:"https://www.barcelona.cat/en" },
     ],
   },
-  {
-    id:"tbilisi", name:"第比利斯", flag:"🇬🇪", country:"格鲁吉亚", lat:41.69, lng:44.83,
-    sub:"365天免签·极低税率新兴热点",
-    baseCost:900,
+  { id:"madrid", name:"马德里", country:"西班牙", region:"欧洲", lat:40.42, lng:-3.70,
+    sub:"西班牙首都 · 文化艺术中心",
+    fit:{ lean:"poor", regular:"ok", fat:"great", barista:"ok", coast:"poor" },
+    fitNote:{
+      lean:"成本超预算",
+      regular:"勉强可行，比巴塞便宜",
+      fat:"Fat FIRE 可享精致都市生活",
+      barista:"数字游民签可行",
+      coast:"被动收入压力中等"
+    },
+    costs:[
+      { label:"月均总计", val:"$2,000", src:"https://www.numbeo.com/cost-of-living/in/Madrid" },
+      { label:"住宿", val:"$1,000", src:"https://www.idealista.com" },
+      { label:"餐饮", val:"$450", src:"https://www.numbeo.com/cost-of-living/in/Madrid" },
+      { label:"交通", val:"$80", src:"https://www.crtm.es" },
+      { label:"娱乐", val:"$300", src:"https://www.numbeo.com/cost-of-living/in/Madrid" },
+      { label:"医保", val:"$170", src:"https://www.sanitas.es" },
+    ],
+    tips:[
+      { t:"普拉多博物馆每天 6–8pm 免费", src:"https://www.museodelprado.es" },
+      { t:"晚餐文化极晚，10pm 才正常", src:"https://www.spain.info" },
+    ],
+    visa:[
+      { t:"非盈利签 / 数字游民签", d:"同西班牙全国", cl:"green", l:"✓", src:"https://www.exteriores.gob.es" },
+    ],
+    health:[
+      { t:"SNS 公立医疗", src:"https://www.sanidad.gob.es" },
+    ],
+    ins:[
+      { t:"私立 $80–150/月", src:"https://www.sanitas.es" },
+    ],
+    safety:[
+      { t:"比巴塞罗那安全", src:"https://www.numbeo.com/crime/in/Madrid" },
+    ],
+    culture:[
+      { t:"皇家马德里、博物馆三角", src:"https://www.esmadrid.com" },
+    ],
+  },
+  { id:"valletta", name:"瓦莱塔", country:"马耳他", region:"欧洲", lat:35.90, lng:14.51,
+    sub:"地中海岛国 · 英语官方语言",
+    fit:{ lean:"ok", regular:"great", fat:"great", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"$1,800 边缘可行，英语零障碍",
+      regular:"Regular FIRE 极适合，欧盟身份",
+      fat:"Fat FIRE 海岛精致生活",
+      barista:"游民签 + 半退休理想",
+      coast:"$1,800 被动收入即可"
+    },
+    costs:[
+      { label:"月均总计", val:"$1,800", src:"https://www.numbeo.com/cost-of-living/in/Valletta" },
+      { label:"住宿", val:"$800", src:"https://www.maltapark.com" },
+      { label:"餐饮", val:"$400", src:"https://www.numbeo.com/cost-of-living/in/Valletta" },
+      { label:"交通", val:"$80", src:"https://www.publictransport.com.mt" },
+      { label:"娱乐", val:"$280", src:"https://www.numbeo.com/cost-of-living/in/Valletta" },
+      { label:"医保", val:"$240", src:"https://www.gov.mt/en/Services-And-Information/Health" },
+    ],
+    tips:[
+      { t:"英语官方语言之一，零适应成本", src:"https://www.gov.mt" },
+      { t:"游民签 Nomad Residence 月 $2,700+", src:"https://nomad.residencymalta.gov.mt" },
+    ],
+    visa:[
+      { t:"游民居留签 Nomad", d:"月收入 $2,700+", cl:"yellow", l:"⚠ 需证明", src:"https://nomad.residencymalta.gov.mt" },
+      { t:"退休签 MRP", d:"年金证明", cl:"green", l:"✓ 退休友好", src:"https://www.cfr.gov.mt" },
+    ],
+    health:[
+      { t:"公立医保完善，欧盟标准", src:"https://www.gov.mt/en/Services-And-Information/Health" },
+    ],
+    ins:[
+      { t:"国际医保 $100–200/月", src:"https://www.aviva.com" },
+    ],
+    safety:[
+      { t:"全球最安全岛国之一", src:"https://www.numbeo.com/crime/in/Valletta" },
+    ],
+    culture:[
+      { t:"地中海文化 + 英国遗产", src:"https://www.visitmalta.com" },
+    ],
+  },
+  { id:"tbilisi", name:"第比利斯", country:"格鲁吉亚", region:"欧洲", lat:41.69, lng:44.83,
+    sub:"365 天免签 · 极低税率",
     fit:{ lean:"great", regular:"great", fat:"ok", barista:"great", coast:"great" },
     fitNote:{
-      lean:"月均$900，完全适合Lean FIRE，365天免签无签证压力",
-      regular:"生活成本低，Regular FIRE预算绰绰有余，可过高品质生活",
-      fat:"生活成本过低，资产未充分利用，但税务优化（20%个人税）对Fat FIRE很有价值",
-      barista:"365天免签+低税率，半退休工作无需担心签证",
-      coast:"$1,000/月被动收入即可舒适生活，Coast FIRE非常适合"
+      lean:"$900/月完美适合，365 天免签零压力",
+      regular:"绰绰有余，可过高品质生活",
+      fat:"成本过低，但税务优化（20%）有价值",
+      barista:"365 天免签 + 低税，半退休天堂",
+      coast:"$1,000 被动收入即舒适，永久免签"
     },
     costs:[
       { label:"月均总计", val:"$900", src:"https://www.numbeo.com/cost-of-living/in/Tbilisi" },
@@ -170,229 +718,115 @@ const CITIES = [
       { label:"餐饮", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Tbilisi" },
       { label:"交通", val:"$50", src:"https://ttc.com.ge/en" },
       { label:"娱乐", val:"$150", src:"https://www.numbeo.com/cost-of-living/in/Tbilisi" },
-      { label:"医保估算", val:"$100", src:"https://safetywing.com" },
+      { label:"医保", val:"$100", src:"https://safetywing.com" },
     ],
     tips:[
-      { t:"大多数国家公民365天无签居留，全球最宽松之一", src:"https://migration.gov.ge/en/visa-free-countries" },
-      { t:"个人所得税仅20%，小企业利润税1%，税务极友好", src:"https://rs.ge/en" },
-      { t:"第比利斯快速成为数字游民新热点，co-working发达", src:"https://nomadlist.com/tbilisi" },
+      { t:"365 天免签，全球最宽松之一", src:"https://migration.gov.ge/en/visa-free-countries" },
+      { t:"个人税 20%，小企业 1%", src:"https://rs.ge/en" },
     ],
     visa:[
-      { t:"365天免签", d:"美/欧/加等大多数国家公民无需签证", cl:"green", l:"✓ 全球最宽松之一", src:"https://migration.gov.ge/en/visa-free-countries" },
-      { t:"临时居留许可", d:"需有经济活动证明，可申请1-6年", cl:"yellow", l:"⚠ 需经济证明", src:"https://migration.gov.ge" },
+      { t:"365 天免签", d:"美/欧/加等国免签", cl:"green", l:"✓ 全球最宽松", src:"https://migration.gov.ge/en/visa-free-countries" },
     ],
     health:[
-      { t:"格鲁吉亚医疗仍在发展中，主要城市有可接受的私立医院", src:"https://www.who.int/georgia" },
-      { t:"复杂手术建议转土耳其/德国，医疗撤离险必备", src:"https://safetywing.com" },
+      { t:"医疗仍在发展，复杂手术建议土耳其", src:"https://www.who.int/georgia" },
     ],
     ins:[
-      { t:"SafetyWing $45/月，在格鲁吉亚不可或缺", src:"https://safetywing.com/nomad-insurance" },
-      { t:"强烈建议购买含医疗撤离的保险方案", src:"https://www.cigna.com/international" },
+      { t:"SafetyWing $45/月必备", src:"https://safetywing.com" },
     ],
     safety:[
-      { t:"整体安全，外国人普遍感觉安全，街头犯罪少", src:"https://www.numbeo.com/crime/in/Tbilisi" },
-      { t:"阿布哈兹/南奥塞梯边境地区避免前往", src:"https://travel.state.gov/content/travel/en/international-travel/International-Travel-Country-Information-Pages/Georgia.html" },
+      { t:"整体安全，避免阿布哈兹边境", src:"https://travel.state.gov" },
     ],
     culture:[
-      { t:"热情好客，Tamada祝酒词传统让宴会充满仪式感", src:"https://whc.unesco.org/en/list/1916" },
-      { t:"格鲁吉亚是世界上最古老的葡萄酒产地，酒文化是重要社交仪式", src:"https://www.atlasobscura.com/articles/georgia-wine-history" },
+      { t:"葡萄酒发源地，热情好客", src:"https://georgia.travel" },
     ],
   },
-  {
-    id:"budapest", name:"布达佩斯", flag:"🇭🇺", country:"匈牙利", lat:47.50, lng:19.05,
-    sub:"多瑙河畔·中欧最具性价比城市",
-    baseCost:1500,
+  { id:"budapest", name:"布达佩斯", country:"匈牙利", region:"欧洲", lat:47.50, lng:19.05,
+    sub:"多瑙河之都 · 中欧性价比",
     fit:{ lean:"ok", regular:"great", fat:"ok", barista:"great", coast:"ok" },
     fitNote:{
-      lean:"$1,500接近Lean FIRE上限，需节俭，但欧洲文化体验无价",
-      regular:"Regular FIRE非常合适，比西欧便宜30-40%，欧盟生活质量",
-      fat:"生活成本偏低，Fat FIRE族可过非常舒适的生活，但签证较难",
-      barista:"中欧商业氛围好，半退休+当地兼职可行",
-      coast:"$1,500/月被动收入刚好覆盖，Coast FIRE可行但较紧张"
+      lean:"$1,500 接近上限",
+      regular:"Regular FIRE 中欧最佳选择",
+      fat:"成本偏低，但签证有限",
+      barista:"中欧商业氛围好",
+      coast:"$1,500 被动收入勉强够"
     },
     costs:[
       { label:"月均总计", val:"$1,500", src:"https://www.numbeo.com/cost-of-living/in/Budapest" },
       { label:"住宿", val:"$650", src:"https://www.ingatlan.com" },
       { label:"餐饮", val:"$320", src:"https://www.numbeo.com/cost-of-living/in/Budapest" },
-      { label:"交通", val:"$70", src:"https://bkk.hu/en/" },
+      { label:"交通", val:"$70", src:"https://bkk.hu/en" },
       { label:"娱乐", val:"$280", src:"https://www.numbeo.com/cost-of-living/in/Budapest" },
-      { label:"医保估算", val:"$160", src:"https://www.cigna.com/international" },
+      { label:"医保", val:"$180", src:"https://www.medicover.hu" },
     ],
     tips:[
-      { t:"比西欧便宜30-40%，文化资源（博物馆/歌剧院）极丰富", src:"https://www.numbeo.com/cost-of-living/compare_cities.jsp?country1=Hungary&city1=Budapest&country2=Austria&city2=Vienna" },
-      { t:"GRSP计划投资$250k匈牙利基金可获10年居留许可", src:"https://www.gov.hu/en/news/2023-11-01-the-guest-investor-program" },
-      { t:"温泉浴场文化独特，塞切尼/盖勒特浴场月票约$30", src:"https://www.szechenyibath.com" },
+      { t:"温泉浴场是日常消遣", src:"https://www.szechenyibath.com" },
     ],
     visa:[
-      { t:"申根免签90天", d:"欧盟外公民180天内可免签90天", cl:"green", l:"✓ 短期免签", src:"https://ec.europa.eu/home-affairs/schengen-area_en" },
-      { t:"GRSP客户居留签", d:"投资$250k匈牙利房地产基金，10年居留", cl:"yellow", l:"⚠ 投资门槛", src:"https://www.gov.hu/en" },
+      { t:"申根免签 90 天", d:"短期测试", cl:"green", l:"✓", src:"https://ec.europa.eu" },
+      { t:"GRSP 居留签", d:"投资 $250k 基金，10 年", cl:"yellow", l:"⚠ 投资门槛", src:"https://www.gov.hu" },
     ],
     health:[
-      { t:"私立Duna Medical/Medicover英语服务完善，看诊$30-60", src:"https://www.medicover.hu/en" },
-      { t:"公立医疗可用但设施较老，英语有限", src:"https://www.who.int/hungary" },
+      { t:"私立 Medicover 英语完善", src:"https://www.medicover.hu" },
     ],
     ins:[
-      { t:"Cigna/AXA国际医保约$80-150/月", src:"https://www.cigna.com/international" },
-      { t:"Medicover私立补充保险$50-100/月", src:"https://www.medicover.hu/en" },
+      { t:"Cigna/AXA $80–150/月", src:"https://www.cigna.com" },
     ],
     safety:[
-      { t:"整体安全，扒手主要在旅游区和地铁，注意财物", src:"https://www.numbeo.com/crime/in/Budapest" },
+      { t:"整体安全", src:"https://www.numbeo.com/crime/in/Budapest" },
     ],
     culture:[
-      { t:"匈牙利语与欧洲其他语言无关联，英语在年轻人中普及", src:"https://ef.com/epi" },
-      { t:"温泉浴场是日常消遣，不只是旅游景点，当地人每周常去", src:"https://www.szechenyibath.com" },
+      { t:"匈牙利语极难，年轻人英语普及", src:"https://ef.com/epi" },
     ],
   },
-  {
-    id:"osaka", name:"大阪", flag:"🇯🇵", country:"日本", lat:34.69, lng:135.50,
-    sub:"文化深度体验·全球最安全城市",
-    baseCost:2100,
-    fit:{ lean:"poor", regular:"ok", fat:"great", barista:"ok", coast:"poor" },
+  { id:"prague", name:"布拉格", country:"捷克", region:"欧洲", lat:50.08, lng:14.44,
+    sub:"百塔之城 · 中欧文化中心",
+    fit:{ lean:"ok", regular:"great", fat:"ok", barista:"great", coast:"ok" },
     fitNote:{
-      lean:"月均$2,100超出预算，且无专属FIRE签证，Lean FIRE不推荐",
-      regular:"可行但签证是最大挑战，无被动收入/退休签，需持续解决居留问题",
-      fat:"Fat FIRE理想亚洲文化体验地，安全/医疗/文化无与伦比，签证需努力解决",
-      barista:"高度人才签可行，适合有专业技能的Barista FIRE族",
-      coast:"签证问题几乎无解，Coast FIRE不推荐"
+      lean:"$1,700 边缘可行",
+      regular:"Regular FIRE 中欧最佳选择之一",
+      fat:"成本偏低",
+      barista:"自由职业签 + 半退休理想",
+      coast:"被动收入需 $1,700+"
     },
     costs:[
-      { label:"月均总计", val:"$2,100", src:"https://www.numbeo.com/cost-of-living/in/Osaka" },
-      { label:"住宿", val:"$800", src:"https://www.suumo.jp" },
-      { label:"餐饮", val:"$500", src:"https://www.numbeo.com/cost-of-living/in/Osaka" },
-      { label:"交通", val:"$150", src:"https://www.osakametro.co.jp/en" },
-      { label:"娱乐", val:"$300", src:"https://www.numbeo.com/cost-of-living/in/Osaka" },
-      { label:"医保估算", val:"$200", src:"https://www.mhlw.go.jp/english" },
+      { label:"月均总计", val:"$1,700", src:"https://www.numbeo.com/cost-of-living/in/Prague" },
+      { label:"住宿", val:"$800", src:"https://www.sreality.cz" },
+      { label:"餐饮", val:"$350", src:"https://www.numbeo.com/cost-of-living/in/Prague" },
+      { label:"交通", val:"$50", src:"https://www.dpp.cz/en" },
+      { label:"娱乐", val:"$300", src:"https://www.numbeo.com/cost-of-living/in/Prague" },
+      { label:"医保", val:"$200", src:"https://www.vzp.cz" },
     ],
     tips:[
-      { t:"大阪比东京便宜30-40%，是日本FIRE族最佳选择", src:"https://www.numbeo.com/cost-of-living/compare_cities.jsp?country1=Japan&city1=Osaka&country2=Japan&city2=Tokyo" },
-      { t:"ICOCA交通卡自动享受折扣票价，大幅节省出行费", src:"https://www.westjr.co.jp/global/en/ticket/icoca" },
-      { t:"超市接近打烊时折扣熟食可省30-50%食物支出", src:"https://www.japantimes.co.jp/life/2019/02/03/food/discount-supermarket-shopping-japan" },
+      { t:"Zivnostensky list 自由职业签易获得", src:"https://www.mvcr.cz/mvcren" },
+      { t:"啤酒比水便宜（真的）", src:"https://www.czechtourism.com" },
     ],
     visa:[
-      { t:"免签90天", d:"大多数国家适用，适合短期测试", cl:"green", l:"✓ 免签", src:"https://www.mofa.go.jp/j_info/visit/visa" },
-      { t:"高度人才签", d:"积分制，需专业技能/学历/收入", cl:"yellow", l:"⚠ 有条件", src:"https://www.immi-moj.go.jp/english/visa/hishu.html" },
-      { t:"无专属FIRE签", d:"日本目前无被动收入/退休签类别", cl:"red", l:"✗ 长居最大挑战", src:"https://www.immi-moj.go.jp/english" },
+      { t:"自由职业签（Zivno）", d:"需收入和注册", cl:"yellow", l:"⚠ 复杂", src:"https://www.mvcr.cz" },
     ],
     health:[
-      { t:"国民健保（国民健康保険）外籍长居者可加入，月$100-200", src:"https://www.mhlw.go.jp/english/policy/health-medical/health-insurance/index.html" },
-      { t:"保障覆盖率70%，重大疾病有高额疗养费制度上限保护", src:"https://www.mhlw.go.jp/english" },
+      { t:"VZP 公立医保 $200/月", src:"https://www.vzp.cz" },
     ],
     ins:[
-      { t:"国民健保（3个月以上居留后必须加入）", src:"https://www.city.osaka.lg.jp/shimin/page/0000006893.html" },
-      { t:"短期居留期间用SafetyWing $45/月过渡", src:"https://safetywing.com" },
+      { t:"私立补充 $80–150/月", src:"https://www.cigna.com" },
     ],
     safety:[
-      { t:"全球最安全国家之一，失物招领率极高", src:"https://www.numbeo.com/crime/in/Osaka" },
-      { t:"地震频繁，Yahoo!防灾速报App（日文）强烈推荐", src:"https://emg.yahoo.co.jp" },
+      { t:"非常安全", src:"https://www.numbeo.com/crime/in/Prague" },
     ],
     culture:[
-      { t:"公共场所保持安静，电车不接电话，遵守规则是基本礼仪", src:"https://www.jnto.go.jp/eng/arrange/practical/japanese-etiquette.html" },
-      { t:"垃圾分类极严格，分类错误会被退回，需认真学习", src:"https://www.city.osaka.lg.jp/kankyo" },
+      { t:"中欧文化十字路口", src:"https://www.prague.eu" },
     ],
   },
-  {
-    id:"kuala_lumpur", name:"吉隆坡", flag:"🇲🇾", country:"马来西亚", lat:3.14, lng:101.69,
-    sub:"英语通用·MM2H签证友好",
-    baseCost:1200,
+
+  // LATIN AMERICA
+  { id:"merida", name:"梅里达", country:"墨西哥", region:"拉丁美洲", lat:20.97, lng:-89.62,
+    sub:"北美 FIRE 首选 · 最安全墨西哥城市",
     fit:{ lean:"ok", regular:"great", fat:"ok", barista:"great", coast:"great" },
     fitNote:{
-      lean:"$1,200接近预算上限，需较节俭，但英语通用适应成本最低",
-      regular:"Regular FIRE非常适合，MM2H签证专为被动收入族设计",
-      fat:"生活成本偏低，但东南亚金融枢纽，高净值资产管理方便",
-      barista:"英语普及+国际化环境，半退休工作机会多",
-      coast:"MM2H签证+低生活成本，Coast FIRE极适合"
-    },
-    costs:[
-      { label:"月均总计", val:"$1,200", src:"https://www.numbeo.com/cost-of-living/in/Kuala-Lumpur" },
-      { label:"住宿", val:"$450", src:"https://www.propertyguru.com.my" },
-      { label:"餐饮", val:"$250", src:"https://www.numbeo.com/cost-of-living/in/Kuala-Lumpur" },
-      { label:"交通", val:"$100", src:"https://www.grab.com/my" },
-      { label:"娱乐", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Kuala-Lumpur" },
-      { label:"医保估算", val:"$120", src:"https://www.aia.com.my" },
-    ],
-    tips:[
-      { t:"MM2H（第二家园）签证专为退休/被动收入族设计，定存约$11k", src:"https://www.mm2h.gov.my" },
-      { t:"英语极普及，全马来西亚与东南亚文化多元融合，适应成本极低", src:"https://ef.com/epi" },
-      { t:"Grab打车极便宜，市区出行约$2-5/次", src:"https://www.grab.com/my" },
-    ],
-    visa:[
-      { t:"MM2H第二家园", d:"定存50万令吉（约$11k），可住10年", cl:"green", l:"✓ 专为FIRE设计", src:"https://www.mm2h.gov.my" },
-      { t:"DE Rantau数字游民签", d:"月收入$2,400+，12个月可续", cl:"yellow", l:"⚠ 需收入证明", src:"https://mdec.my/derantau" },
-      { t:"旅游签", d:"大多数国家免签90天", cl:"green", l:"✓ 免签", src:"https://www.imi.gov.my" },
-    ],
-    health:[
-      { t:"Gleneagles/Pantai私立医院国际水准，英语服务完善", src:"https://www.gleneagles.com.my" },
-      { t:"公立医院便宜但等待时间长，外籍人士多选私立", src:"https://www.moh.gov.my" },
-    ],
-    ins:[
-      { t:"AIA/Prudential大马保单$60-150/月，英文理赔方便", src:"https://www.aia.com.my" },
-      { t:"MM2H申请本身无强制医保要求，但强烈建议购买", src:"https://www.mm2h.gov.my" },
-    ],
-    safety:[
-      { t:"吉隆坡整体安全，扒手在旅游区和公交站较多", src:"https://www.numbeo.com/crime/in/Kuala-Lumpur" },
-    ],
-    culture:[
-      { t:"华人约23%，华语/广东话通用，华人社区成熟", src:"https://www.dosm.gov.my" },
-      { t:"清真Halal主流，但华人区猪肉餐厅易找，饮食多元", src:"https://www.tourismmalaysia.gov.my" },
-    ],
-  },
-  {
-    id:"taipei", name:"台北", flag:"🇹🇼", country:"台湾", lat:25.03, lng:121.57,
-    sub:"华语环境·全球最佳医保体系",
-    baseCost:1500,
-    fit:{ lean:"ok", regular:"great", fat:"ok", barista:"great", coast:"great" },
-    fitNote:{
-      lean:"$1,500接近预算上限，台湾健保极划算，但需解决签证长居问题",
-      regular:"华语环境+顶级医保+高生活质量，Regular FIRE极适合",
-      fat:"生活成本偏低，Fat FIRE可过非常舒适的生活，文化适应成本最低",
-      barista:"Gold Card数字游民签适合有专业技能者，半退休理想",
-      coast:"台湾健保+低生活成本，$1,500/月被动收入即可舒适生活"
-    },
-    costs:[
-      { label:"月均总计", val:"$1,500", src:"https://www.numbeo.com/cost-of-living/in/Taipei" },
-      { label:"住宿", val:"$600", src:"https://www.591.com.tw" },
-      { label:"餐饮", val:"$350", src:"https://www.numbeo.com/cost-of-living/in/Taipei" },
-      { label:"交通", val:"$80", src:"https://www.metro.taipei" },
-      { label:"娱乐", val:"$250", src:"https://www.numbeo.com/cost-of-living/in/Taipei" },
-      { label:"医保估算", val:"$150", src:"https://www.nhi.gov.tw/en" },
-    ],
-    tips:[
-      { t:"悠游卡搭MRT约$0.5-1.5/次，大众运输极方便", src:"https://www.metro.taipei/en" },
-      { t:"夜市文化丰富，$3-5可吃饱一餐，夜市是日常生活而非旅游景点", src:"https://travel.taipei/en" },
-      { t:"台湾全民健保月费仅$30-50，全球最划算医保体系之一", src:"https://www.nhi.gov.tw/en" },
-    ],
-    visa:[
-      { t:"免签90天", d:"多数国家适用，可申请延签", cl:"green", l:"✓ 免签", src:"https://www.boca.gov.tw/cp-220-4904-73ad8-2.html" },
-      { t:"Gold Card数字游民签", d:"需专业技能认证，1-3年含工作权", cl:"yellow", l:"⚠ 有技能门槛", src:"https://goldcard.nat.gov.tw/en" },
-    ],
-    health:[
-      { t:"全民健保全球最佳医疗体系之一，工作/居留满6个月可加入", src:"https://www.nhi.gov.tw/en" },
-      { t:"门诊等待时间短，中英双语服务，月费仅$30-50", src:"https://www.nhi.gov.tw/en/Content_List.aspx?n=9B03C1A2F77ED6B9" },
-    ],
-    ins:[
-      { t:"全民健保符合资格后优先加入，全球最划算医保", src:"https://www.nhi.gov.tw/en" },
-      { t:"国泰/富邦补充实支实付保险$30-80/月，覆盖健保不含项目", src:"https://www.cathaylife.com.tw/cathaylife/en" },
-    ],
-    safety:[
-      { t:"亚洲最安全地区之一，外国人犯罪率极低", src:"https://www.numbeo.com/crime/in/Taipei" },
-      { t:"地震频繁，台湾防灾App（中文）和政府警报系统完善", src:"https://www.nfa.gov.tw/cht/index.php?code=list&flag=detail&ids=18&article_id=3" },
-    ],
-    culture:[
-      { t:"华语主流，热情好客，外国人受欢迎，文化适应成本最低", src:"https://travel.taipei/en" },
-      { t:"夜市/小吃/手摇茶饮文化极丰富，生活品质高", src:"https://www.taiwan.net.tw/m1.aspx?sNo=0002138" },
-    ],
-  },
-  {
-    id:"merida", name:"梅里达", flag:"🇲🇽", country:"墨西哥", lat:20.97, lng:-89.62,
-    sub:"北美FIRE族首选·最安全墨西哥城市",
-    baseCost:1300,
-    fit:{ lean:"ok", regular:"great", fat:"ok", barista:"great", coast:"great" },
-    fitNote:{
-      lean:"$1,300接近Lean FIRE上限，但墨西哥临时居留签条件友好，可行",
-      regular:"Regular FIRE极适合，临时居留签门槛低，牙科旅游省钱",
-      fat:"生活成本低，但Fat FIRE族可考虑更国际化的城市",
-      barista:"距美国/加拿大近，时区友好，半退休远程工作理想",
-      coast:"$1,300/月被动收入即可舒适生活，临时居留签相对容易"
+      lean:"$1,300 接近上限，但临时居留签门槛低",
+      regular:"Regular FIRE 完美，牙科医疗便宜",
+      fat:"成本偏低",
+      barista:"距美加近，时区友好",
+      coast:"$1,300 被动收入即可"
     },
     costs:[
       { label:"月均总计", val:"$1,300", src:"https://www.numbeo.com/cost-of-living/in/Merida" },
@@ -400,92 +834,270 @@ const CITIES = [
       { label:"餐饮", val:"$300", src:"https://www.numbeo.com/cost-of-living/in/Merida" },
       { label:"交通", val:"$80", src:"https://www.uber.com/mx" },
       { label:"娱乐", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Merida" },
-      { label:"医保估算", val:"$150", src:"https://safetywing.com" },
+      { label:"医保", val:"$150", src:"https://safetywing.com" },
     ],
     tips:[
-      { t:"梅里达连续评为墨西哥最安全城市，外籍人士密度高", src:"https://mexiconewsdaily.com/news/merida-safest-city" },
-      { t:"临时居留签需证明月收入$1,620或资产$27k，门槛相对低", src:"https://consulmex.sre.gob.mx" },
-      { t:"距坎昆仅3小时车程，加勒比海度假极便利", src:"https://www.google.com/maps" },
+      { t:"墨西哥最安全城市", src:"https://mexiconewsdaily.com" },
+      { t:"距坎昆 3 小时车程", src:"https://www.google.com/maps" },
     ],
     visa:[
-      { t:"旅游签FMM", d:"最长180天，大多数国家免签入境", cl:"green", l:"✓ 最多180天", src:"https://www.inm.gob.mx" },
-      { t:"临时居留签", d:"月收入$1,620+或资产$27k+，有效1-4年", cl:"green", l:"✓ FIRE常用路径", src:"https://www.inm.gob.mx/gobmx/word/index.php/residencia-temporal" },
+      { t:"临时居留签", d:"月 $1,620+ 或资产 $27k+", cl:"green", l:"✓ FIRE 路径", src:"https://www.inm.gob.mx" },
     ],
     health:[
-      { t:"Star Medica/Centro Medico私立医院英语服务，看诊$20-40", src:"https://www.starmedica.com" },
-      { t:"牙科旅游盛行，质量高+价格低，很多美国FIRE族专程前来", src:"https://www.dentistsinmexico.com" },
+      { t:"Star Medica 英语服务", src:"https://www.starmedica.com" },
     ],
     ins:[
-      { t:"SafetyWing/CIGNA国际医保$45-150/月", src:"https://safetywing.com" },
-      { t:"AXA/GNP墨西哥本地保单$80-200/月，覆盖全国私立医院", src:"https://www.gnp.com.mx" },
+      { t:"SafetyWing $45–150/月", src:"https://safetywing.com" },
     ],
     safety:[
-      { t:"梅里达治安在墨西哥最佳，与其他地区形成鲜明对比", src:"https://www.numbeo.com/crime/in/Merida" },
-      { t:"当地人友善，外国人受欢迎，外籍社区成熟", src:"https://www.internationaliving.com/countries/mexico/merida" },
+      { t:"墨西哥治安最佳", src:"https://www.numbeo.com/crime/in/Merida" },
     ],
     culture:[
-      { t:"玛雅文化底蕴深厚，当地节庆和仪式独特精彩", src:"https://www.yucatan.travel/en" },
-      { t:"西班牙语是唯一通用语，学习西语是必要投资", src:"https://ef.com/epi" },
+      { t:"玛雅文化底蕴", src:"https://www.yucatan.travel" },
     ],
   },
-  {
-    id:"medellin", name:"麦德林", flag:"🇨🇴", country:"哥伦比亚", lat:6.25, lng:-75.57,
-    sub:"永恒春天之城·退休签门槛极低",
-    baseCost:1200,
+  { id:"mexico_city", name:"墨西哥城", country:"墨西哥", region:"拉丁美洲", lat:19.43, lng:-99.13,
+    sub:"美洲文化大都会 · 数字游民热点",
+    fit:{ lean:"ok", regular:"great", fat:"great", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"$1,500 边缘，但 Roma/Condesa 区性价比高",
+      regular:"Regular FIRE 完美都市选择",
+      fat:"Fat FIRE 可过精致拉美生活",
+      barista:"美东时区，远程工作天堂",
+      coast:"$1,500 即可舒适"
+    },
+    costs:[
+      { label:"月均总计", val:"$1,500", src:"https://www.numbeo.com/cost-of-living/in/Mexico-City" },
+      { label:"住宿", val:"$700", src:"https://www.inmuebles24.com" },
+      { label:"餐饮", val:"$320", src:"https://www.numbeo.com/cost-of-living/in/Mexico-City" },
+      { label:"交通", val:"$80", src:"https://www.metro.cdmx.gob.mx" },
+      { label:"娱乐", val:"$250", src:"https://www.numbeo.com/cost-of-living/in/Mexico-City" },
+      { label:"医保", val:"$150", src:"https://safetywing.com" },
+    ],
+    tips:[
+      { t:"Roma/Condesa 是数字游民聚集地", src:"https://nomadlist.com/mexico-city" },
+      { t:"街边塔可饼 $1，文化丰富", src:"https://www.cdmxtravel.com" },
+    ],
+    visa:[
+      { t:"临时居留签", d:"同墨西哥全国", cl:"green", l:"✓ FIRE 路径", src:"https://www.inm.gob.mx" },
+    ],
+    health:[
+      { t:"ABC Medical Center 国际水准", src:"https://www.abchospital.com" },
+    ],
+    ins:[
+      { t:"SafetyWing/AXA $45–200/月", src:"https://safetywing.com" },
+    ],
+    safety:[
+      { t:"游客区安全，避开特定区域", src:"https://www.numbeo.com/crime/in/Mexico-City" },
+    ],
+    culture:[
+      { t:"博物馆密度世界第一", src:"https://www.cdmxtravel.com" },
+    ],
+  },
+  { id:"medellin", name:"麦德林", country:"哥伦比亚", region:"拉丁美洲", lat:6.25, lng:-75.57,
+    sub:"永恒之春之城 · 退休签门槛极低",
     fit:{ lean:"great", regular:"great", fat:"ok", barista:"great", coast:"great" },
     fitNote:{
-      lean:"退休签月被动收入$684+即可，Lean FIRE在哥伦比亚最容易实现",
-      regular:"Regular FIRE绰绰有余，生活品质高，气候完美",
-      fat:"生活成本低，但Fat FIRE族可考虑更国际化城市",
-      barista:"数字游民签门槛极低（月$684），半退休工作无压力",
-      coast:"$1,200/月被动收入舒适生活，退休签永久有效，Coast FIRE极适合"
+      lean:"退休签月 $684+ 即可，Lean 最容易",
+      regular:"绰绰有余，气候完美",
+      fat:"成本低，可考虑更国际化城市",
+      barista:"门槛极低 + 完美时区",
+      coast:"退休签永久有效，Coast FIRE 极佳"
     },
     costs:[
       { label:"月均总计", val:"$1,200", src:"https://www.numbeo.com/cost-of-living/in/Medellin" },
       { label:"住宿", val:"$450", src:"https://www.fincaraiz.com.co" },
       { label:"餐饮", val:"$280", src:"https://www.numbeo.com/cost-of-living/in/Medellin" },
-      { label:"交通", val:"$70", src:"https://www.metro.gov.co" },
+      { label:"交通", val:"$70", src:"https://www.metrodemedellin.gov.co" },
       { label:"娱乐", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Medellin" },
-      { label:"医保估算", val:"$150", src:"https://safetywing.com" },
+      { label:"医保", val:"$150", src:"https://safetywing.com" },
     ],
     tips:[
-      { t:"全年气候如春（22-26°C），被誉为永恒春天之城", src:"https://en.wikipedia.org/wiki/Medell%C3%ADn#Climate" },
-      { t:"退休签（Pensionado）月被动收入$684+即可，永久有效", src:"https://www.migracioncolombia.gov.co" },
-      { t:"El Poblado/Laureles区是外国人首选安全区域", src:"https://nomadlist.com/medellin" },
+      { t:"全年气候 22–26°C 永恒之春", src:"https://en.wikipedia.org/wiki/Medell%C3%ADn#Climate" },
+      { t:"退休签 $684+ 永久有效", src:"https://www.migracioncolombia.gov.co" },
     ],
     visa:[
-      { t:"旅游签免签90天", d:"可延至180天", cl:"green", l:"✓ 免签", src:"https://www.migracioncolombia.gov.co" },
-      { t:"退休签Pensionado", d:"月被动收入$684+，永久有效，全球最低门槛之一", cl:"green", l:"✓ 专为FIRE族", src:"https://www.migracioncolombia.gov.co/visas/visas-tipo-v/visa-pensionado" },
-      { t:"数字游民签DNV", d:"月收入$684+，最长2年", cl:"green", l:"✓ 门槛极低", src:"https://www.migracioncolombia.gov.co" },
+      { t:"退休签 Pensionado", d:"月被动 $684+，永久", cl:"green", l:"✓ FIRE 设计", src:"https://www.migracioncolombia.gov.co" },
+      { t:"数字游民签 DNV", d:"月 $684+，最长 2 年", cl:"green", l:"✓ 门槛极低", src:"https://www.migracioncolombia.gov.co" },
     ],
     health:[
-      { t:"Clinica las Vegas/El Rosario私立医院世界级水准", src:"https://www.clinicalasvegasmed.com" },
-      { t:"医疗旅游热门目的地，整形外科国际知名，价格是美国1/5", src:"https://www.medicaltourism.com/destinations/colombia" },
+      { t:"Clinica las Vegas 世界级", src:"https://www.clinicalasvegasmed.com" },
     ],
     ins:[
-      { t:"SafetyWing/Cigna国际医保$45-150/月", src:"https://safetywing.com" },
-      { t:"哥伦比亚EPS医疗系统获居留后可加入，月$60-150", src:"https://www.minsalud.gov.co" },
+      { t:"SafetyWing/Cigna $45–150/月", src:"https://safetywing.com" },
     ],
     safety:[
-      { t:"安全状况大幅改善，但仍需保持警觉，使用Uber/InDrive叫车", src:"https://www.numbeo.com/crime/in/Medellin" },
-      { t:"El Poblado区对外国人相对安全，避免夜间前往非旅游区", src:"https://travel.state.gov/content/travel/en/international-travel/International-Travel-Country-Information-Pages/Colombia.html" },
+      { t:"安全大幅改善，El Poblado 区安全", src:"https://travel.state.gov" },
     ],
     culture:[
-      { t:"热情外向，Salsa舞蹈是日常社交，学几步会让你融入更快", src:"https://www.colombia.co/en/colombia-culture" },
-      { t:"麦德林西班牙语口音清晰，是学西语的理想地方", src:"https://www.bbc.com/travel/article/20191014-the-city-thats-become-a-spanish-learning-destination" },
+      { t:"Salsa 是日常社交", src:"https://www.colombia.co" },
     ],
   },
-  {
-    id:"dubai", name:"迪拜", flag:"🇦🇪", country:"UAE", lat:25.20, lng:55.27,
-    sub:"零税率天堂·Fat FIRE首选枢纽",
-    baseCost:4000,
+  { id:"buenos_aires", name:"布宜诺斯艾利斯", country:"阿根廷", region:"拉丁美洲", lat:-34.60, lng:-58.38,
+    sub:"南美巴黎 · 文化艺术之都",
+    fit:{ lean:"great", regular:"great", fat:"ok", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"比索贬值，蓝市汇率使生活成本极低",
+      regular:"可过非常高品质生活",
+      fat:"成本极低，但经济不稳定是风险",
+      barista:"创意氛围浓，半退休理想",
+      coast:"$800 被动收入舒适，需注意经济波动"
+    },
+    costs:[
+      { label:"月均总计", val:"$800", src:"https://www.numbeo.com/cost-of-living/in/Buenos-Aires" },
+      { label:"住宿", val:"$280", src:"https://www.zonaprop.com.ar" },
+      { label:"餐饮", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Buenos-Aires" },
+      { label:"交通", val:"$50", src:"https://www.buenosaires.gob.ar" },
+      { label:"娱乐", val:"$150", src:"https://www.numbeo.com/cost-of-living/in/Buenos-Aires" },
+      { label:"医保", val:"$90", src:"https://safetywing.com" },
+    ],
+    tips:[
+      { t:"使用美元蓝市汇率折扣极大", src:"https://www.cronista.com" },
+      { t:"Palermo/San Telmo 外国人区", src:"https://nomadlist.com/buenos-aires" },
+    ],
+    visa:[
+      { t:"旅游签免签 90 天", d:"可延 90 天", cl:"green", l:"✓ 共 180", src:"https://www.migraciones.gov.ar" },
+      { t:"退休签", d:"月收入 $1,200+，经济波动", cl:"yellow", l:"⚠ 经济风险", src:"https://www.migraciones.gov.ar" },
+    ],
+    health:[
+      { t:"公立医院免费，私立 CEMIC 英语好", src:"https://www.cemic.edu.ar" },
+    ],
+    ins:[
+      { t:"国际医保强烈推荐", src:"https://safetywing.com" },
+    ],
+    safety:[
+      { t:"扒手存在，Uber 较安全", src:"https://www.numbeo.com/crime/in/Buenos-Aires" },
+    ],
+    culture:[
+      { t:"探戈、咖啡馆文化", src:"https://whc.unesco.org" },
+    ],
+  },
+  { id:"santiago", name:"圣地亚哥", country:"智利", region:"拉丁美洲", lat:-33.45, lng:-70.66,
+    sub:"安第斯山下 · 拉美最安全首都",
+    fit:{ lean:"ok", regular:"great", fat:"great", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"$1,500 边缘可行",
+      regular:"Regular FIRE 拉美最佳选择之一",
+      fat:"Fat FIRE 可过精致山城生活",
+      barista:"基础设施好，远程工作便利",
+      coast:"$1,500 被动收入即可"
+    },
+    costs:[
+      { label:"月均总计", val:"$1,500", src:"https://www.numbeo.com/cost-of-living/in/Santiago" },
+      { label:"住宿", val:"$650", src:"https://www.portalinmobiliario.com" },
+      { label:"餐饮", val:"$350", src:"https://www.numbeo.com/cost-of-living/in/Santiago" },
+      { label:"交通", val:"$70", src:"https://www.metro.cl" },
+      { label:"娱乐", val:"$250", src:"https://www.numbeo.com/cost-of-living/in/Santiago" },
+      { label:"医保", val:"$180", src:"https://www.fonasa.cl" },
+    ],
+    tips:[
+      { t:"距安第斯滑雪场 1 小时", src:"https://chile.travel" },
+      { t:"Providencia/Las Condes 外籍人士区", src:"https://nomadlist.com/santiago" },
+    ],
+    visa:[
+      { t:"临时居留签", d:"需稳定收入证明", cl:"yellow", l:"⚠ 流程复杂", src:"https://www.serviciomigraciones.cl" },
+    ],
+    health:[
+      { t:"Clinica Las Condes 拉美顶尖", src:"https://www.clinicalascondes.cl" },
+    ],
+    ins:[
+      { t:"SafetyWing/Cigna $45–200/月", src:"https://safetywing.com" },
+    ],
+    safety:[
+      { t:"拉美最安全首都之一", src:"https://www.numbeo.com/crime/in/Santiago-de-Chile" },
+    ],
+    culture:[
+      { t:"葡萄酒、海鲜文化", src:"https://chile.travel" },
+    ],
+  },
+  { id:"lima", name:"利马", country:"秘鲁", region:"拉丁美洲", lat:-12.05, lng:-77.04,
+    sub:"美食之都 · 太平洋海岸",
+    fit:{ lean:"great", regular:"great", fat:"ok", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"$1,000 完美适合",
+      regular:"Regular FIRE 极佳，美食世界级",
+      fat:"成本偏低",
+      barista:"基础设施完善",
+      coast:"$1,000 被动收入即可"
+    },
+    costs:[
+      { label:"月均总计", val:"$1,000", src:"https://www.numbeo.com/cost-of-living/in/Lima" },
+      { label:"住宿", val:"$400", src:"https://urbania.pe" },
+      { label:"餐饮", val:"$220", src:"https://www.numbeo.com/cost-of-living/in/Lima" },
+      { label:"交通", val:"$60", src:"https://www.uber.com/pe" },
+      { label:"娱乐", val:"$180", src:"https://www.numbeo.com/cost-of-living/in/Lima" },
+      { label:"医保", val:"$140", src:"https://safetywing.com" },
+    ],
+    tips:[
+      { t:"Miraflores 海岸区是首选", src:"https://nomadlist.com/lima" },
+      { t:"美食世界排名前列，Central 餐厅全球第一", src:"https://www.theworlds50best.com" },
+    ],
+    visa:[
+      { t:"旅游签免签 183 天", d:"可延", cl:"green", l:"✓ 长免签", src:"https://www.gob.pe/migraciones" },
+    ],
+    health:[
+      { t:"Clinica Anglo Americana 私立", src:"https://www.clinicaangloamericana.pe" },
+    ],
+    ins:[
+      { t:"SafetyWing $45/月", src:"https://safetywing.com" },
+    ],
+    safety:[
+      { t:"Miraflores 安全，避特定区域", src:"https://www.numbeo.com/crime/in/Lima" },
+    ],
+    culture:[
+      { t:"印加文化 + 美食圣地", src:"https://www.peru.travel" },
+    ],
+  },
+  { id:"costa_rica", name:"圣何塞", country:"哥斯达黎加", region:"拉丁美洲", lat:9.93, lng:-84.09,
+    sub:"生态天堂 · Pura Vida 文化",
+    fit:{ lean:"poor", regular:"great", fat:"great", barista:"great", coast:"great" },
+    fitNote:{
+      lean:"$2,000 超 Lean 预算",
+      regular:"Regular FIRE 完美，Pura Vida 文化",
+      fat:"Fat FIRE 海岸 + 雨林精致生活",
+      barista:"Rentista 签 + 半退休理想",
+      coast:"$1,000 退休签 + 被动收入即可"
+    },
+    costs:[
+      { label:"月均总计", val:"$2,000", src:"https://www.numbeo.com/cost-of-living/in/San-Jose-Costa-Rica" },
+      { label:"住宿", val:"$900", src:"https://www.numbeo.com/cost-of-living/in/San-Jose-Costa-Rica" },
+      { label:"餐饮", val:"$450", src:"https://www.numbeo.com/cost-of-living/in/San-Jose-Costa-Rica" },
+      { label:"交通", val:"$100", src:"https://www.uber.com" },
+      { label:"娱乐", val:"$350", src:"https://www.numbeo.com/cost-of-living/in/San-Jose-Costa-Rica" },
+      { label:"医保", val:"$200", src:"https://www.ccss.sa.cr" },
+    ],
+    tips:[
+      { t:"Pura Vida 国家精神", src:"https://www.visitcostarica.com" },
+      { t:"距海滩、雨林、火山极近", src:"https://www.visitcostarica.com" },
+    ],
+    visa:[
+      { t:"退休签 Pensionado", d:"月 $1,000+ 永久", cl:"green", l:"✓ 退休友好", src:"https://www.migracion.go.cr" },
+      { t:"Rentista 签", d:"月 $2,500+ 或定存 $60k", cl:"yellow", l:"⚠ 较高", src:"https://www.migracion.go.cr" },
+    ],
+    health:[
+      { t:"CCSS 公立医疗中美洲最佳", src:"https://www.ccss.sa.cr" },
+    ],
+    ins:[
+      { t:"CCSS 加入 $80–150/月", src:"https://www.ccss.sa.cr" },
+    ],
+    safety:[
+      { t:"中美洲最安全国家", src:"https://www.numbeo.com/crime/in/San-Jose-Costa-Rica" },
+    ],
+    culture:[
+      { t:"无常备军，环保中立", src:"https://www.visitcostarica.com" },
+    ],
+  },
+
+  // MIDDLE EAST
+  { id:"dubai", name:"迪拜", country:"阿联酋", region:"中东", lat:25.20, lng:55.27,
+    sub:"零税率天堂 · Fat FIRE 首选",
     fit:{ lean:"poor", regular:"poor", fat:"great", barista:"ok", coast:"poor" },
     fitNote:{
-      lean:"月均$4,000远超Lean FIRE预算，完全不适合",
-      regular:"$4,000超出大部分Regular FIRE预算，不推荐",
-      fat:"Fat FIRE首选——零个人所得税，资产管理便利，世界级医疗安全",
-      barista:"生活成本过高，半退休收入难以覆盖，不推荐",
-      coast:"被动收入需$4,000+才够，Coast FIRE挑战极大"
+      lean:"远超预算",
+      regular:"超出大部分 Regular 预算",
+      fat:"Fat FIRE 首选 — 零所得税",
+      barista:"成本过高",
+      coast:"被动收入需 $4,000+"
     },
     costs:[
       { label:"月均总计", val:"$4,000", src:"https://www.numbeo.com/cost-of-living/in/Dubai" },
@@ -493,104 +1105,58 @@ const CITIES = [
       { label:"餐饮", val:"$700", src:"https://www.numbeo.com/cost-of-living/in/Dubai" },
       { label:"交通", val:"$200", src:"https://www.rta.ae" },
       { label:"娱乐", val:"$600", src:"https://www.numbeo.com/cost-of-living/in/Dubai" },
-      { label:"医保估算", val:"$350", src:"https://www.dha.gov.ae" },
+      { label:"医保", val:"$350", src:"https://www.dha.gov.ae" },
     ],
     tips:[
-      { t:"个人所得税为零，Fat FIRE税务优化极具吸引力", src:"https://u.ae/en/information-and-services/finance-and-investment/taxes-in-uae" },
-      { t:"虚拟工作签证1年，需月收入$5,000+，适合远程工作者", src:"https://gdrfad.gov.ae/en/articles/remote-work-visa" },
-      { t:"迪拜是中东/非洲/亚洲的绝佳金融枢纽", src:"https://www.difc.ae" },
+      { t:"个人所得税为零", src:"https://u.ae/en" },
+      { t:"虚拟工作签需月 $5,000+", src:"https://gdrfad.gov.ae/en/articles/remote-work-visa" },
     ],
     visa:[
-      { t:"虚拟工作签证", d:"1年，需月收入$5,000+，可续签", cl:"yellow", l:"⚠ 收入门槛", src:"https://gdrfad.gov.ae/en/articles/remote-work-visa" },
-      { t:"退休签", d:"55岁以上，资产$545k+或月收入$5,450+", cl:"yellow", l:"⚠ 高门槛", src:"https://gdrfad.gov.ae/en/articles/retirement-visa" },
-      { t:"黄金签证", d:"投资$545k+不动产，10年居留", cl:"yellow", l:"⚠ 投资门槛", src:"https://gcp.gov.ae/en/Pages/GoldenVisa.aspx" },
+      { t:"虚拟工作签", d:"月 $5,000+", cl:"yellow", l:"⚠ 收入门槛", src:"https://gdrfad.gov.ae/en/articles/remote-work-visa" },
+      { t:"退休签", d:"55+，资产 $545k+", cl:"yellow", l:"⚠ 高门槛", src:"https://gdrfad.gov.ae" },
     ],
     health:[
-      { t:"Cleveland Clinic/Mediclinic迪拜，亚洲最先进医疗设施之一", src:"https://my.clevelandclinic.ae" },
-      { t:"迪拜居留者强制医保，费用$200-500/月", src:"https://www.dha.gov.ae/en/DubaiHealthInsurance" },
+      { t:"Cleveland Clinic 世界级", src:"https://my.clevelandclinic.ae" },
     ],
     ins:[
-      { t:"Bupa/Daman高端医保是Fat FIRE族首选，英语理赔", src:"https://www.daman.ae" },
-      { t:"迪拜居留者依法强制购买医保，需雇主或个人购买", src:"https://www.dha.gov.ae/en/DubaiHealthInsurance" },
+      { t:"Bupa/Daman 高端 $300–600/月", src:"https://www.daman.ae" },
     ],
     safety:[
-      { t:"全球最安全城市之一，犯罪率接近零", src:"https://www.numbeo.com/crime/in/Dubai" },
-      { t:"文化禁忌严格：公开亲密/同性恋/酒驾有法律风险", src:"https://u.ae/en/information-and-services/social-affairs/moral-conduct" },
+      { t:"全球最安全城市之一", src:"https://www.numbeo.com/crime/in/Dubai" },
     ],
     culture:[
-      { t:"伊斯兰文化为主，斋月期间白天公开饮食受限制", src:"https://u.ae/en/information-and-services/social-affairs/ramadan" },
-      { t:"极度国际化（90%+为外籍人士），英语是日常工作语言", src:"https://www.government.ae/en/information-and-services/social-affairs/emirates-and-expatriates" },
-    ],
-  },
-  {
-    id:"buenos_aires", name:"布宜诺斯艾利斯", flag:"🇦🇷", country:"阿根廷", lat:-34.60, lng:-58.38,
-    sub:"南美巴黎·文化艺术之都",
-    baseCost:800,
-    fit:{ lean:"great", regular:"great", fat:"ok", barista:"great", coast:"great" },
-    fitNote:{
-      lean:"比索贬值+蓝市汇率，Lean FIRE实际生活成本可低至$600-800",
-      regular:"Regular FIRE可过非常高品质的生活，文化艺术气息浓厚",
-      fat:"生活成本极低，但经济不稳定是Fat FIRE族的顾虑",
-      barista:"文化创意氛围浓厚，半退休做创意/咨询工作极适合",
-      coast:"$800/月被动收入可过舒适生活，但经济波动需注意"
-    },
-    costs:[
-      { label:"月均总计", val:"$800", src:"https://www.numbeo.com/cost-of-living/in/Buenos-Aires" },
-      { label:"住宿", val:"$280", src:"https://www.zonaprop.com.ar" },
-      { label:"餐饮", val:"$200", src:"https://www.numbeo.com/cost-of-living/in/Buenos-Aires" },
-      { label:"交通", val:"$50", src:"https://www.buenosaires.gob.ar/movilidad/transporte-publico" },
-      { label:"娱乐", val:"$150", src:"https://www.numbeo.com/cost-of-living/in/Buenos-Aires" },
-      { label:"医保估算", val:"$90", src:"https://safetywing.com" },
-    ],
-    tips:[
-      { t:"比索贬值严重，使用美元换蓝市汇率可获极大折扣", src:"https://www.cronista.com/finanzas-mercados/dolar-blue" },
-      { t:"Palermo/San Telmo区是外国人最受欢迎区域", src:"https://nomadlist.com/buenos-aires" },
-      { t:"阿根廷烤肉（Asado）文化是世界级体验", src:"https://en.wikipedia.org/wiki/Asado" },
-    ],
-    visa:[
-      { t:"旅游签免签90天", d:"可延签一次（共180天），大多数国家适用", cl:"green", l:"✓ 共180天", src:"https://www.migraciones.gov.ar" },
-      { t:"退休/被动收入签", d:"需月收入约$1,200+，经济不稳定增加复杂性", cl:"yellow", l:"⚠ 经济波动风险", src:"https://www.migraciones.gov.ar/rentista" },
-    ],
-    health:[
-      { t:"公立医院对所有人免费（包括外国人），质量参差不齐", src:"https://www.buenosaires.gob.ar/salud" },
-      { t:"私立CEMIC/Sanatorio Mater Dei英语服务良好", src:"https://www.cemic.edu.ar" },
-    ],
-    ins:[
-      { t:"国际医保强烈推荐，经济不稳定影响本地理赔", src:"https://safetywing.com" },
-      { t:"SafetyWing/Cigna $45-150/月，优先选国际保险", src:"https://safetywing.com/nomad-insurance" },
-    ],
-    safety:[
-      { t:"扒手和摩托车抢包问题存在，使用Uber较安全", src:"https://www.numbeo.com/crime/in/Buenos-Aires" },
-      { t:"经济动荡偶有社会抗议，关注新闻动态", src:"https://travel.state.gov/content/travel/en/international-travel/International-Travel-Country-Information-Pages/Argentina.html" },
-    ],
-    culture:[
-      { t:"探戈文化发源地，书店和咖啡馆文化极盛，被称为南美巴黎", src:"https://whc.unesco.org/en/list/1185" },
-      { t:"西班牙语Rioplatense方言，y/ll发音特殊，学西语的好地方", src:"https://en.wikipedia.org/wiki/Rioplatense_Spanish" },
+      { t:"伊斯兰文化，斋月需注意", src:"https://u.ae/en" },
     ],
   },
 ];
 
+// ─── FIRE TYPE CONFIG ────────────────────────────────────────────────────────
 const FIRE_TYPES = {
-  lean:    { label:"Lean FIRE",    range:"$1,500-2,000/月", icon:"🌱", maxBudget:2000, color:"#1d9e75" },
-  regular: { label:"Regular FIRE", range:"$2,000-4,000/月", icon:"🔥", maxBudget:4000, color:"#ba7517" },
-  fat:     { label:"Fat FIRE",     range:"$4,000+/月",      icon:"💎", maxBudget:99999, color:"#7f77dd" },
-  barista: { label:"Barista FIRE", range:"半退休+兼职",      icon:"☕", maxBudget:3000, color:"#e07b39" },
-  coast:   { label:"Coast FIRE",   range:"被动收入为主",     icon:"🌊", maxBudget:2500, color:"#2ea8c7" },
+  lean:    { label:"Lean FIRE",    range:"$1,500–2,000/月", icon:"🌱" },
+  regular: { label:"Regular FIRE", range:"$2,000–4,000/月", icon:"🔥" },
+  fat:     { label:"Fat FIRE",     range:"$4,000+/月",      icon:"💎" },
+  barista: { label:"Barista FIRE", range:"半退休 + 兼职",   icon:"☕" },
+  coast:   { label:"Coast FIRE",   range:"被动收入为主",    icon:"🌊" },
 };
 
 const FIT_CONFIG = {
-  great: { label:"非常适合", color:"#1d9e75", bg:"rgba(29,158,117,0.12)", border:"rgba(29,158,117,0.3)" },
-  ok:    { label:"勉强可行", color:"#ba7517", bg:"rgba(186,117,23,0.12)", border:"rgba(186,117,23,0.3)" },
-  poor:  { label:"不推荐",   color:"#e85d6a", bg:"rgba(232,93,106,0.12)", border:"rgba(232,93,106,0.3)" },
+  great: { label:"非常适合", color:"#7dd3a8", glow:"emeraldGlow", bg:"rgba(125,211,168,0.08)", border:"rgba(125,211,168,0.4)" },
+  ok:    { label:"勉强可行", color:"#7ba6d4", glow:"sapphireGlow", bg:"rgba(123,166,212,0.08)", border:"rgba(123,166,212,0.4)" },
+  poor:  { label:"不推荐",   color:"#c45c6e", glow:null, bg:"rgba(196,92,110,0.08)", border:"rgba(196,92,110,0.4)" },
 };
 
 const TAG_STYLE = {
-  green:  { background:"#e1f5ee", color:"#085041" },
-  yellow: { background:"#faeeda", color:"#633806" },
-  red:    { background:"#fcebeb", color:"#501313" },
+  green:  { background:"rgba(125,211,168,0.15)", color:"#7dd3a8", border:"rgba(125,211,168,0.3)" },
+  yellow: { background:"rgba(212,175,55,0.15)",  color:"#d4af37", border:"rgba(212,175,55,0.3)" },
+  red:    { background:"rgba(196,92,110,0.15)",  color:"#c45c6e", border:"rgba(196,92,110,0.3)" },
 };
 
-const TABS = ["💰 成本","🛂 签证","🏥 医保","🛡️ 安全"];
+const TABS = [
+  { key:0, label:"成本" },
+  { key:1, label:"签证" },
+  { key:2, label:"医保" },
+  { key:3, label:"安全" },
+];
 
 export default function App() {
   const [fireType, setFireType] = useState("lean");
@@ -606,68 +1172,97 @@ export default function App() {
   useEffect(() => {
     if (!mapRef.current || leafletMap.current) return;
     const L = window.L;
+    if (!L) return;
 
     const map = L.map(mapRef.current, {
-      center: [20, 20],
+      center: [25, 20],
       zoom: 2,
       minZoom: 2,
       maxZoom: 10,
       zoomControl: true,
+      attributionControl: true,
     });
 
-    // Dark tile layer
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap contributors",
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png", {
+      attribution: '© OpenStreetMap, © CARTO',
+      subdomains: "abcd",
     }).addTo(map);
-
-    // Style map dark
-    mapRef.current.style.filter = "brightness(0.5) saturate(0.3) hue-rotate(180deg)";
 
     leafletMap.current = map;
 
-    // Add markers
     CITIES.forEach(city => {
-      const markerEl = document.createElement("div");
-      markerEl.style.cssText = `
-        width:14px;height:14px;border-radius:50%;
-        background:rgba(29,158,117,0.5);border:2px solid #1d9e75;
-        cursor:pointer;transition:all 0.2s;
-        box-shadow:0 0 6px rgba(29,158,117,0.4);
-      `;
-      markerEl.dataset.id = city.id;
+      const wrapper = document.createElement("div");
+      wrapper.style.cssText = "position:relative;width:30px;height:30px;cursor:pointer;";
 
-      const icon = L.divIcon({ html: markerEl, className:"", iconSize:[14,14], iconAnchor:[7,7] });
+      const glow = document.createElement("div");
+      glow.style.cssText = `
+        position:absolute;inset:0;border-radius:50%;
+        transition:all 0.3s ease;
+      `;
+
+      const main = document.createElement("div");
+      main.style.cssText = `
+        position:absolute;top:50%;left:50%;
+        width:9px;height:9px;border-radius:50%;
+        transform:translate(-50%,-50%);
+        transition:all 0.3s ease;
+      `;
+
+      wrapper.appendChild(glow);
+      wrapper.appendChild(main);
+
+      const icon = L.divIcon({ html: wrapper, className:"", iconSize:[30,30], iconAnchor:[15,15] });
       const marker = L.marker([city.lat, city.lng], { icon })
         .addTo(map)
-        .bindTooltip(`${city.flag} ${city.name}`, {
+        .bindTooltip(city.name, {
           permanent: false,
           direction: "top",
-          className: "fire-tooltip",
-          offset: [0, -10],
+          className: "lux-tooltip",
+          offset: [0, -8],
         });
 
       marker.on("click", () => selectCity(city));
-      markersRef.current[city.id] = { marker, el: markerEl };
+      markersRef.current[city.id] = { marker, glow, main };
     });
 
     return () => { map.remove(); leafletMap.current = null; };
   }, []);
 
-  // Update marker styles when fireType or selected changes
+  // Update markers by fit
   useEffect(() => {
     CITIES.forEach(city => {
       const m = markersRef.current[city.id];
       if (!m) return;
-      const fit = city.fit[fireType];
-      const col = fit === "great" ? "#1d9e75" : fit === "ok" ? "#ba7517" : "#e85d6a";
+      const fitKey = city.fit[fireType];
+      const fit = FIT_CONFIG[fitKey];
       const isSelected = selected?.id === city.id;
-      m.el.style.width = isSelected ? "18px" : "12px";
-      m.el.style.height = isSelected ? "18px" : "12px";
-      m.el.style.background = isSelected ? col : `${col}55`;
-      m.el.style.borderColor = col;
-      m.el.style.boxShadow = isSelected ? `0 0 12px ${col}` : `0 0 4px ${col}66`;
-      m.el.style.marginTop = isSelected ? "-3px" : "0";
-      m.el.style.marginLeft = isSelected ? "-3px" : "0";
+
+      if (fitKey === "great") {
+        m.glow.style.background = `radial-gradient(circle, ${fit.color}55 0%, transparent 70%)`;
+        m.main.style.background = fit.color;
+        m.main.style.boxShadow = `0 0 8px ${fit.color}99`;
+        m.main.style.width = isSelected ? "13px" : "9px";
+        m.main.style.height = isSelected ? "13px" : "9px";
+      } else if (fitKey === "ok") {
+        m.glow.style.background = `radial-gradient(circle, ${fit.color}33 0%, transparent 70%)`;
+        m.main.style.background = fit.color;
+        m.main.style.boxShadow = `0 0 4px ${fit.color}66`;
+        m.main.style.opacity = "0.85";
+        m.main.style.width = isSelected ? "11px" : "7px";
+        m.main.style.height = isSelected ? "11px" : "7px";
+      } else {
+        m.glow.style.background = "transparent";
+        m.main.style.background = "transparent";
+        m.main.style.border = `1.5px solid ${fit.color}`;
+        m.main.style.opacity = "0.6";
+        m.main.style.width = isSelected ? "10px" : "7px";
+        m.main.style.height = isSelected ? "10px" : "7px";
+        m.main.style.boxShadow = "none";
+      }
+
+      if (isSelected) {
+        m.main.style.boxShadow += `, 0 0 0 2px #d4af37`;
+      }
     });
   }, [fireType, selected]);
 
@@ -685,18 +1280,18 @@ export default function App() {
     setAiText("");
     const p = FIRE_TYPES[fireType];
     const fit = FIT_CONFIG[selected.fit[fireType]];
-    const prompt = `你是FIRE财务独立提前退休专家。
-用户是${p.label}类型（目标${p.range}），考虑在${selected.flag}${selected.country}·${selected.name}旅居。
-该城市对${p.label}的适合度评级是：${fit.label}。
-月均生活成本约${selected.costs[0].val}。
+    const prompt = `你是 FIRE 财务独立提前退休专家。
+用户是 ${p.label} 类型（目标 ${p.range}），考虑在 ${selected.country} · ${selected.name} 旅居。
+该城市对 ${p.label} 的适合度评级是：${fit.label}。
+月均生活成本约 ${selected.costs[0].val}。
 
-请用中文提供个性化分析（约200字），涵盖：
-1) 详细解释为什么这个城市对${p.label}是"${fit.label}"
-2) 最重要的签证建议（1-2条具体方案）
+请用中文提供个性化分析（约 200 字），涵盖：
+1) 详细解释为什么这个城市对 ${p.label} 是"${fit.label}"
+2) 最重要的签证建议（1–2 条具体方案）
 3) 医保最优策略
 4) 一个常被忽略但极有价值的实用提示
 
-语气像有丰富经验的旅居FIRE族前辈，真实接地气。`;
+语气像有丰富经验的旅居 FIRE 族前辈，真实接地气。`;
 
     try {
       const res = await fetch("/api/chat", {
@@ -706,8 +1301,7 @@ export default function App() {
       });
       const data = await res.json();
       if (!res.ok || !data.text) {
-        const errMsg = data.error || data.detail || "未知错误";
-        setAiText("错误：" + errMsg);
+        setAiText("错误：" + (data.error || "未知错误"));
         setAiLoading(false);
         return;
       }
@@ -729,197 +1323,227 @@ export default function App() {
 
   function renderTabContent() {
     if (!selected) return null;
-    const ss = {
-      sec: { fontSize:10, letterSpacing:2, color:"#3dd6b5", textTransform:"uppercase", marginBottom:8, marginTop:0 },
-      row: { padding:"7px 0", borderBottom:"1px solid #1e2a35", fontSize:12, color:"#8b9ab0", lineHeight:1.55, display:"flex", gap:8, alignItems:"flex-start" },
-      arr: { color:"#ba7517", fontSize:14, lineHeight:"1.2", flexShrink:0 },
-      link: { color:"#3dd6b5", fontSize:10, textDecoration:"none", marginLeft:4, opacity:0.7, flexShrink:0 },
+    const styles = {
+      sec: { fontSize:9, letterSpacing:3, color:"#d4af37", textTransform:"uppercase", marginBottom:14, marginTop:0, fontWeight:400 },
+      row: { padding:"10px 0", borderBottom:"0.5px solid rgba(212,175,55,0.08)", fontSize:12, color:"#a8a59f", lineHeight:1.7, display:"flex", gap:10, alignItems:"flex-start", fontWeight:300 },
+      arr: { color:"#d4af37", fontSize:11, lineHeight:1.5, flexShrink:0 },
+      link: { color:"#6b6864", fontSize:10, textDecoration:"none", flexShrink:0 },
     };
 
     const renderList = (items) => items.map((item, i) => (
-      <div key={i} style={ss.row}>
-        <span style={ss.arr}>›</span>
-        <span style={{ flex:1 }}>{item.t || item.d || item}</span>
-        {item.src && (
-          <a href={item.src} target="_blank" rel="noopener noreferrer" style={ss.link} title="查看来源">↗</a>
-        )}
+      <div key={i} style={styles.row}>
+        <span style={styles.arr}>—</span>
+        <span style={{ flex:1 }}>{item.t || item}</span>
+        {item.src && <a href={item.src} target="_blank" rel="noopener noreferrer" style={styles.link}>↗</a>}
       </div>
     ));
 
     if (activeTab === 0) return (
       <div>
-        <div style={ss.sec}>省钱贴士</div>
+        <div style={styles.sec}>省钱贴士</div>
         {renderList(selected.tips)}
       </div>
     );
     if (activeTab === 1) return (
       <div>
-        <div style={ss.sec}>签证类型</div>
-        {selected.visa.map((v, i) => (
-          <div key={i} style={ss.row}>
-            <span style={ss.arr}>›</span>
-            <div style={{ flex:1 }}>
-              <strong style={{ color:"#dde6f0" }}>{v.t}</strong>
-              <br/><span>{v.d}</span><br/>
-              <span style={{ ...TAG_STYLE[v.cl], display:"inline-block", padding:"2px 8px", borderRadius:10, fontSize:10, fontWeight:600, marginTop:4 }}>{v.l}</span>
+        <div style={styles.sec}>签证类型</div>
+        {selected.visa.map((v, i) => {
+          const ts = TAG_STYLE[v.cl] || TAG_STYLE.yellow;
+          return (
+            <div key={i} style={styles.row}>
+              <span style={styles.arr}>—</span>
+              <div style={{ flex:1 }}>
+                <strong style={{ color:"#e8e6df", fontWeight:500 }}>{v.t}</strong>
+                <br/><span>{v.d}</span><br/>
+                <span style={{ display:"inline-block", padding:"2px 9px", borderRadius:100, fontSize:9, fontWeight:500, marginTop:5, background:ts.background, color:ts.color, border:`0.5px solid ${ts.border}`, letterSpacing:1, textTransform:"uppercase" }}>{v.l}</span>
+              </div>
+              {v.src && <a href={v.src} target="_blank" rel="noopener noreferrer" style={styles.link}>↗</a>}
             </div>
-            {v.src && <a href={v.src} target="_blank" rel="noopener noreferrer" style={ss.link} title="官方来源">↗</a>}
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
     if (activeTab === 2) return (
       <div>
-        <div style={ss.sec}>医疗体系</div>
+        <div style={styles.sec}>医疗体系</div>
         {renderList(selected.health)}
-        <div style={{ ...ss.sec, marginTop:14 }}>保险建议</div>
+        <div style={{ ...styles.sec, marginTop:18 }}>保险建议</div>
         {renderList(selected.ins)}
       </div>
     );
     if (activeTab === 3) return (
       <div>
-        <div style={ss.sec}>安全状况</div>
+        <div style={styles.sec}>安全状况</div>
         {renderList(selected.safety)}
-        <div style={{ ...ss.sec, marginTop:14 }}>文化考量</div>
+        <div style={{ ...styles.sec, marginTop:18 }}>文化考量</div>
         {renderList(selected.culture)}
       </div>
     );
   }
 
   return (
-    <div style={{ display:"flex", flexDirection:"column", height:"100vh", background:"#0b0f14", fontFamily:"'DM Sans',system-ui,sans-serif", color:"#dde6f0", overflow:"hidden" }}>
-      {/* Leaflet tooltip style */}
+    <div style={{ display:"flex", flexDirection:"column", height:"100vh", background:"#0e0e10", fontFamily:"'Inter','PingFang SC','Microsoft YaHei',system-ui,sans-serif", color:"#e8e6df", overflow:"hidden" }}>
       <style>{`
-        .fire-tooltip { background:rgba(11,15,20,0.95)!important; border:1px solid #1e2a35!important; color:#dde6f0!important; font-family:'DM Sans',system-ui,sans-serif!important; font-size:12px!important; padding:4px 10px!important; border-radius:6px!important; box-shadow:0 4px 12px rgba(0,0,0,0.4)!important; }
-        .fire-tooltip::before { display:none!important; }
-        .leaflet-control-zoom a { background:#111820!important; color:#d4a843!important; border-color:#1e2a35!important; }
-        .leaflet-control-attribution { background:rgba(11,15,20,0.8)!important; color:#7a8899!important; font-size:9px!important; }
-        .leaflet-control-attribution a { color:#7a8899!important; }
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap');
+        .lux-tooltip { background:rgba(14,14,16,0.95)!important; border:0.5px solid rgba(212,175,55,0.3)!important; color:#e8e6df!important; font-family:'Inter',system-ui,sans-serif!important; font-size:11px!important; padding:5px 12px!important; border-radius:4px!important; box-shadow:0 4px 16px rgba(0,0,0,0.5)!important; letter-spacing:0.3px!important; }
+        .lux-tooltip::before { display:none!important; }
+        .leaflet-control-zoom a { background:#131315!important; color:#d4af37!important; border:0.5px solid rgba(212,175,55,0.2)!important; font-family:'Inter',sans-serif!important; }
+        .leaflet-control-zoom a:hover { background:#1a1a1c!important; }
+        .leaflet-control-attribution { background:rgba(14,14,16,0.85)!important; color:#6b6864!important; font-size:9px!important; }
+        .leaflet-control-attribution a { color:#8a8884!important; }
+        .leaflet-container { background:#050810!important; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(212,175,55,0.2); border-radius:2px; }
       `}</style>
 
       {/* HEADER */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"10px 20px", borderBottom:"1px solid #1e2a35", background:"#0b0f14", flexShrink:0, flexWrap:"wrap", gap:8 }}>
-        <div>
-          <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:20, color:"#d4a843" }}>
-            FIRE<span style={{ color:"#3dd6b5" }}>Nomad</span>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"0.5px solid rgba(212,175,55,0.12)", background:"linear-gradient(180deg,#131315 0%,#0e0e10 100%)", flexShrink:0 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+          <div style={{ width:38, height:38, border:"0.5px solid rgba(212,175,55,0.4)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", position:"relative" }}>
+            <div style={{ position:"absolute", inset:4, border:"0.5px solid rgba(212,175,55,0.2)", borderRadius:"50%" }}/>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="#d4af37" strokeWidth="0.8" opacity="0.7"/>
+              <path d="M12 3 Q 7 12 12 21 Q 17 12 12 3 Z" stroke="#d4af37" strokeWidth="0.6" fill="none" opacity="0.5"/>
+              <line x1="3" y1="12" x2="21" y2="12" stroke="#d4af37" strokeWidth="0.6" opacity="0.5"/>
+              <circle cx="12" cy="12" r="1.2" fill="#d4af37"/>
+            </svg>
           </div>
-          <div style={{ fontSize:10, letterSpacing:2, color:"#7a8899", textTransform:"uppercase", marginTop:1 }}>世界旅居地图 · {CITIES.length}个城市</div>
+          <div>
+            <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:22, fontWeight:500, letterSpacing:1, color:"#d4af37" }}>
+              FIRE<span style={{ fontStyle:"italic", fontWeight:400, color:"#e8e6df" }}>nomad</span>
+            </div>
+            <div style={{ fontSize:9, letterSpacing:4, color:"#6b6864", textTransform:"uppercase", marginTop:2, fontWeight:300 }}>独立旅居图鉴 · {CITIES.length} 城市</div>
+          </div>
         </div>
-        <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-          {Object.entries(FIRE_TYPES).map(([k, v]) => (
+
+        <div style={{ display:"flex", gap:0, border:"0.5px solid rgba(212,175,55,0.15)", borderRadius:100, overflow:"hidden", background:"#131315" }}>
+          {Object.entries(FIRE_TYPES).map(([k, v], i) => (
             <button key={k} onClick={() => setFireType(k)} style={{
-              padding:"4px 12px", borderRadius:20,
-              border:`1px solid ${fireType===k ? v.color : "#1e2a35"}`,
-              background: fireType===k ? `${v.color}22` : "transparent",
-              color: fireType===k ? v.color : "#7a8899",
-              cursor:"pointer", fontSize:11, fontWeight:600, fontFamily:"inherit", whiteSpace:"nowrap"
+              padding:"6px 14px",
+              border:"none",
+              borderRight: i < 4 ? "0.5px solid rgba(212,175,55,0.08)" : "none",
+              background: fireType===k ? "linear-gradient(180deg,#d4af37 0%,#b8941f 100%)" : "transparent",
+              color: fireType===k ? "#0e0e10" : "#6b6864",
+              fontSize:11, fontWeight: fireType===k ? 500 : 400,
+              cursor:"pointer", fontFamily:"inherit", letterSpacing:0.3,
+              transition:"all 0.2s",
             }}>
-              {v.icon} {v.label.replace(" FIRE","")}
+              {v.label.replace(" FIRE","")}
             </button>
           ))}
         </div>
-        <div style={{ fontSize:11, color:"#3dd6b5", display:"flex", alignItems:"center", gap:6 }}>
-          <span style={{ width:6, height:6, borderRadius:"50%", background:"#3dd6b5", display:"inline-block" }}/>
-          AI实时生成
+
+        <div style={{ display:"flex", alignItems:"center", gap:8, fontSize:10, color:"#6b6864", letterSpacing:2, textTransform:"uppercase", fontWeight:300 }}>
+          <span style={{ width:5, height:5, borderRadius:"50%", background:"#d4af37", boxShadow:"0 0 8px rgba(212,175,55,0.6)" }}/>
+          AI · LIVE
         </div>
       </div>
 
       {/* BODY */}
       <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
-        {/* MAP */}
-        <div style={{ flex:1, position:"relative", overflow:"hidden" }}>
+        <div style={{ flex:1, position:"relative", background:"#050810" }}>
           <div ref={mapRef} style={{ width:"100%", height:"100%" }}/>
 
-          {/* Legend */}
-          <div style={{ position:"absolute", bottom:14, left:14, background:"rgba(11,15,20,0.92)", border:"1px solid #1e2a35", borderRadius:8, padding:"10px 14px", zIndex:1000 }}>
-            <div style={{ fontSize:9, letterSpacing:2, color:"#7a8899", textTransform:"uppercase", marginBottom:6 }}>
-              标记颜色 = {FIRE_TYPES[fireType].label} 适合度
+          <div style={{ position:"absolute", bottom:18, left:18, background:"rgba(14,14,16,0.92)", border:"0.5px solid rgba(212,175,55,0.18)", borderRadius:"var(--border-radius-md, 8px)", padding:"12px 16px", backdropFilter:"blur(10px)", zIndex:1000 }}>
+            <div style={{ fontSize:9, letterSpacing:3, color:"#6b6864", textTransform:"uppercase", marginBottom:9, fontWeight:300 }}>
+              {FIRE_TYPES[fireType].label} 适合度
             </div>
             {Object.entries(FIT_CONFIG).map(([k,v]) => (
-              <div key={k} style={{ display:"flex", alignItems:"center", gap:7, fontSize:11, color:"#7a8899", marginBottom:3 }}>
-                <div style={{ width:8, height:8, borderRadius:"50%", background:v.color, flexShrink:0 }}/>
+              <div key={k} style={{ display:"flex", alignItems:"center", gap:9, fontSize:11, color:"#a8a59f", marginBottom:5, fontWeight:300 }}>
+                <div style={{ width:8, height:8, borderRadius:"50%", background:k==="poor"?"transparent":v.color, border:k==="poor"?`1px solid ${v.color}`:"none" }}/>
                 {v.label}
               </div>
             ))}
           </div>
 
           {!selected && (
-            <div style={{ position:"absolute", top:12, left:"50%", transform:"translateX(-50%)", background:"rgba(11,15,20,0.88)", border:"1px solid #1e2a35", borderRadius:20, padding:"5px 16px", fontSize:11, color:"#7a8899", whiteSpace:"nowrap", zIndex:1000, pointerEvents:"none" }}>
-              🌍 点击城市标记 · 滚轮缩放 · 拖拽移动
+            <div style={{ position:"absolute", top:18, left:"50%", transform:"translateX(-50%)", background:"rgba(14,14,16,0.85)", border:"0.5px solid rgba(212,175,55,0.2)", borderRadius:100, padding:"7px 18px", fontSize:10, color:"#8a8884", letterSpacing:1.5, textTransform:"uppercase", fontWeight:300, backdropFilter:"blur(8px)", zIndex:1000, pointerEvents:"none" }}>
+              点击城市 · 滚轮缩放 · 拖拽
             </div>
           )}
         </div>
 
         {/* SIDE PANEL */}
-        <div style={{ width: selected ? 330 : 0, background:"#111820", borderLeft:"1px solid #1e2a35", display:"flex", flexDirection:"column", overflow:"hidden", transition:"width 0.3s ease", flexShrink:0 }}>
+        <div style={{ width: selected ? 360 : 0, background:"#0e0e10", borderLeft:"0.5px solid rgba(212,175,55,0.12)", display:"flex", flexDirection:"column", overflow:"hidden", transition:"width 0.3s ease", flexShrink:0 }}>
           {selected && (
-            <div style={{ width:330, display:"flex", flexDirection:"column", flex:1, overflow:"hidden" }}>
-              {/* Header */}
-              <div style={{ padding:"14px 18px 10px", borderBottom:"1px solid #1e2a35", flexShrink:0, position:"relative" }}>
-                <button onClick={() => setSelected(null)} style={{ position:"absolute", top:10, right:12, width:24, height:24, borderRadius:"50%", background:"#1a2230", border:"1px solid #1e2a35", color:"#7a8899", cursor:"pointer", fontSize:12, display:"flex", alignItems:"center", justifyContent:"center" }}>✕</button>
-                <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:19, color:"#dde6f0", paddingRight:30 }}>
-                  {selected.flag} {selected.country} · {selected.name}
-                </div>
-                <div style={{ fontSize:11, color:"#7a8899", marginTop:2 }}>{selected.sub}</div>
+            <div style={{ width:360, display:"flex", flexDirection:"column", flex:1, overflow:"hidden" }}>
+              <div style={{ padding:"22px 26px 18px", borderBottom:"0.5px solid rgba(212,175,55,0.1)", flexShrink:0, position:"relative" }}>
+                <button onClick={() => setSelected(null)} style={{ position:"absolute", top:18, right:20, width:22, height:22, borderRadius:"50%", background:"transparent", border:"0.5px solid rgba(212,175,55,0.3)", color:"#8a8884", cursor:"pointer", fontSize:10, display:"flex", alignItems:"center", justifyContent:"center" }}>✕</button>
 
-                {/* FIRE Match Badge */}
-                <div style={{ marginTop:10, padding:"8px 12px", background: fit.bg, border:`1px solid ${fit.border}`, borderRadius:8, fontSize:11, lineHeight:1.5 }}>
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
-                    <span style={{ color:"#7a8899" }}>{FIRE_TYPES[fireType].icon} {FIRE_TYPES[fireType].label}（{FIRE_TYPES[fireType].range}）</span>
-                    <span style={{ color: fit.color, fontWeight:700, fontSize:12, background:`${fit.color}22`, padding:"1px 8px", borderRadius:10 }}>{fit.label}</span>
-                  </div>
-                  <div style={{ color:"#8b9ab0", fontSize:11 }}>{fitNote}</div>
+                <div style={{ fontSize:9, letterSpacing:4, color:"#6b6864", textTransform:"uppercase", marginBottom:8, fontWeight:300 }}>
+                  {selected.country} · {selected.region}
                 </div>
+                <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:30, fontWeight:500, color:"#e8e6df", letterSpacing:0.5, lineHeight:1.1 }}>
+                  {selected.name}
+                </div>
+                <div style={{ fontSize:11, color:"#8a8884", marginTop:8, letterSpacing:0.3, fontWeight:300, lineHeight:1.5 }}>
+                  {selected.sub}
+                </div>
+
+                <div style={{ height:0.5, background:"linear-gradient(90deg,transparent 0%,rgba(212,175,55,0.3) 50%,transparent 100%)", margin:"16px 0" }}/>
+
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
+                  <span style={{ fontSize:10, letterSpacing:1.5, color:"#8a8884", textTransform:"uppercase", fontWeight:400 }}>
+                    {FIRE_TYPES[fireType].icon} {FIRE_TYPES[fireType].label}
+                  </span>
+                  <span style={{ fontSize:9, letterSpacing:2, textTransform:"uppercase", fontWeight:500, border:`0.5px solid ${fit.border}`, padding:"3px 10px", borderRadius:100, color:fit.color, background:fit.bg }}>
+                    {fit.label}
+                  </span>
+                </div>
+                <div style={{ fontSize:11, color:"#a8a59f", lineHeight:1.7, fontWeight:300 }}>{fitNote}</div>
               </div>
 
               {/* Cost grid */}
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:5, padding:"10px 14px", borderBottom:"1px solid #1e2a35", flexShrink:0 }}>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, padding:1, background:"rgba(212,175,55,0.08)", borderBottom:"0.5px solid rgba(212,175,55,0.1)", flexShrink:0 }}>
                 {selected.costs.map((c) => (
-                  <div key={c.label} style={{ background:"#1a2230", borderRadius:7, padding:"7px 9px", position:"relative" }}>
-                    <div style={{ fontSize:9, letterSpacing:1.5, color:"#7a8899", textTransform:"uppercase", marginBottom:2 }}>{c.label}</div>
-                    <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:16, color:"#f0c96e" }}>{c.val}</div>
-                    <a href={c.src} target="_blank" rel="noopener noreferrer"
-                      style={{ position:"absolute", top:5, right:6, fontSize:9, color:"#3dd6b5", textDecoration:"none", opacity:0.6 }}
-                      title="数据来源">↗</a>
+                  <div key={c.label} style={{ background:"#0e0e10", padding:"14px 16px", position:"relative" }}>
+                    <div style={{ fontSize:8, letterSpacing:2.5, color:"#6b6864", textTransform:"uppercase", marginBottom:6, fontWeight:300 }}>{c.label}</div>
+                    <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:22, fontWeight:500, color:"#d4af37", letterSpacing:0.5 }}>{c.val}</div>
+                    <a href={c.src} target="_blank" rel="noopener noreferrer" style={{ position:"absolute", top:10, right:12, fontSize:9, color:"#6b6864", textDecoration:"none" }}>↗</a>
                   </div>
                 ))}
               </div>
 
               {/* Tabs */}
-              <div style={{ display:"flex", borderBottom:"1px solid #1e2a35", flexShrink:0 }}>
-                {TABS.map((t, i) => (
-                  <button key={i} onClick={() => setActiveTab(i)} style={{
-                    flex:1, padding:"7px 2px", fontSize:10,
-                    color: activeTab===i ? "#d4a843" : "#7a8899",
+              <div style={{ display:"flex", borderBottom:"0.5px solid rgba(212,175,55,0.1)", flexShrink:0 }}>
+                {TABS.map((t) => (
+                  <button key={t.key} onClick={() => setActiveTab(t.key)} style={{
+                    flex:1, padding:"12px 4px",
+                    fontSize:10, letterSpacing:2.5, textTransform:"uppercase",
+                    color: activeTab===t.key ? "#d4af37" : "#6b6864",
                     cursor:"pointer",
-                    borderBottom: activeTab===i ? "2px solid #d4a843" : "2px solid transparent",
-                    borderTop:"none", borderLeft:"none", borderRight:"none",
-                    background:"none", fontFamily:"inherit", fontWeight:600, textAlign:"center"
-                  }}>{t}</button>
+                    border:"none",
+                    borderBottom: activeTab===t.key ? "1px solid #d4af37" : "1px solid transparent",
+                    background:"none", fontFamily:"inherit", fontWeight:400, textAlign:"center",
+                    transition:"all 0.2s",
+                  }}>{t.label}</button>
                 ))}
               </div>
 
-              {/* Scroll */}
-              <div style={{ flex:1, overflowY:"auto", padding:"10px 14px" }}>
+              <div style={{ flex:1, overflowY:"auto", padding:"18px 26px" }}>
                 {renderTabContent()}
               </div>
 
-              {/* AI */}
-              <div style={{ padding:"10px 14px 12px", borderTop:"1px solid #1e2a35", flexShrink:0 }}>
+              <div style={{ padding:"18px 26px 22px", borderTop:"0.5px solid rgba(212,175,55,0.1)", flexShrink:0 }}>
                 <button onClick={askAI} disabled={aiLoading} style={{
-                  width:"100%", padding:"9px",
-                  background:"linear-gradient(135deg,#d4a843,#b8892f)",
-                  color:"#0b0f14", border:"none", borderRadius:8,
-                  fontFamily:"inherit", fontWeight:700, fontSize:12,
+                  width:"100%", padding:13,
+                  background:"transparent",
+                  color:"#d4af37",
+                  border:"0.5px solid rgba(212,175,55,0.4)",
+                  borderRadius:2,
+                  fontFamily:"inherit", fontWeight:400, fontSize:10,
+                  letterSpacing:3, textTransform:"uppercase",
                   cursor: aiLoading ? "not-allowed" : "pointer",
-                  opacity: aiLoading ? 0.7 : 1
+                  opacity: aiLoading ? 0.5 : 1,
+                  transition:"all 0.3s",
                 }}>
-                  {aiLoading ? "⏳ AI分析中..." : `✦ 为什么${selected.name}${fit.label === "非常适合" ? "非常适合" : fit.label === "勉强可行" ? "只是勉强适合" : "不适合"}我的${FIRE_TYPES[fireType].label}？`}
+                  {aiLoading ? "✦  分析中  ✦" : "✦  请 AI 个性化分析  ✦"}
                 </button>
                 {(aiText || aiLoading) && (
-                  <div style={{ marginTop:8, padding:"10px 12px", background:"rgba(61,214,181,0.05)", border:"1px solid rgba(61,214,181,0.2)", borderRadius:8, fontSize:12, lineHeight:1.75, color:"#c8d8e8", whiteSpace:"pre-wrap", maxHeight:200, overflowY:"auto" }}>
+                  <div style={{ marginTop:12, padding:"14px 16px", background:"rgba(212,175,55,0.04)", border:"0.5px solid rgba(212,175,55,0.15)", borderRadius:2, fontSize:12, lineHeight:1.85, color:"#c8c5bd", whiteSpace:"pre-wrap", maxHeight:220, overflowY:"auto", fontWeight:300 }}>
                     {aiText}
-                    {aiLoading && <span style={{ color:"#3dd6b5" }}>▋</span>}
+                    {aiLoading && <span style={{ color:"#d4af37" }}>▋</span>}
                   </div>
                 )}
               </div>
