@@ -4,31 +4,53 @@ import { useState, useEffect, useRef } from "react";
 const T = {
   zh: {
     appName: "FIRENomad", appTag: "独立旅居图鉴", cities: "城市",
-    aiLive: "AI · 实时",
-    hint: "点击城市 · 滚轮缩放 · 拖拽",
+    aiLive: "AI · 实时", hint: "点击城市 · 滚轮缩放 · 拖拽",
     fitLegend: "适合度", great: "非常适合", ok: "勉强可行", poor: "不推荐",
     fireRange: { lean: "$1,500-2,000/月", regular: "$2,000-4,000/月", fat: "$4,000+/月", barista: "半退休+兼职", coast: "被动收入为主" },
-    tabs: ["成本", "签证", "医保", "安全", "社区"],
-    sec: { tips: "省钱贴士", visa: "签证类型", health: "医疗体系", ins: "保险建议", safety: "安全状况", culture: "文化考量", community: "实时讨论攻略" },
+    tabs: ["💰 财务", "📋 居留", "🏠 生活", "✨ 氛围", "💬 讨论"],
+    sec: {
+      cost: "成本明细", tips: "省钱贴士", tax: "税务规则",
+      visa: "签证类型", family_visa: "家属附签", residency: "永居路径",
+      health: "医疗体系", ins: "保险建议", education: "教育选择", safety: "安全状况", culture: "文化考量", family_summary: "家庭概览",
+      vibe_overview: "氛围概览", vibe_detail: "推荐场所",
+      community: "实时讨论"
+    },
+    vibeLabels: { yoga: "🧘 瑜伽/健身", performance: "🎭 演出/戏剧", art: "🎨 艺术展览", music: "🎵 现场音乐", food: "🍳 美食氛围", outdoor: "🌳 户外/自然" },
     ai: { title: "AI 个性化分析", askBtn: "请 AI 个性化分析", loading: "分析中", placeholder: "继续问 AI...（Enter 发送）", send: "发送", you: "你", aiLabel: "AI 分析", aiFollow: "AI 跟进", err: "错误", net: "网络问题，请稍后重试" },
-    community: { refresh: "↻ 刷新", loading: "📡 AI 正在搜索 Reddit... 约需 10-20 秒", noResults: "AI 未找到相关帖子。请使用下方直链", hint: "AI 抓取 Reddit 帖子（约 10-20 秒）", openLink: "查看 ↗", directTitle: "或直接到论坛搜索：" },
-    suggested: ["如果我想带家人一起来，签证怎么办？", "如果带宠物搬过去，要注意什么？", "比较这个城市和其他热门 FIRE 城市哪个更适合我？"],
-    cost: { Monthly: "月均总计", Housing: "住宿", Food: "餐饮", Transit: "交通", Leisure: "娱乐", Health: "医保" },
+    community: { refresh: "↻ 刷新", loading: "📡 AI 正在搜索 Reddit... 约需 10-20 秒", noResults: "AI 未找到相关帖子，请使用下方直链", hint: "AI 抓取真实讨论", openLink: "查看 ↗", directTitle: "或直接到论坛搜索：" },
+    suggested: ["带家人一起来，签证怎么办？", "搬过去要带什么必需品？", "比较这个城市和其他热门 FIRE 城市哪个更适合我？"],
+    cost: { Monthly: "月均总计", Housing: "住宿", Food: "餐饮", Transit: "交通", Leisure: "娱乐", Health: "医保", Education: "教育" },
     close: "✕",
+    hh: "家庭规模", hhSection: "家庭规模",
+    perPerson: "人均",
+    vsBaseline: "对比单身",
+    newCategory: "新增",
+    multipliers: { Monthly:"×总倍数", Housing:"×住宿", Food:"×餐饮", Transit:"×交通", Leisure:"×娱乐", Health:"×医保" },
   },
   en: {
     appName: "FIRENomad", appTag: "Atlas of Independence", cities: "cities",
-    aiLive: "AI · LIVE",
-    hint: "Click city · Scroll to zoom · Drag",
+    aiLive: "AI · LIVE", hint: "Click city · Scroll to zoom · Drag",
     fitLegend: "Compatibility", great: "Highly Suitable", ok: "Marginal", poor: "Not Recommended",
     fireRange: { lean: "$1.5-2k/mo", regular: "$2-4k/mo", fat: "$4k+/mo", barista: "Semi-retire+Part-time", coast: "Mostly Passive" },
-    tabs: ["Cost", "Visa", "Health", "Safety", "Community"],
-    sec: { tips: "Insider Notes", visa: "Visa Types", health: "Healthcare", ins: "Insurance", safety: "Safety", culture: "Culture", community: "Live Discussions" },
-    ai: { title: "AI Personal Analysis", askBtn: "Ask AI · Personal Analysis", loading: "Analyzing", placeholder: "Follow up with AI... (Enter)", send: "Send", you: "You", aiLabel: "AI Analysis", aiFollow: "AI Follow-up", err: "Error", net: "Network issue" },
-    community: { refresh: "↻ Refresh", loading: "📡 AI searching Reddit... 10-20s", noResults: "AI didn't find specific posts. Use direct links below", hint: "AI scraping Reddit threads (~10-20s)", openLink: "View ↗", directTitle: "Or search directly:" },
-    suggested: ["What visa options exist for bringing my family?", "What should I know about relocating with pets?", "Compare this city with other popular FIRE destinations for me"],
-    cost: { Monthly: "Monthly", Housing: "Housing", Food: "Food", Transit: "Transit", Leisure: "Leisure", Health: "Health" },
+    tabs: ["💰 Finance", "📋 Residency", "🏠 Living", "✨ Vibe", "💬 Discussion"],
+    sec: {
+      cost: "Cost Breakdown", tips: "Insider Notes", tax: "Tax Rules",
+      visa: "Visa Types", family_visa: "Family Visas", residency: "Path to PR",
+      health: "Healthcare", ins: "Insurance", education: "Education", safety: "Safety", culture: "Culture", family_summary: "Family Overview",
+      vibe_overview: "Vibe Overview", vibe_detail: "Curated Venues",
+      community: "Live Discussions"
+    },
+    vibeLabels: { yoga: "🧘 Yoga/Fitness", performance: "🎭 Theater/Shows", art: "🎨 Art/Galleries", music: "🎵 Live Music", food: "🍳 Food Scene", outdoor: "🌳 Outdoor/Nature" },
+    ai: { title: "AI Personal Analysis", askBtn: "Ask AI · Personal Analysis", loading: "Analyzing", placeholder: "Follow up... (Enter)", send: "Send", you: "You", aiLabel: "AI Analysis", aiFollow: "AI Follow-up", err: "Error", net: "Network issue" },
+    community: { refresh: "↻ Refresh", loading: "📡 AI searching Reddit... 10-20s", noResults: "AI didn't find specific posts. Use direct links below", hint: "AI scrapes real discussions", openLink: "View ↗", directTitle: "Or search directly:" },
+    suggested: ["What visa options for bringing family?", "What essentials to pack for moving?", "Compare this city with other popular FIRE destinations"],
+    cost: { Monthly: "Monthly", Housing: "Housing", Food: "Food", Transit: "Transit", Leisure: "Leisure", Health: "Health", Education: "Education" },
     close: "✕",
+    hh: "Household", hhSection: "Household Size",
+    perPerson: "per person",
+    vsBaseline: "vs single",
+    newCategory: "new",
+    multipliers: { Monthly:"×total", Housing:"×housing", Food:"×food", Transit:"×transit", Leisure:"×leisure", Health:"×health" },
   }
 };
 
@@ -38,6 +60,22 @@ const FIRE_TYPES = {
   fat:     { label:"Fat",     icon:"💎" },
   barista: { label:"Barista", icon:"☕" },
   coast:   { label:"Coast",   icon:"🌊" },
+};
+
+const HOUSEHOLDS = {
+  single: { emoji:"👤", label:{zh:"单身", en:"Single"}, desc:{zh:"1 人·基准 ×1.0", en:"1 person·baseline"} },
+  couple: { emoji:"👫", label:{zh:"夫妻/情侣", en:"Couple"}, desc:{zh:"2 人·共住餐饮", en:"2 people·shared"} },
+  family3: { emoji:"👨‍👩‍👧", label:{zh:"家庭 3 人", en:"Family of 3"}, desc:{zh:"2 大人 + 1 孩 · 含教育", en:"2 adults + 1 child"} },
+  family4: { emoji:"👨‍👩‍👧‍👦", label:{zh:"家庭 4 人", en:"Family of 4"}, desc:{zh:"2 大人 + 2 孩 · 含教育", en:"2 adults + 2 children"} },
+  retired: { emoji:"👴", label:{zh:"退休夫妇", en:"Retired Couple"}, desc:{zh:"2 长辈 · 含医疗加成", en:"2 elders · w/healthcare"} },
+};
+
+const MULTIPLIERS = {
+  single:  { Monthly:1.0, Housing:1.0, Food:1.0, Transit:1.0, Leisure:1.0, Health:1.0, Education:0 },
+  couple:  { Monthly:1.4, Housing:1.2, Food:1.8, Transit:1.5, Leisure:1.6, Health:2.0, Education:0 },
+  family3: { Monthly:2.0, Housing:1.4, Food:2.4, Transit:2.3, Leisure:2.0, Health:2.4, Education:1 },
+  family4: { Monthly:2.3, Housing:1.5, Food:2.9, Transit:2.7, Leisure:2.3, Health:2.7, Education:2 },
+  retired: { Monthly:1.5, Housing:1.2, Food:1.7, Transit:1.3, Leisure:1.5, Health:3.0, Education:0 },
 };
 
 const FIT_CONFIG = {
@@ -52,7 +90,7 @@ const TAG_STYLE = {
   red:    { background:"rgba(196,92,110,0.15)",  color:"#c45c6e", border:"rgba(196,92,110,0.3)" },
 };
 
-// ─── 40 CITIES (bilingual, fact-checked May 2026) ────────────────────────────
+// ─── 40 CITIES ───────────────────────────────────────────────────────────────
 const CITIES = [
   {
     "id": "chengdu",
@@ -258,7 +296,131 @@ const CITIES = [
         },
         "src": "https://en.chengdu.gov.cn"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 3,
+        "art": 4,
+        "music": 3,
+        "food": 5,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "food",
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "🍳",
+          "name_zh": "宽窄巷子小吃街",
+          "name_en": "Kuanzhai Alley Food Street",
+          "area_zh": "市中心",
+          "area_en": "Downtown",
+          "price": "$5-15/餐",
+          "tags": [
+            "美食",
+            "传统"
+          ],
+          "src": "https://en.wikipedia.org/wiki/Kuanzhai_Alley"
+        },
+        {
+          "emoji": "🐼",
+          "name_zh": "大熊猫繁育研究基地",
+          "name_en": "Panda Research Base",
+          "area_zh": "北郊",
+          "area_en": "North",
+          "price": "¥58",
+          "tags": [
+            "自然",
+            "户外"
+          ],
+          "src": "https://www.panda.org.cn"
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "锦江剧场川剧",
+          "name_en": "Jinjiang Theatre Sichuan Opera",
+          "area_zh": "市中心",
+          "area_en": "Downtown",
+          "price": "¥150-300",
+          "tags": [
+            "川剧",
+            "传统"
+          ],
+          "src": "http://www.cdjjjj.com"
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Y+ Yoga 工作室",
+          "name_en": "Y+ Yoga Studio",
+          "area_zh": "高新区",
+          "area_en": "High-tech zone",
+          "price": "¥150/次",
+          "tags": [
+            "瑜伽",
+            "国际化"
+          ],
+          "src": "https://www.yplus.com.cn"
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "成都当代美术馆",
+          "name_en": "Chengdu MOCA",
+          "area_zh": "高新区",
+          "area_en": "High-tech",
+          "price": "¥30",
+          "tags": [
+            "当代艺术"
+          ],
+          "src": "https://www.cdmoca.org"
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "青城山徒步",
+          "name_en": "Mt. Qingcheng Hiking",
+          "area_zh": "郊区",
+          "area_en": "Suburb",
+          "price": "¥90",
+          "tags": [
+            "徒步",
+            "道教文化"
+          ],
+          "src": "https://whc.unesco.org/en/list/1001"
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "成都国际学校充足，华西医院儿科顶级，物价低，适合中文环境家庭。配偶探亲签灵活。",
+        "en": "Good intl school options, West China Hospital pediatrics top-tier, low cost. Ideal for Chinese-speaking families."
+      },
+      "schools": [
+        {
+          "zh_name": "成都美视国际学校",
+          "en_name": "CIS Chengdu",
+          "type": "intl_top",
+          "price": "$22k-28k/年",
+          "src": "https://www.cdcis.com.cn"
+        },
+        {
+          "zh_name": "成都七中嘉祥国际",
+          "en_name": "Chengdu QSI",
+          "type": "intl_ib",
+          "price": "$15k-20k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地公立学校",
+          "en_name": "Local public school",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 800
   },
   {
     "id": "guangzhou",
@@ -404,7 +566,129 @@ const CITIES = [
         },
         "src": "https://www.gz.gov.cn"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 3,
+        "art": 3,
+        "music": 3,
+        "food": 5,
+        "outdoor": 3
+      },
+      "greenStars": [
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🍳",
+          "name_zh": "陶陶居早茶",
+          "name_en": "Tao Tao Ju Yum Cha",
+          "area_zh": "荔湾区",
+          "area_en": "Liwan",
+          "price": "¥80-150/人",
+          "tags": [
+            "早茶",
+            "粤菜"
+          ],
+          "src": "https://en.wikipedia.org/wiki/Yum_cha"
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "广州大剧院",
+          "name_en": "Guangzhou Opera House",
+          "area_zh": "珠江新城",
+          "area_en": "Zhujiang",
+          "price": "¥80-680",
+          "tags": [
+            "歌剧",
+            "扎哈设计"
+          ],
+          "src": "https://www.gzdjy.org"
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "广东美术馆",
+          "name_en": "Guangdong Art Museum",
+          "area_zh": "二沙岛",
+          "area_en": "Ersha Island",
+          "price": "免费",
+          "tags": [
+            "艺术",
+            "免费"
+          ],
+          "src": "http://www.gdmoa.org"
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "卡瓦哈拉瑜伽",
+          "name_en": "Karma Yoga Studio",
+          "area_zh": "天河区",
+          "area_en": "Tianhe",
+          "price": "¥100-150/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "白云山",
+          "name_en": "Baiyun Mountain",
+          "area_zh": "白云区",
+          "area_en": "Baiyun",
+          "price": "¥5",
+          "tags": [
+            "徒步",
+            "城市公园"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "TU 凸空间 Live House",
+          "name_en": "TU Space Live House",
+          "area_zh": "越秀区",
+          "area_en": "Yuexiu",
+          "price": "¥100-300",
+          "tags": [
+            "独立音乐"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校选择丰富（美侨/朝庸/英国学校），中山一院顶级儿科，宜居家庭。",
+        "en": "Many intl school options (AISG, BSG, etc.), top pediatric care."
+      },
+      "schools": [
+        {
+          "zh_name": "广州美国人学校 (AISG)",
+          "en_name": "AISG",
+          "type": "intl_top",
+          "price": "$30k-40k/年",
+          "src": "https://www.aisgz.org"
+        },
+        {
+          "zh_name": "广州英国学校 (BSG)",
+          "en_name": "BSG",
+          "type": "intl_ib",
+          "price": "$25k-35k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地公立学校",
+          "en_name": "Local public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1200
   },
   {
     "id": "qingdao",
@@ -550,7 +834,122 @@ const CITIES = [
         },
         "src": "https://www.qd.gov.cn"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 2,
+        "performance": 2,
+        "art": 3,
+        "music": 2,
+        "food": 4,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "🏖️",
+          "name_zh": "第一海水浴场",
+          "name_en": "No.1 Beach",
+          "area_zh": "市南区",
+          "area_en": "Shinan",
+          "price": "免费",
+          "tags": [
+            "海滩",
+            "免费"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍺",
+          "name_zh": "青岛啤酒博物馆",
+          "name_en": "Tsingtao Beer Museum",
+          "area_zh": "登州路",
+          "area_en": "Dengzhou Rd",
+          "price": "¥60",
+          "tags": [
+            "啤酒",
+            "文化"
+          ],
+          "src": "https://www.tsingtaomuseum.com"
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "劈柴院海鲜",
+          "name_en": "Pichaiyuan Seafood Street",
+          "area_zh": "市南区",
+          "area_en": "Shinan",
+          "price": "¥80-200/人",
+          "tags": [
+            "海鲜"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "崂山徒步",
+          "name_en": "Mt. Lao Hiking",
+          "area_zh": "崂山区",
+          "area_en": "Laoshan",
+          "price": "¥130",
+          "tags": [
+            "徒步",
+            "道教"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "青岛市美术馆",
+          "name_en": "Qingdao Art Museum",
+          "area_zh": "市北区",
+          "area_en": "Shibei",
+          "price": "免费",
+          "tags": [
+            "艺术"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "⛵",
+          "name_zh": "奥帆中心",
+          "name_en": "Olympic Sailing Center",
+          "area_zh": "浮山湾",
+          "area_en": "Fushan Bay",
+          "price": "免费看",
+          "tags": [
+            "帆船",
+            "海上"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校少但有 MTI；公立学校优质，海滨环境对孩子健康好。",
+        "en": "Limited intl schools but MTI exists; good public schools, healthy coastal env."
+      },
+      "schools": [
+        {
+          "zh_name": "青岛 MTI 国际学校",
+          "en_name": "MTI Qingdao",
+          "type": "intl_ib",
+          "price": "$18k-25k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地公立学校",
+          "en_name": "Local public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 600
   },
   {
     "id": "dalian",
@@ -696,7 +1095,122 @@ const CITIES = [
         },
         "src": "https://www.dl.gov.cn"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 2,
+        "performance": 2,
+        "art": 2,
+        "music": 2,
+        "food": 4,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "🏖️",
+          "name_zh": "金石滩",
+          "name_en": "Golden Pebble Beach",
+          "area_zh": "开发区",
+          "area_en": "Dev Zone",
+          "price": "免费",
+          "tags": [
+            "海滩",
+            "地质公园"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "天津街海鲜",
+          "name_en": "Tianjin St. Seafood",
+          "area_zh": "市中心",
+          "area_en": "Downtown",
+          "price": "¥100-300/人",
+          "tags": [
+            "海鲜"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "老虎滩海洋公园",
+          "name_en": "Laohutan Ocean Park",
+          "area_zh": "中山区",
+          "area_en": "Zhongshan",
+          "price": "¥220",
+          "tags": [
+            "海洋",
+            "家庭"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "大连人民文化俱乐部",
+          "name_en": "Dalian Cultural Club",
+          "area_zh": "中山广场",
+          "area_en": "Zhongshan Sq",
+          "price": "¥100-300",
+          "tags": [
+            "演出"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "星海广场散步",
+          "name_en": "Xinghai Square Walk",
+          "area_zh": "沙河口",
+          "area_en": "Shahekou",
+          "price": "免费",
+          "tags": [
+            "户外",
+            "广场"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "大连现代博物馆",
+          "name_en": "Dalian Modern Museum",
+          "area_zh": "沙河口",
+          "area_en": "Shahekou",
+          "price": "免费",
+          "tags": [
+            "历史",
+            "艺术"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校选择有限，公立学校教育质量高；适合中文环境家庭退休族。",
+        "en": "Limited intl options; strong public schools. Best for Chinese-speaking retired families."
+      },
+      "schools": [
+        {
+          "zh_name": "大连枫叶国际学校",
+          "en_name": "Maple Leaf Intl",
+          "type": "intl_ib",
+          "price": "$15k-20k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地公立学校",
+          "en_name": "Local public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 500
   },
   {
     "id": "xiamen",
@@ -842,7 +1356,121 @@ const CITIES = [
         },
         "src": "https://www.xm.gov.cn"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 2,
+        "art": 3,
+        "music": 3,
+        "food": 4,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "🏝️",
+          "name_zh": "鼓浪屿岛",
+          "name_en": "Gulangyu Island",
+          "area_zh": "思明区",
+          "area_en": "Siming",
+          "price": "¥50 船票",
+          "tags": [
+            "海岛",
+            "历史"
+          ],
+          "src": "https://whc.unesco.org/en/list/1541"
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "沙坡尾艺术西区",
+          "name_en": "Shapowei Art Zone",
+          "area_zh": "思明区",
+          "area_en": "Siming",
+          "price": "¥30-100/人",
+          "tags": [
+            "小吃",
+            "文艺"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "环岛路骑行",
+          "name_en": "Round Island Cycling",
+          "area_zh": "思明区",
+          "area_en": "Siming",
+          "price": "租车 ¥30/天",
+          "tags": [
+            "骑行",
+            "海岸"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "厦门美术馆",
+          "name_en": "Xiamen Art Museum",
+          "area_zh": "思明区",
+          "area_en": "Siming",
+          "price": "免费",
+          "tags": [
+            "艺术"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "瑜伽社区 (本地)",
+          "name_en": "Local Yoga Community",
+          "area_zh": "市内多家",
+          "area_en": "Citywide",
+          "price": "¥80-150/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "真Live House",
+          "name_en": "Real Live House",
+          "area_zh": "思明区",
+          "area_en": "Siming",
+          "price": "¥80-200",
+          "tags": [
+            "独立音乐"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "厦门美国人学校 + 公立质量优，海岛环境对孩子极佳。",
+        "en": "XIS + strong public schools, island env great for kids."
+      },
+      "schools": [
+        {
+          "zh_name": "厦门美国国际学校 (XIS)",
+          "en_name": "XIS",
+          "type": "intl_top",
+          "price": "$20k-28k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地公立学校",
+          "en_name": "Local public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 700
   },
   {
     "id": "kunming",
@@ -988,7 +1616,128 @@ const CITIES = [
         },
         "src": "https://www.km.gov.cn"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 2,
+        "art": 3,
+        "music": 3,
+        "food": 4,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "🌳",
+          "name_zh": "翠湖公园",
+          "name_en": "Cuihu Park",
+          "area_zh": "市中心",
+          "area_en": "Downtown",
+          "price": "免费",
+          "tags": [
+            "公园",
+            "红嘴鸥"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "昆明小吃街 / 米线",
+          "name_en": "Kunming Mixian Streets",
+          "area_zh": "五华区",
+          "area_en": "Wuhua",
+          "price": "¥10-30/餐",
+          "tags": [
+            "米线",
+            "本地小吃"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "西山徒步",
+          "name_en": "Western Hills Hiking",
+          "area_zh": "西山区",
+          "area_en": "Xishan",
+          "price": "¥40",
+          "tags": [
+            "徒步",
+            "滇池"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌸",
+          "name_zh": "斗南花市",
+          "name_en": "Dounan Flower Market",
+          "area_zh": "呈贡区",
+          "area_en": "Chenggong",
+          "price": "免费逛",
+          "tags": [
+            "鲜花",
+            "亚洲最大"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "云南民族博物馆",
+          "name_en": "Yunnan Nationalities Museum",
+          "area_zh": "西山区",
+          "area_en": "Xishan",
+          "price": "免费",
+          "tags": [
+            "民族文化"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "瑜伽工作室 (本地)",
+          "name_en": "Local Yoga Studios",
+          "area_zh": "五华区",
+          "area_en": "Wuhua",
+          "price": "¥80-150/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校选择有限但公立优质，气候温和最适合带孩子或养老父母。",
+        "en": "Limited intl options but good public schools; mild climate best for kids/elderly."
+      },
+      "schools": [
+        {
+          "zh_name": "昆明世青国际学校",
+          "en_name": "YCIS Kunming",
+          "type": "intl_ib",
+          "price": "$15k-22k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地公立学校",
+          "en_name": "Local public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "ok",
+        "regular": "ok",
+        "fat": "poor",
+        "barista": "ok",
+        "coast": "ok"
+      }
+    },
+    "eduPerKid": 400
   },
   {
     "id": "tokyo",
@@ -1194,7 +1943,152 @@ const CITIES = [
         },
         "src": "https://www.metro.tokyo.lg.jp"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 5,
+        "art": 5,
+        "music": 5,
+        "food": 5,
+        "outdoor": 3
+      },
+      "greenStars": [
+        "performance",
+        "food",
+        "art"
+      ],
+      "venues": [
+        {
+          "emoji": "🎨",
+          "name_zh": "森美术馆",
+          "name_en": "Mori Art Museum",
+          "area_zh": "六本木",
+          "area_en": "Roppongi",
+          "price": "¥2,000",
+          "tags": [
+            "当代艺术",
+            "城景"
+          ],
+          "src": "https://www.mori.art.museum/en"
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "歌舞伎座",
+          "name_en": "Kabuki-za Theatre",
+          "area_zh": "银座",
+          "area_en": "Ginza",
+          "price": "¥4,000-22,000",
+          "tags": [
+            "歌舞伎",
+            "传统"
+          ],
+          "src": "https://www.kabuki-bito.jp/eng/"
+        },
+        {
+          "emoji": "🍣",
+          "name_zh": "筑地外市场 / Sushi Saito",
+          "name_en": "Tsukiji Outer Market / Sushi Saito",
+          "area_zh": "中央区",
+          "area_en": "Chuo",
+          "price": "¥1k-50k",
+          "tags": [
+            "寿司",
+            "米其林"
+          ],
+          "src": "https://www.tsukiji.or.jp/english"
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "YogaWorks Tokyo",
+          "name_en": "YogaWorks Tokyo",
+          "area_zh": "六本木/惠比寿",
+          "area_en": "Roppongi/Ebisu",
+          "price": "¥3,500/次",
+          "tags": [
+            "瑜伽",
+            "英文"
+          ],
+          "src": "https://yogaworks.jp"
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Blue Note Tokyo",
+          "name_en": "Blue Note Tokyo",
+          "area_zh": "南青山",
+          "area_en": "Minami-Aoyama",
+          "price": "¥7,000-15,000",
+          "tags": [
+            "爵士",
+            "国际艺人"
+          ],
+          "src": "https://www.bluenote.co.jp/jp/"
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "代代木公园 + 高尾山",
+          "name_en": "Yoyogi Park + Mt. Takao",
+          "area_zh": "涩谷/八王子",
+          "area_en": "Shibuya/Hachioji",
+          "price": "免费 / ¥1,000",
+          "tags": [
+            "公园",
+            "徒步"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "📚",
+          "name_zh": "teamLab Planets",
+          "name_en": "teamLab Planets",
+          "area_zh": "丰洲",
+          "area_en": "Toyosu",
+          "price": "¥3,800",
+          "tags": [
+            "数字艺术",
+            "沉浸式"
+          ],
+          "src": "https://planets.teamlab.art/tokyo/"
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校丰富但贵，治安全球第一，公共安全感对家庭无可比。配偶签复杂。",
+        "en": "Many intl schools but expensive; safest globally for families. Spouse visa is complex."
+      },
+      "schools": [
+        {
+          "zh_name": "美国学校 ASIJ",
+          "en_name": "ASIJ",
+          "type": "intl_top",
+          "price": "$33k-38k/年",
+          "src": "https://www.asij.ac.jp"
+        },
+        {
+          "zh_name": "英国学校 BST",
+          "en_name": "BST Tokyo",
+          "type": "intl_ib",
+          "price": "$28k-33k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "日本公立学校",
+          "en_name": "Japan public",
+          "type": "local",
+          "price": "免费 (需日语)",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "poor",
+        "regular": "ok",
+        "fat": "great",
+        "barista": "poor",
+        "coast": "poor"
+      }
+    },
+    "eduPerKid": 2200
   },
   {
     "id": "osaka",
@@ -1356,7 +2250,121 @@ const CITIES = [
         },
         "src": "https://www.jnto.go.jp"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 4,
+        "art": 4,
+        "music": 4,
+        "food": 5,
+        "outdoor": 3
+      },
+      "greenStars": [
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🍳",
+          "name_zh": "道顿堀 + 黑门市场",
+          "name_en": "Dotonbori + Kuromon Market",
+          "area_zh": "中央区",
+          "area_en": "Chuo",
+          "price": "¥500-3,000/餐",
+          "tags": [
+            "美食",
+            "章鱼烧"
+          ],
+          "src": "https://kuromon.com"
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "国立文乐剧场",
+          "name_en": "National Bunraku Theatre",
+          "area_zh": "日本桥",
+          "area_en": "Nipponbashi",
+          "price": "¥2,400-6,500",
+          "tags": [
+            "文乐",
+            "木偶剧"
+          ],
+          "src": "https://www.ntj.jac.go.jp/bunraku.html"
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "国立国际美术馆",
+          "name_en": "National Museum of Art Osaka",
+          "area_zh": "中之岛",
+          "area_en": "Nakanoshima",
+          "price": "¥430",
+          "tags": [
+            "当代艺术"
+          ],
+          "src": "https://www.nmao.go.jp"
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Yoga Studio Osaka",
+          "name_en": "Yoga Studio Osaka",
+          "area_zh": "梅田",
+          "area_en": "Umeda",
+          "price": "¥2,500/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Billboard Live Osaka",
+          "name_en": "Billboard Live Osaka",
+          "area_zh": "北区",
+          "area_en": "Kita",
+          "price": "¥6,000-12,000",
+          "tags": [
+            "现场音乐"
+          ],
+          "src": "https://www.billboard-live.com"
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "大阪城公园",
+          "name_en": "Osaka Castle Park",
+          "area_zh": "中央区",
+          "area_en": "Chuo",
+          "price": "免费 / ¥600 城堡",
+          "tags": [
+            "公园",
+            "历史"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "比东京便宜 30%，国际学校少但治安顶级，配偶签需经营或工作。",
+        "en": "30% cheaper than Tokyo, fewer intl schools, top safety. Spouse visa needs work/biz."
+      },
+      "schools": [
+        {
+          "zh_name": "大阪 YMCA 国际",
+          "en_name": "Osaka YMCA Intl",
+          "type": "intl_ib",
+          "price": "$20k-28k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "日本公立学校",
+          "en_name": "Japan public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1800
   },
   {
     "id": "fukuoka",
@@ -1518,7 +2526,127 @@ const CITIES = [
         },
         "src": "https://www.welcomekyushu.com"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 3,
+        "art": 3,
+        "music": 3,
+        "food": 5,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🍜",
+          "name_zh": "中洲屋台街",
+          "name_en": "Nakasu Yatai Street",
+          "area_zh": "中洲",
+          "area_en": "Nakasu",
+          "price": "¥800-2,000/餐",
+          "tags": [
+            "拉面",
+            "屋台"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🏖️",
+          "name_zh": "福冈海滨",
+          "name_en": "Itoshima Beach",
+          "area_zh": "糸岛",
+          "area_en": "Itoshima",
+          "price": "免费",
+          "tags": [
+            "海滩",
+            "冲浪"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "福冈亚洲美术馆",
+          "name_en": "Fukuoka Asian Art Museum",
+          "area_zh": "博多",
+          "area_en": "Hakata",
+          "price": "¥200",
+          "tags": [
+            "亚洲艺术"
+          ],
+          "src": "https://faam.city.fukuoka.lg.jp/en/"
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "FOREST Yoga",
+          "name_en": "FOREST Yoga Fukuoka",
+          "area_zh": "天神",
+          "area_en": "Tenjin",
+          "price": "¥2,500/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "大濠公园",
+          "name_en": "Ohori Park",
+          "area_zh": "中央区",
+          "area_en": "Chuo",
+          "price": "免费",
+          "tags": [
+            "公园",
+            "跑步"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "博多座剧场",
+          "name_en": "Hakataza Theatre",
+          "area_zh": "博多",
+          "area_en": "Hakata",
+          "price": "¥3,000-15,000",
+          "tags": [
+            "传统戏剧"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "日本最适合家庭城市之一，性价比高，创业签证友好。",
+        "en": "One of Japan's best for families, great value, startup visa-friendly."
+      },
+      "schools": [
+        {
+          "zh_name": "福冈国际学校 FIS",
+          "en_name": "FIS Fukuoka",
+          "type": "intl_top",
+          "price": "$22k-28k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "日本公立学校",
+          "en_name": "Japan public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "poor",
+        "regular": "great",
+        "fat": "great",
+        "barista": "great",
+        "coast": "ok"
+      }
+    },
+    "eduPerKid": 1500
   },
   {
     "id": "sapporo",
@@ -1664,7 +2792,121 @@ const CITIES = [
         },
         "src": "https://www.visit-hokkaido.jp"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 2,
+        "performance": 3,
+        "art": 3,
+        "music": 3,
+        "food": 4,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "⛷️",
+          "name_zh": "二世古 / 札幌国际滑雪场",
+          "name_en": "Niseko / Sapporo Intl Ski",
+          "area_zh": "郊区",
+          "area_en": "Suburb",
+          "price": "¥6,000-12,000/天",
+          "tags": [
+            "滑雪",
+            "世界级"
+          ],
+          "src": "https://www.niseko.ne.jp"
+        },
+        {
+          "emoji": "❄️",
+          "name_zh": "札幌雪节",
+          "name_en": "Sapporo Snow Festival",
+          "area_zh": "大通公园",
+          "area_en": "Odori Park",
+          "price": "免费",
+          "tags": [
+            "雪雕",
+            "年度"
+          ],
+          "src": "https://www.snowfes.com"
+        },
+        {
+          "emoji": "🍣",
+          "name_zh": "二条市场 / 海鲜井",
+          "name_en": "Nijo Market / Kaisendon",
+          "area_zh": "中央区",
+          "area_en": "Chuo",
+          "price": "¥1,500-4,000/餐",
+          "tags": [
+            "海鲜",
+            "新鲜"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍺",
+          "name_zh": "札幌啤酒博物馆",
+          "name_en": "Sapporo Beer Museum",
+          "area_zh": "东区",
+          "area_en": "Higashi",
+          "price": "免费",
+          "tags": [
+            "啤酒"
+          ],
+          "src": "https://www.sapporobeer.jp"
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "北海道近代美术馆",
+          "name_en": "Hokkaido Modern Art Museum",
+          "area_zh": "中央区",
+          "area_en": "Chuo",
+          "price": "¥510",
+          "tags": [
+            "现代艺术"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "莫埃来沼公园 (野口设计)",
+          "name_en": "Moerenuma Park (Noguchi)",
+          "area_zh": "东区",
+          "area_en": "Higashi",
+          "price": "免费",
+          "tags": [
+            "景观艺术"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "四季分明环境优良，国际学校少但治安顶级；冬季滑雪是孩子福利。",
+        "en": "4-season great env, few intl schools but top safety; winter skiing is bonus."
+      },
+      "schools": [
+        {
+          "zh_name": "Hokkaido International School",
+          "en_name": "HIS Sapporo",
+          "type": "intl_ib",
+          "price": "$18k-25k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "日本公立学校",
+          "en_name": "Japan public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1200
   },
   {
     "id": "kyoto",
@@ -1810,7 +3052,124 @@ const CITIES = [
         },
         "src": "https://kyoto.travel"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 5,
+        "art": 5,
+        "music": 3,
+        "food": 4,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "performance",
+        "art"
+      ],
+      "venues": [
+        {
+          "emoji": "⛩️",
+          "name_zh": "伏见稻荷 + 清水寺",
+          "name_en": "Fushimi Inari + Kiyomizu-dera",
+          "area_zh": "东山/伏见",
+          "area_en": "Higashiyama",
+          "price": "免费 / ¥400",
+          "tags": [
+            "神社",
+            "千年文化"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "南座歌舞伎",
+          "name_en": "Minamiza Kabuki",
+          "area_zh": "东山",
+          "area_en": "Higashiyama",
+          "price": "¥4,000-22,000",
+          "tags": [
+            "歌舞伎"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍵",
+          "name_zh": "宇治抹茶道",
+          "name_en": "Uji Matcha Tea Ceremony",
+          "area_zh": "宇治",
+          "area_en": "Uji",
+          "price": "¥3,000-5,000",
+          "tags": [
+            "茶道",
+            "传统"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "京都国立博物馆",
+          "name_en": "Kyoto National Museum",
+          "area_zh": "东山",
+          "area_en": "Higashiyama",
+          "price": "¥700",
+          "tags": [
+            "国宝",
+            "古美术"
+          ],
+          "src": "https://www.kyohaku.go.jp/eng/"
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "禅修体验 (各寺院)",
+          "name_en": "Zen Meditation (Temples)",
+          "area_zh": "市内",
+          "area_en": "Citywide",
+          "price": "¥1,000-3,000",
+          "tags": [
+            "禅修",
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "岚山竹林 + 哲学之道",
+          "name_en": "Arashiyama + Philosopher Path",
+          "area_zh": "西/东",
+          "area_en": "West/East",
+          "price": "免费",
+          "tags": [
+            "徒步",
+            "樱花"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "文化氛围浓，国际学校少，适合文化沉浸型家庭。",
+        "en": "Rich culture, few intl schools, ideal for culture-immersion families."
+      },
+      "schools": [
+        {
+          "zh_name": "京都国际学校 KIS",
+          "en_name": "KIS Kyoto",
+          "type": "intl_ib",
+          "price": "$20k-25k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "日本公立学校",
+          "en_name": "Japan public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1700
   },
   {
     "id": "nagoya",
@@ -1956,7 +3315,120 @@ const CITIES = [
         },
         "src": "https://www.nagoya-info.jp"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 3,
+        "art": 3,
+        "music": 3,
+        "food": 4,
+        "outdoor": 3
+      },
+      "greenStars": [
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🍤",
+          "name_zh": "味噌煮乌冬名店",
+          "name_en": "Miso Nikomi Udon Houses",
+          "area_zh": "市内",
+          "area_en": "Citywide",
+          "price": "¥1,000-2,000",
+          "tags": [
+            "乌冬",
+            "味噌"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🏯",
+          "name_zh": "名古屋城 + 德川园",
+          "name_en": "Nagoya Castle + Tokugawa",
+          "area_zh": "中区",
+          "area_en": "Naka",
+          "price": "¥500",
+          "tags": [
+            "城堡",
+            "庭园"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "丰田博物馆",
+          "name_en": "Toyota Museum",
+          "area_zh": "长久手",
+          "area_en": "Nagakute",
+          "price": "¥1,200",
+          "tags": [
+            "工业设计"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "瑜伽工作室",
+          "name_en": "Yoga Studios",
+          "area_zh": "荣区",
+          "area_en": "Sakae",
+          "price": "¥2,500/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "鹤舞公园",
+          "name_en": "Tsuruma Park",
+          "area_zh": "昭和区",
+          "area_en": "Showa",
+          "price": "免费",
+          "tags": [
+            "公园"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "名古屋音乐厅 (Aichi Concert)",
+          "name_en": "Aichi Prefectural Concert Hall",
+          "area_zh": "东区",
+          "area_en": "Higashi",
+          "price": "¥3,000-12,000",
+          "tags": [
+            "古典音乐"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "日本中部商业枢纽，国际学校尚可，适合工作签证家庭。",
+        "en": "Central Japan business hub, decent intl schools, fits work visa families."
+      },
+      "schools": [
+        {
+          "zh_name": "名古屋国际学校 NIS",
+          "en_name": "NIS Nagoya",
+          "type": "intl_top",
+          "price": "$22k-28k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "日本公立学校",
+          "en_name": "Japan public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1600
   },
   {
     "id": "taipei",
@@ -2102,7 +3574,151 @@ const CITIES = [
         },
         "src": "https://www.taiwan.gov.tw"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 4,
+        "art": 4,
+        "music": 4,
+        "food": 5,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "food",
+        "yoga"
+      ],
+      "venues": [
+        {
+          "emoji": "🍢",
+          "name_zh": "宁夏夜市 / 士林夜市",
+          "name_en": "Ningxia / Shilin Night Market",
+          "area_zh": "大同/士林",
+          "area_en": "Datong/Shilin",
+          "price": "NT$50-200/餐",
+          "tags": [
+            "夜市",
+            "小吃"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "故宫博物院",
+          "name_en": "National Palace Museum",
+          "area_zh": "士林",
+          "area_en": "Shilin",
+          "price": "NT$350",
+          "tags": [
+            "国宝",
+            "中华艺术"
+          ],
+          "src": "https://www.npm.gov.tw/en/"
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "True Yoga 真适瑜伽",
+          "name_en": "True Yoga",
+          "area_zh": "信义区",
+          "area_en": "Xinyi",
+          "price": "NT$1,500/月",
+          "tags": [
+            "瑜伽连锁",
+            "顶级"
+          ],
+          "src": "https://www.trueyoga.com.tw"
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Legacy Taipei 音乐展演",
+          "name_en": "Legacy Taipei",
+          "area_zh": "中山区",
+          "area_en": "Zhongshan",
+          "price": "NT$800-2,500",
+          "tags": [
+            "独立音乐",
+            "演出"
+          ],
+          "src": "https://www.legacy.com.tw"
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "国家两厅院",
+          "name_en": "National Theater & Concert Hall",
+          "area_zh": "中正区",
+          "area_en": "Zhongzheng",
+          "price": "NT$500-3,500",
+          "tags": [
+            "歌剧",
+            "古典"
+          ],
+          "src": "https://npac-ntch.org/en/"
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "象山步道 + 阳明山",
+          "name_en": "Elephant Mt. + Yangmingshan",
+          "area_zh": "信义/北投",
+          "area_en": "Xinyi/Beitou",
+          "price": "免费",
+          "tags": [
+            "徒步",
+            "温泉"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "📚",
+          "name_zh": "诚品书店",
+          "name_en": "Eslite Bookstore",
+          "area_zh": "信义区",
+          "area_en": "Xinyi",
+          "price": "免费",
+          "tags": [
+            "书店",
+            "24小时"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "亚洲家庭 FIRE 首选——华语零障碍 + 健保便宜 + TAS/TES 顶级国际学校 + 治安顶级。",
+        "en": "Asia's top family FIRE pick—Mandarin, cheap health, TAS/TES intl schools, top safety."
+      },
+      "schools": [
+        {
+          "zh_name": "台北美国学校 (TAS)",
+          "en_name": "Taipei American School",
+          "type": "intl_top",
+          "price": "$22k-32k/年",
+          "src": "https://www.tas.edu.tw"
+        },
+        {
+          "zh_name": "台北欧洲学校 (TES)",
+          "en_name": "Taipei European School",
+          "type": "intl_ib",
+          "price": "$18k-28k/年",
+          "src": "https://www.taipeieuropeanschool.com"
+        },
+        {
+          "zh_name": "本地公立学校",
+          "en_name": "Local public",
+          "type": "local",
+          "price": "免费 (中文)",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "ok",
+        "regular": "great",
+        "fat": "great",
+        "barista": "great",
+        "coast": "great"
+      }
+    },
+    "eduPerKid": 1500
   },
   {
     "id": "chiang_mai",
@@ -2315,7 +3931,150 @@ const CITIES = [
         },
         "src": "https://www.bbc.com/news/world-asia-29628191"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 5,
+        "performance": 2,
+        "art": 3,
+        "music": 3,
+        "food": 4,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "yoga",
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "🧘",
+          "name_zh": "Wild Rose Yoga / Yoga Tree",
+          "name_en": "Wild Rose Yoga / Yoga Tree",
+          "area_zh": "古城",
+          "area_en": "Old City",
+          "price": "$8-12/次",
+          "tags": [
+            "瑜伽",
+            "国际",
+            "顶级社区"
+          ],
+          "src": "https://www.wildroseyogachiangmai.com"
+        },
+        {
+          "emoji": "🍜",
+          "name_zh": "Khao Soi 餐 + 周日夜市",
+          "name_en": "Khao Soi + Sunday Night Market",
+          "area_zh": "古城",
+          "area_en": "Old City",
+          "price": "$2-5/餐",
+          "tags": [
+            "小吃",
+            "夜市"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🐘",
+          "name_zh": "Elephant Nature Park 大象救助",
+          "name_en": "Elephant Nature Park",
+          "area_zh": "郊区",
+          "area_en": "Suburb",
+          "price": "$80/天",
+          "tags": [
+            "大象",
+            "公益"
+          ],
+          "src": "https://www.elephantnaturepark.org"
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "Doi Suthep + Doi Inthanon 徒步",
+          "name_en": "Doi Suthep + Doi Inthanon Hike",
+          "area_zh": "郊区",
+          "area_en": "Suburb",
+          "price": "$5-15",
+          "tags": [
+            "徒步",
+            "山林"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Vipassana 内观禅修",
+          "name_en": "Vipassana Meditation",
+          "area_zh": "郊区寺院",
+          "area_en": "Temple",
+          "price": "免费 (寺院)",
+          "tags": [
+            "禅修"
+          ],
+          "src": "https://www.dhamma.org"
+        },
+        {
+          "emoji": "☕",
+          "name_zh": "Ristr8to / 数字游民咖啡馆",
+          "name_en": "Ristr8to / Nomad Cafes",
+          "area_zh": "尼曼区",
+          "area_en": "Nimman",
+          "price": "$3-5/杯",
+          "tags": [
+            "咖啡",
+            "远程工作"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "MAIIAM 当代艺术馆",
+          "name_en": "MAIIAM Contemporary Art",
+          "area_zh": "郊区",
+          "area_en": "Suburb",
+          "price": "$5",
+          "tags": [
+            "当代艺术"
+          ],
+          "src": "https://www.maiiam.com"
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "低成本顶级国际学校（PRC、Lanna），慢节奏适合带孩子，签证家庭友好。",
+        "en": "Affordable top intl schools (PRC, Lanna), slow pace ideal for kids, family-friendly visas."
+      },
+      "schools": [
+        {
+          "zh_name": "Prem Tinsulanonda Intl (PRC)",
+          "en_name": "PRC",
+          "type": "intl_top",
+          "price": "$15k-22k/年",
+          "src": "https://www.ptis.ac.th"
+        },
+        {
+          "zh_name": "Lanna International School",
+          "en_name": "Lanna Intl",
+          "type": "intl_ib",
+          "price": "$10k-15k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地公立学校",
+          "en_name": "Local public",
+          "type": "local",
+          "price": "$200/年",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "ok",
+        "regular": "ok",
+        "fat": "poor",
+        "barista": "ok",
+        "coast": "ok"
+      }
+    },
+    "eduPerKid": 700
   },
   {
     "id": "bangkok",
@@ -2461,7 +4220,129 @@ const CITIES = [
         },
         "src": "https://www.tourismthailand.org"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 3,
+        "art": 4,
+        "music": 4,
+        "food": 5,
+        "outdoor": 3
+      },
+      "greenStars": [
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🍳",
+          "name_zh": "Chatuchak 市场 + 街头小吃",
+          "name_en": "Chatuchak Market + Street Food",
+          "area_zh": "市内",
+          "area_en": "Citywide",
+          "price": "$2-10/餐",
+          "tags": [
+            "美食",
+            "夜市"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Absolute You / Yoga Elements",
+          "name_en": "Absolute You / Yoga Elements",
+          "area_zh": "Sukhumvit",
+          "area_en": "Sukhumvit",
+          "price": "$10-15/次",
+          "tags": [
+            "瑜伽连锁"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "曼谷艺术文化中心 BACC",
+          "name_en": "BACC",
+          "area_zh": "Pathum Wan",
+          "area_en": "Pathum Wan",
+          "price": "免费",
+          "tags": [
+            "当代艺术"
+          ],
+          "src": "https://www.bacc.or.th"
+        },
+        {
+          "emoji": "💆",
+          "name_zh": "泰式按摩 (Health Land)",
+          "name_en": "Thai Massage (Health Land)",
+          "area_zh": "市内",
+          "area_en": "Citywide",
+          "price": "$15-25/次",
+          "tags": [
+            "按摩",
+            "Spa"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Sing Sing Theater / 夜场",
+          "name_en": "Sing Sing Theater / Nightlife",
+          "area_zh": "Sukhumvit",
+          "area_en": "Sukhumvit",
+          "price": "$10-30/晚",
+          "tags": [
+            "酒吧",
+            "夜生活"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "⛩️",
+          "name_zh": "大皇宫 + 卧佛寺",
+          "name_en": "Grand Palace + Wat Pho",
+          "area_zh": "老城",
+          "area_en": "Old City",
+          "price": "$15",
+          "tags": [
+            "寺院",
+            "文化"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校丰富（NIST、Bangkok Patana 顶级），但交通需考虑，签证家庭灵活。",
+        "en": "Many intl schools (NIST, Bangkok Patana top), traffic concern, flexible family visas."
+      },
+      "schools": [
+        {
+          "zh_name": "NIST International",
+          "en_name": "NIST",
+          "type": "intl_top",
+          "price": "$28k-35k/年",
+          "src": "https://www.nist.ac.th"
+        },
+        {
+          "zh_name": "Bangkok Patana",
+          "en_name": "Bangkok Patana",
+          "type": "intl_ib",
+          "price": "$22k-32k/年",
+          "src": "https://www.patana.ac.th"
+        },
+        {
+          "zh_name": "本地公立 + 双语学校",
+          "en_name": "Local + bilingual",
+          "type": "local",
+          "price": "$3k-8k/年",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1200
   },
   {
     "id": "ho_chi_minh",
@@ -2600,7 +4481,134 @@ const CITIES = [
         },
         "src": "https://ef.com/epi"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 2,
+        "art": 3,
+        "music": 3,
+        "food": 5,
+        "outdoor": 3
+      },
+      "greenStars": [
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🍜",
+          "name_zh": "Pho 24 + 街边法棍 Banh Mi",
+          "name_en": "Pho 24 + Banh Mi Streets",
+          "area_zh": "市内",
+          "area_en": "Citywide",
+          "price": "$1-3/餐",
+          "tags": [
+            "越南粉",
+            "法棍"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "☕",
+          "name_zh": "Cong Caphe + Saigon 咖啡馆",
+          "name_en": "Cong Caphe + Saigon Cafes",
+          "area_zh": "D1/D3",
+          "area_en": "D1/D3",
+          "price": "$1-3/杯",
+          "tags": [
+            "越南咖啡"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Yoga Living Center",
+          "name_en": "Yoga Living Center",
+          "area_zh": "D1/D2",
+          "area_en": "D1/D2",
+          "price": "$8-12/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "美术博物馆 + Salon Saigon",
+          "name_en": "Fine Arts Museum + Salon Saigon",
+          "area_zh": "D1",
+          "area_en": "D1",
+          "price": "$2-5",
+          "tags": [
+            "艺术"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "湄公河三角洲 1 日游",
+          "name_en": "Mekong Delta Day Trip",
+          "area_zh": "郊区",
+          "area_en": "Outskirts",
+          "price": "$15-30",
+          "tags": [
+            "户外",
+            "船游"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Bui Vien 步行街",
+          "name_en": "Bui Vien Walking Street",
+          "area_zh": "D1",
+          "area_en": "D1",
+          "price": "免费",
+          "tags": [
+            "夜生活",
+            "酒吧"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校多但贵，E-Visa 全家可用，越南文化对孩子开放。",
+        "en": "Many intl schools but pricey, E-visa works for whole family, open culture."
+      },
+      "schools": [
+        {
+          "zh_name": "American School (TAS)",
+          "en_name": "TAS HCMC",
+          "type": "intl_top",
+          "price": "$22k-30k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "British International (BIS)",
+          "en_name": "BIS HCMC",
+          "type": "intl_ib",
+          "price": "$18k-28k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地公立学校",
+          "en_name": "Local public",
+          "type": "local",
+          "price": "$500-2k/年",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "ok",
+        "regular": "ok",
+        "fat": "poor",
+        "barista": "ok",
+        "coast": "ok"
+      }
+    },
+    "eduPerKid": 700
   },
   {
     "id": "hanoi",
@@ -2739,7 +4747,129 @@ const CITIES = [
         },
         "src": "https://whc.unesco.org"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 3,
+        "art": 4,
+        "music": 3,
+        "food": 5,
+        "outdoor": 3
+      },
+      "greenStars": [
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🍳",
+          "name_zh": "老城区美食巡礼",
+          "name_en": "Old Quarter Food Tour",
+          "area_zh": "Hoan Kiem",
+          "area_en": "Hoan Kiem",
+          "price": "$1-3/餐",
+          "tags": [
+            "小吃",
+            "传统"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "Thang Long 水上木偶剧",
+          "name_en": "Thang Long Water Puppet",
+          "area_zh": "Hoan Kiem",
+          "area_en": "Hoan Kiem",
+          "price": "$5-8",
+          "tags": [
+            "水偶",
+            "传统"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "☕",
+          "name_zh": "Tay Ho 湖区咖啡",
+          "name_en": "Tay Ho Lake Cafes",
+          "area_zh": "Tay Ho",
+          "area_en": "Tay Ho",
+          "price": "$2-5/杯",
+          "tags": [
+            "咖啡",
+            "湖景"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "越南美术博物馆",
+          "name_en": "Vietnam Fine Arts Museum",
+          "area_zh": "Ba Dinh",
+          "area_en": "Ba Dinh",
+          "price": "$2",
+          "tags": [
+            "美术",
+            "国家"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "瑜伽社区 (Tay Ho)",
+          "name_en": "Yoga Community (Tay Ho)",
+          "area_zh": "Tay Ho",
+          "area_en": "Tay Ho",
+          "price": "$8-12/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "Ha Long Bay 周末游",
+          "name_en": "Ha Long Bay Weekend",
+          "area_zh": "郊区",
+          "area_en": "Outskirts",
+          "price": "$50-150/日",
+          "tags": [
+            "海湾",
+            "世遗"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校选择不如胡志明多，文化深厚适合文化沉浸家庭。",
+        "en": "Fewer intl options than HCMC, rich culture for immersion families."
+      },
+      "schools": [
+        {
+          "zh_name": "UN International School (UNIS)",
+          "en_name": "UNIS Hanoi",
+          "type": "intl_top",
+          "price": "$25k-32k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地公立学校",
+          "en_name": "Local public",
+          "type": "local",
+          "price": "$500-2k/年",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "ok",
+        "regular": "ok",
+        "fat": "poor",
+        "barista": "ok",
+        "coast": "ok"
+      }
+    },
+    "eduPerKid": 600
   },
   {
     "id": "bali",
@@ -2894,7 +5024,150 @@ const CITIES = [
         },
         "src": "https://www.indonesia.travel"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 5,
+        "performance": 3,
+        "art": 4,
+        "music": 4,
+        "food": 4,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "yoga",
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "🧘",
+          "name_zh": "The Yoga Barn / Radiantly Alive",
+          "name_en": "The Yoga Barn / Radiantly Alive",
+          "area_zh": "乌布",
+          "area_en": "Ubud",
+          "price": "$13-20/次",
+          "tags": [
+            "瑜伽",
+            "世界级",
+            "灵性"
+          ],
+          "src": "https://theyogabarn.com"
+        },
+        {
+          "emoji": "🏄",
+          "name_zh": "Canggu / Uluwatu 冲浪",
+          "name_en": "Canggu / Uluwatu Surf",
+          "area_zh": "南岛",
+          "area_en": "South",
+          "price": "$30-40/课",
+          "tags": [
+            "冲浪",
+            "海浪"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "Locavore / Warung Babi Guling",
+          "name_en": "Locavore / Babi Guling",
+          "area_zh": "乌布",
+          "area_en": "Ubud",
+          "price": "$5-50/餐",
+          "tags": [
+            "米其林",
+            "本地"
+          ],
+          "src": "https://locavore.co.id"
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "ARMA / Neka 艺术馆",
+          "name_en": "ARMA / Neka Museum",
+          "area_zh": "乌布",
+          "area_en": "Ubud",
+          "price": "$7",
+          "tags": [
+            "巴厘艺术"
+          ],
+          "src": "https://armabali.com"
+        },
+        {
+          "emoji": "💆",
+          "name_zh": "Bali 传统 Spa + 按摩",
+          "name_en": "Bali Spa + Massage",
+          "area_zh": "乌布/Seminyak",
+          "area_en": "Ubud/Seminyak",
+          "price": "$15-50",
+          "tags": [
+            "Spa",
+            "按摩"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "☕",
+          "name_zh": "Dojo Bali 共享办公咖啡",
+          "name_en": "Dojo Bali Coworking",
+          "area_zh": "Canggu",
+          "area_en": "Canggu",
+          "price": "$25/天",
+          "tags": [
+            "数字游民"
+          ],
+          "src": "https://www.dojobali.org"
+        },
+        {
+          "emoji": "🌋",
+          "name_zh": "Mt. Batur 日出徒步",
+          "name_en": "Mt. Batur Sunrise Hike",
+          "area_zh": "北岛",
+          "area_en": "North",
+          "price": "$30-50",
+          "tags": [
+            "徒步",
+            "火山"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "绿色学校 (Green School) 闻名世界，户外环境对孩子极佳；E33G 数字游民签包括家属。",
+        "en": "Green School world-famous, outdoor environment ideal for kids; E33G nomad visa includes family."
+      },
+      "schools": [
+        {
+          "zh_name": "Green School Bali",
+          "en_name": "Green School",
+          "type": "intl_top",
+          "price": "$15k-22k/年",
+          "src": "https://www.greenschool.org"
+        },
+        {
+          "zh_name": "Bali Island School (BIS)",
+          "en_name": "BIS Bali",
+          "type": "intl_ib",
+          "price": "$13k-18k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "Sekolah (本地)",
+          "en_name": "Local Sekolah",
+          "type": "local",
+          "price": "$200/年",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "ok",
+        "regular": "ok",
+        "fat": "poor",
+        "barista": "ok",
+        "coast": "ok"
+      }
+    },
+    "eduPerKid": 1200
   },
   {
     "id": "penang",
@@ -3033,7 +5306,129 @@ const CITIES = [
         },
         "src": "https://www.tourism.gov.my"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 2,
+        "art": 4,
+        "music": 3,
+        "food": 5,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "food",
+        "art"
+      ],
+      "venues": [
+        {
+          "emoji": "🍜",
+          "name_zh": "乔治市美食 (Char Kway Teow, Laksa)",
+          "name_en": "George Town Hawker (Char Kway Teow, Laksa)",
+          "area_zh": "George Town",
+          "area_en": "George Town",
+          "price": "$2-5/餐",
+          "tags": [
+            "美食",
+            "世界级"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "街头壁画 / Hin Bus Depot",
+          "name_en": "Street Murals / Hin Bus Depot",
+          "area_zh": "George Town",
+          "area_en": "George Town",
+          "price": "免费",
+          "tags": [
+            "街艺",
+            "文化"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "瑜伽工作室 (Yoga Plus 等)",
+          "name_en": "Yoga Plus etc.",
+          "area_zh": "George Town",
+          "area_en": "George Town",
+          "price": "$8-12/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🏖️",
+          "name_zh": "Batu Ferringhi 海滩",
+          "name_en": "Batu Ferringhi Beach",
+          "area_zh": "北部",
+          "area_en": "North",
+          "price": "免费",
+          "tags": [
+            "海滩"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "⛰️",
+          "name_zh": "Penang Hill 缆车 + 徒步",
+          "name_en": "Penang Hill Funicular + Hike",
+          "area_zh": "Air Itam",
+          "area_en": "Air Itam",
+          "price": "$3-10",
+          "tags": [
+            "徒步",
+            "城景"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "Penang Performing Arts Centre",
+          "name_en": "Penang Performing Arts Centre",
+          "area_zh": "Bayan Lepas",
+          "area_en": "Bayan Lepas",
+          "price": "$10-30",
+          "tags": [
+            "演出"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "MM2H 全家移居，国际学校选择多 + 多元文化对孩子好。",
+        "en": "MM2H covers family, many intl schools + multicultural exposure good for kids."
+      },
+      "schools": [
+        {
+          "zh_name": "Uplands International",
+          "en_name": "Uplands",
+          "type": "intl_top",
+          "price": "$15k-22k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "Tenby International",
+          "en_name": "Tenby Penang",
+          "type": "intl_ib",
+          "price": "$10k-15k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地 + Chinese 学校",
+          "en_name": "Local + Chinese",
+          "type": "local",
+          "price": "$1k-3k/年",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 900
   },
   {
     "id": "manila",
@@ -3172,7 +5567,134 @@ const CITIES = [
         },
         "src": "https://ef.com/epi"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 3,
+        "art": 3,
+        "music": 4,
+        "food": 4,
+        "outdoor": 3
+      },
+      "greenStars": [
+        "music"
+      ],
+      "venues": [
+        {
+          "emoji": "🍳",
+          "name_zh": "BGC + Poblacion 餐厅区",
+          "name_en": "BGC + Poblacion Dining",
+          "area_zh": "Taguig/Makati",
+          "area_en": "Taguig/Makati",
+          "price": "$5-30/餐",
+          "tags": [
+            "国际餐"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Live Music Bars (Makati)",
+          "name_en": "Live Music Bars (Makati)",
+          "area_zh": "Makati",
+          "area_en": "Makati",
+          "price": "$5-15",
+          "tags": [
+            "现场音乐",
+            "OPM"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Yoga Plus / White Space",
+          "name_en": "Yoga Plus / White Space",
+          "area_zh": "BGC",
+          "area_en": "BGC",
+          "price": "$10-15/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "国家美术馆",
+          "name_en": "National Museum of Fine Arts",
+          "area_zh": "Manila",
+          "area_en": "Manila",
+          "price": "免费",
+          "tags": [
+            "艺术",
+            "免费"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🏝️",
+          "name_zh": "Boracay / Palawan 周末游",
+          "name_en": "Boracay / Palawan Weekend",
+          "area_zh": "国内",
+          "area_en": "Domestic",
+          "price": "$100-300/日",
+          "tags": [
+            "海岛",
+            "潜水"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "⛪",
+          "name_zh": "Intramuros 西班牙旧城",
+          "name_en": "Intramuros Old Spanish Town",
+          "area_zh": "Manila",
+          "area_en": "Manila",
+          "price": "$2-5",
+          "tags": [
+            "历史"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "英语零障碍 + SRRV 全家覆盖，BGC 是家庭最佳选择。",
+        "en": "English barrier-free + SRRV covers family, BGC best for families."
+      },
+      "schools": [
+        {
+          "zh_name": "International School Manila",
+          "en_name": "ISM",
+          "type": "intl_top",
+          "price": "$25k-32k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "British School Manila",
+          "en_name": "BSM",
+          "type": "intl_ib",
+          "price": "$20k-28k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地双语学校",
+          "en_name": "Bilingual local",
+          "type": "local",
+          "price": "$2k-5k/年",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "ok",
+        "regular": "ok",
+        "fat": "ok",
+        "barista": "ok",
+        "coast": "ok"
+      }
+    },
+    "eduPerKid": 900
   },
   {
     "id": "kuala_lumpur",
@@ -3327,7 +5849,135 @@ const CITIES = [
         },
         "src": "https://www.tourism.gov.my"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 3,
+        "art": 3,
+        "music": 3,
+        "food": 5,
+        "outdoor": 3
+      },
+      "greenStars": [
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🍜",
+          "name_zh": "Jalan Alor 美食街",
+          "name_en": "Jalan Alor Food Street",
+          "area_zh": "Bukit Bintang",
+          "area_en": "Bukit Bintang",
+          "price": "$3-8/餐",
+          "tags": [
+            "夜市",
+            "多元"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "PURE Yoga 连锁",
+          "name_en": "PURE Yoga",
+          "area_zh": "市内多店",
+          "area_en": "Citywide",
+          "price": "$15-20/次",
+          "tags": [
+            "瑜伽顶级"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "国家美术馆",
+          "name_en": "National Art Gallery",
+          "area_zh": "Titiwangsa",
+          "area_en": "Titiwangsa",
+          "price": "免费",
+          "tags": [
+            "艺术",
+            "免费"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "No Black Tie Live",
+          "name_en": "No Black Tie Live",
+          "area_zh": "Bukit Bintang",
+          "area_en": "Bukit Bintang",
+          "price": "$10-25",
+          "tags": [
+            "爵士"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🏞️",
+          "name_zh": "Batu Caves + Kanching 瀑布",
+          "name_en": "Batu Caves + Kanching Falls",
+          "area_zh": "郊区",
+          "area_en": "Outskirts",
+          "price": "免费",
+          "tags": [
+            "徒步",
+            "印度教"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌃",
+          "name_zh": "Heli Lounge Bar 天空酒吧",
+          "name_en": "Heli Lounge Bar",
+          "area_zh": "Bukit Bintang",
+          "area_en": "Bukit Bintang",
+          "price": "$15-25/杯",
+          "tags": [
+            "夜景",
+            "酒吧"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "MM2H 全家移居，国际学校选择最多（Garden, ISKL），多元文化优势。",
+        "en": "MM2H whole family, most intl schools (Garden, ISKL), multicultural advantage."
+      },
+      "schools": [
+        {
+          "zh_name": "International School KL (ISKL)",
+          "en_name": "ISKL",
+          "type": "intl_top",
+          "price": "$25k-32k/年",
+          "src": "https://www.iskl.edu.my"
+        },
+        {
+          "zh_name": "Garden International",
+          "en_name": "Garden Intl",
+          "type": "intl_ib",
+          "price": "$18k-25k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地华人 / 印度学校",
+          "en_name": "Local Chinese / Indian",
+          "type": "local",
+          "price": "$1k-3k/年",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "ok",
+        "regular": "great",
+        "fat": "great",
+        "barista": "great",
+        "coast": "great"
+      }
+    },
+    "eduPerKid": 1100
   },
   {
     "id": "singapore",
@@ -3466,7 +6116,138 @@ const CITIES = [
         },
         "src": "https://www.gov.sg"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 5,
+        "performance": 5,
+        "art": 5,
+        "music": 4,
+        "food": 5,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "yoga",
+        "art",
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🍳",
+          "name_zh": "Hawker Centre 米其林小贩",
+          "name_en": "Michelin Hawker Centres",
+          "area_zh": "全市",
+          "area_en": "Citywide",
+          "price": "$3-8/餐",
+          "tags": [
+            "米其林街食",
+            "顶级"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "National Gallery + ArtScience Museum",
+          "name_en": "National Gallery + ArtScience",
+          "area_zh": "Marina Bay",
+          "area_en": "Marina Bay",
+          "price": "$15-25",
+          "tags": [
+            "艺术",
+            "顶级"
+          ],
+          "src": "https://www.nationalgallery.sg"
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "PURE Yoga / Hom Yoga",
+          "name_en": "PURE Yoga / Hom Yoga",
+          "area_zh": "全市",
+          "area_en": "Citywide",
+          "price": "$25-35/次",
+          "tags": [
+            "瑜伽顶级"
+          ],
+          "src": "https://www.pure-yoga.com"
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "Esplanade 滨海艺术中心",
+          "name_en": "Esplanade",
+          "area_zh": "Marina Bay",
+          "area_en": "Marina Bay",
+          "price": "$30-200",
+          "tags": [
+            "剧院",
+            "顶级"
+          ],
+          "src": "https://www.esplanade.com"
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "Gardens by the Bay + 麦里芝",
+          "name_en": "Gardens by Bay + MacRitchie",
+          "area_zh": "Marina Bay",
+          "area_en": "Marina Bay",
+          "price": "$20",
+          "tags": [
+            "花园",
+            "徒步"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Blu Jaz Cafe / Singapore Symphony",
+          "name_en": "Blu Jaz Cafe / SSO",
+          "area_zh": "Kampong Glam",
+          "area_en": "Kampong Glam",
+          "price": "$10-80",
+          "tags": [
+            "爵士",
+            "古典"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "亚洲家庭天堂——但极贵；UWCSEA + ISS 顶尖。需投资移民 $2.5M。",
+        "en": "Asia's family heaven but very expensive; UWCSEA + ISS top. Need $2.5M investor visa."
+      },
+      "schools": [
+        {
+          "zh_name": "UWC South East Asia",
+          "en_name": "UWCSEA",
+          "type": "intl_top",
+          "price": "$35k-45k/年",
+          "src": "https://www.uwcsea.edu.sg"
+        },
+        {
+          "zh_name": "International School (ISS)",
+          "en_name": "ISS",
+          "type": "intl_ib",
+          "price": "$30k-38k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地公立 (PR 才可)",
+          "en_name": "Local (PR only)",
+          "type": "local",
+          "price": "$2k-6k/年",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "poor",
+        "regular": "poor",
+        "fat": "great",
+        "barista": "ok",
+        "coast": "poor"
+      }
+    },
+    "eduPerKid": 2500
   },
   {
     "id": "lisbon",
@@ -3621,7 +6402,151 @@ const CITIES = [
         },
         "src": "https://www.visitportugal.com"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 5,
+        "art": 4,
+        "music": 4,
+        "food": 4,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "yoga",
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "🧘",
+          "name_zh": "Yoga Shala / Inhala",
+          "name_en": "Yoga Shala / Inhala",
+          "area_zh": "Príncipe Real",
+          "area_en": "Príncipe Real",
+          "price": "€15/次",
+          "tags": [
+            "瑜伽",
+            "英文授课"
+          ],
+          "src": "https://yogashalalisboa.pt"
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "São Carlos 国家歌剧院",
+          "name_en": "São Carlos Opera House",
+          "area_zh": "Chiado",
+          "area_en": "Chiado",
+          "price": "€15-80",
+          "tags": [
+            "歌剧",
+            "古典"
+          ],
+          "src": "https://tnsc.pt"
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Hot Clube de Portugal 爵士",
+          "name_en": "Hot Clube de Portugal",
+          "area_zh": "Príncipe Real",
+          "area_en": "Príncipe Real",
+          "price": "€10-15",
+          "tags": [
+            "爵士",
+            "夜生活"
+          ],
+          "src": "https://hcp.pt"
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "MAAT + Gulbenkian 美术馆",
+          "name_en": "MAAT + Gulbenkian",
+          "area_zh": "Belém/Centro",
+          "area_en": "Belém/Centro",
+          "price": "€11-14",
+          "tags": [
+            "当代",
+            "建筑"
+          ],
+          "src": "https://www.maat.pt"
+        },
+        {
+          "emoji": "🏄",
+          "name_zh": "Carcavelos / Costa da Caparica 冲浪",
+          "name_en": "Carcavelos / Caparica Surf",
+          "area_zh": "郊区",
+          "area_en": "Outskirts",
+          "price": "€30/课",
+          "tags": [
+            "冲浪",
+            "海滩"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎶",
+          "name_zh": "Fado in Alfama (Mesa de Frades)",
+          "name_en": "Fado in Alfama (Mesa de Frades)",
+          "area_zh": "Alfama",
+          "area_en": "Alfama",
+          "price": "€30-50",
+          "tags": [
+            "Fado",
+            "传统"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "💪",
+          "name_zh": "Fitness Hut / Holmes Place",
+          "name_en": "Fitness Hut / Holmes Place",
+          "area_zh": "全市",
+          "area_en": "Citywide",
+          "price": "€30-60/月",
+          "tags": [
+            "健身",
+            "连锁"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "欧洲家庭 FIRE 首选——D7 全家覆盖，国际学校多，欧盟身份长期收益。",
+        "en": "Europe's family FIRE top pick—D7 covers family, many intl schools, EU residency."
+      },
+      "schools": [
+        {
+          "zh_name": "Carlucci American (CAISL)",
+          "en_name": "CAISL",
+          "type": "intl_top",
+          "price": "$18k-25k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "St. Julian's School",
+          "en_name": "St. Julian's",
+          "type": "intl_ib",
+          "price": "$15k-22k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "葡萄牙公立学校",
+          "en_name": "Portuguese public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "poor",
+        "regular": "great",
+        "fat": "great",
+        "barista": "great",
+        "coast": "ok"
+      }
+    },
+    "eduPerKid": 1300
   },
   {
     "id": "porto",
@@ -3760,7 +6685,126 @@ const CITIES = [
         },
         "src": "https://www.visitportoandnorth.travel"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 4,
+        "art": 4,
+        "music": 3,
+        "food": 4,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🍷",
+          "name_zh": "Vila Nova de Gaia 酒窖",
+          "name_en": "Vila Nova de Gaia Wine Cellars",
+          "area_zh": "Gaia",
+          "area_en": "Gaia",
+          "price": "€10-25",
+          "tags": [
+            "波特酒"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "Serralves 美术馆",
+          "name_en": "Serralves Museum",
+          "area_zh": "Foz",
+          "area_en": "Foz",
+          "price": "€20",
+          "tags": [
+            "当代艺术"
+          ],
+          "src": "https://www.serralves.pt"
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "Casa da Música 音乐厅",
+          "name_en": "Casa da Música",
+          "area_zh": "Boavista",
+          "area_en": "Boavista",
+          "price": "€15-60",
+          "tags": [
+            "古典",
+            "建筑"
+          ],
+          "src": "https://www.casadamusica.com"
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "Bolhão 市场 + Francesinha",
+          "name_en": "Bolhão Market + Francesinha",
+          "area_zh": "市中心",
+          "area_en": "Centro",
+          "price": "€10-20/餐",
+          "tags": [
+            "小吃"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "瑜伽工作室 (Yoga Em Casa 等)",
+          "name_en": "Yoga Studios",
+          "area_zh": "市内",
+          "area_en": "Citywide",
+          "price": "€12-18/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌊",
+          "name_zh": "Foz do Douro 海滨散步",
+          "name_en": "Foz do Douro Coastal Walk",
+          "area_zh": "Foz",
+          "area_en": "Foz",
+          "price": "免费",
+          "tags": [
+            "海岸",
+            "户外"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "比里斯本便宜 20%，国际学校少但 Oporto British 优质，D7 全家移居。",
+        "en": "20% cheaper than Lisbon, fewer intl schools but Oporto British top, D7 family-wide."
+      },
+      "schools": [
+        {
+          "zh_name": "Oporto British School",
+          "en_name": "Oporto British",
+          "type": "intl_top",
+          "price": "$15k-22k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "葡萄牙公立学校",
+          "en_name": "Portuguese public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "ok",
+        "regular": "great",
+        "fat": "great",
+        "barista": "great",
+        "coast": "great"
+      }
+    },
+    "eduPerKid": 1100
   },
   {
     "id": "berlin",
@@ -3899,7 +6943,144 @@ const CITIES = [
         },
         "src": "https://www.visitberlin.de"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 5,
+        "art": 5,
+        "music": 5,
+        "food": 4,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "performance",
+        "music",
+        "art"
+      ],
+      "venues": [
+        {
+          "emoji": "🎵",
+          "name_zh": "Berghain / Tresor 电子乐",
+          "name_en": "Berghain / Tresor",
+          "area_zh": "Friedrichshain",
+          "area_en": "Friedrichshain",
+          "price": "€15-25",
+          "tags": [
+            "电子",
+            "Techno"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "Berliner Philharmoniker",
+          "name_en": "Berlin Philharmonic",
+          "area_zh": "Tiergarten",
+          "area_en": "Tiergarten",
+          "price": "€20-150",
+          "tags": [
+            "古典",
+            "顶级"
+          ],
+          "src": "https://www.berliner-philharmoniker.de"
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "Museum Island + East Side Gallery",
+          "name_en": "Museum Island + East Side Gallery",
+          "area_zh": "Mitte",
+          "area_en": "Mitte",
+          "price": "€18-32",
+          "tags": [
+            "博物馆",
+            "街艺"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Spirit Yoga / Yogaspot",
+          "name_en": "Spirit Yoga / Yogaspot",
+          "area_zh": "Mitte",
+          "area_en": "Mitte",
+          "price": "€18-22/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "Markthalle Neun + Döner 街角",
+          "name_en": "Markthalle Neun + Döner",
+          "area_zh": "Kreuzberg",
+          "area_en": "Kreuzberg",
+          "price": "€5-15/餐",
+          "tags": [
+            "国际餐"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "Tiergarten + Tempelhofer Feld",
+          "name_en": "Tiergarten + Tempelhofer Feld",
+          "area_zh": "市内",
+          "area_en": "Citywide",
+          "price": "免费",
+          "tags": [
+            "公园",
+            "跑步"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "Volksbühne / Schaubühne 戏剧",
+          "name_en": "Volksbühne / Schaubühne",
+          "area_zh": "Mitte",
+          "area_en": "Mitte",
+          "price": "€15-50",
+          "tags": [
+            "戏剧",
+            "前卫"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校多（JFKS、BBIS），但自由职业签证家属程序复杂。",
+        "en": "Many intl schools (JFKS, BBIS), but freelance visa for spouse is complex."
+      },
+      "schools": [
+        {
+          "zh_name": "John F. Kennedy School (JFKS)",
+          "en_name": "JFKS",
+          "type": "intl_top",
+          "price": "免费(德美双语)",
+          "src": ""
+        },
+        {
+          "zh_name": "Berlin Brandenburg Intl (BBIS)",
+          "en_name": "BBIS",
+          "type": "intl_ib",
+          "price": "$15k-22k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "德国公立学校",
+          "en_name": "German public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1500
   },
   {
     "id": "amsterdam",
@@ -4038,7 +7219,134 @@ const CITIES = [
         },
         "src": "https://ef.com/epi"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 4,
+        "art": 5,
+        "music": 4,
+        "food": 4,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "art"
+      ],
+      "venues": [
+        {
+          "emoji": "🎨",
+          "name_zh": "Rijksmuseum + Van Gogh 美术馆",
+          "name_en": "Rijksmuseum + Van Gogh Museum",
+          "area_zh": "Museumplein",
+          "area_en": "Museumplein",
+          "price": "€22-25",
+          "tags": [
+            "国宝",
+            "顶级"
+          ],
+          "src": "https://www.rijksmuseum.nl"
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Concertgebouw 音乐厅",
+          "name_en": "Concertgebouw",
+          "area_zh": "Museumplein",
+          "area_en": "Museumplein",
+          "price": "€25-100",
+          "tags": [
+            "古典",
+            "顶级"
+          ],
+          "src": "https://www.concertgebouw.nl"
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "De Nieuwe Yogaschool",
+          "name_en": "De Nieuwe Yogaschool",
+          "area_zh": "市内",
+          "area_en": "Citywide",
+          "price": "€20-25/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🚲",
+          "name_zh": "自行车环城 + Vondelpark",
+          "name_en": "Bike + Vondelpark",
+          "area_zh": "全市",
+          "area_en": "Citywide",
+          "price": "租车 €10/天",
+          "tags": [
+            "骑行",
+            "公园"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "Foodhallen + 印尼 rijsttafel",
+          "name_en": "Foodhallen + Rijsttafel",
+          "area_zh": "Oud-West",
+          "area_en": "Oud-West",
+          "price": "€10-30/餐",
+          "tags": [
+            "国际餐"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "Stadsschouwburg 剧院",
+          "name_en": "International Theater Amsterdam",
+          "area_zh": "Leidseplein",
+          "area_en": "Leidseplein",
+          "price": "€20-60",
+          "tags": [
+            "戏剧"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校多但贵，DAFT 仅美籍主申请，配偶儿童附属；公立质量高。",
+        "en": "Many intl schools but pricey, DAFT US-only for main applicant, family attached; strong public."
+      },
+      "schools": [
+        {
+          "zh_name": "Amsterdam International (AICS)",
+          "en_name": "AICS",
+          "type": "intl_top",
+          "price": "$10k-18k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "British School (BSA)",
+          "en_name": "BSA",
+          "type": "intl_ib",
+          "price": "$20k-28k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "荷兰公立学校",
+          "en_name": "Dutch public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "poor",
+        "regular": "poor",
+        "fat": "great",
+        "barista": "ok",
+        "coast": "poor"
+      }
+    },
+    "eduPerKid": 1800
   },
   {
     "id": "barcelona",
@@ -4193,7 +7501,130 @@ const CITIES = [
         },
         "src": "https://www.barcelona.cat/en"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 4,
+        "art": 5,
+        "music": 4,
+        "food": 5,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "art",
+        "outdoor",
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "⛪",
+          "name_zh": "Sagrada Familia + Park Güell",
+          "name_en": "Sagrada + Park Güell",
+          "area_zh": "Eixample",
+          "area_en": "Eixample",
+          "price": "€26-33",
+          "tags": [
+            "高迪",
+            "建筑"
+          ],
+          "src": "https://sagradafamilia.org"
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "MACBA + Picasso 美术馆",
+          "name_en": "MACBA + Picasso Museum",
+          "area_zh": "El Raval/Born",
+          "area_en": "El Raval/Born",
+          "price": "€11-14",
+          "tags": [
+            "艺术"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🏖️",
+          "name_zh": "Barceloneta 海滩 + 冲浪",
+          "name_en": "Barceloneta Beach + Surf",
+          "area_zh": "Barceloneta",
+          "area_en": "Barceloneta",
+          "price": "免费 / €30 课",
+          "tags": [
+            "海滩",
+            "冲浪"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "Boqueria 市场 + Tapas Tour",
+          "name_en": "Boqueria Market + Tapas",
+          "area_zh": "Las Ramblas",
+          "area_en": "Las Ramblas",
+          "price": "€2-10/盘",
+          "tags": [
+            "Tapas"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Yoga Bindu / Caravan",
+          "name_en": "Yoga Bindu / Caravan",
+          "area_zh": "Eixample",
+          "area_en": "Eixample",
+          "price": "€15-20/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Palau de la Música 音乐厅",
+          "name_en": "Palau de la Música",
+          "area_zh": "Born",
+          "area_en": "Born",
+          "price": "€20-80",
+          "tags": [
+            "古典",
+            "建筑"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校丰富（ASB、BSB），非盈利签证全家覆盖，地中海生活适合孩子。",
+        "en": "Many intl schools (ASB, BSB), NL visa whole family, Mediterranean life ideal."
+      },
+      "schools": [
+        {
+          "zh_name": "American School (ASB)",
+          "en_name": "ASB",
+          "type": "intl_top",
+          "price": "$20k-28k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "British School (BSB)",
+          "en_name": "BSB",
+          "type": "intl_ib",
+          "price": "$18k-25k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "西班牙公立 (含加泰兰)",
+          "en_name": "Spanish public (incl. Catalan)",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1300
   },
   {
     "id": "madrid",
@@ -4332,7 +7763,128 @@ const CITIES = [
         },
         "src": "https://www.esmadrid.com"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 4,
+        "art": 5,
+        "music": 4,
+        "food": 5,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "art",
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🎨",
+          "name_zh": "Prado + Reina Sofía 美术馆三角",
+          "name_en": "Prado + Reina Sofía Triangle",
+          "area_zh": "Centro",
+          "area_en": "Centro",
+          "price": "€15 (6-8pm 免费)",
+          "tags": [
+            "国宝",
+            "毕加索"
+          ],
+          "src": "https://www.museodelprado.es"
+        },
+        {
+          "emoji": "💃",
+          "name_zh": "Flamenco @ Corral de la Morería",
+          "name_en": "Flamenco @ Corral de la Morería",
+          "area_zh": "La Latina",
+          "area_en": "La Latina",
+          "price": "€40-80",
+          "tags": [
+            "弗拉门戈"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "⚽",
+          "name_zh": "Bernabéu / Atlético 球场",
+          "name_en": "Bernabéu / Atlético Stadium",
+          "area_zh": "Chamartín",
+          "area_en": "Chamartín",
+          "price": "€30-200",
+          "tags": [
+            "足球"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "Mercado de San Miguel + Tapas",
+          "name_en": "San Miguel Market + Tapas",
+          "area_zh": "Centro",
+          "area_en": "Centro",
+          "price": "€3-10/盘",
+          "tags": [
+            "Tapas"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Yoga Center Madrid",
+          "name_en": "Yoga Center Madrid",
+          "area_zh": "Salamanca",
+          "area_en": "Salamanca",
+          "price": "€15-22/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "Retiro 公园",
+          "name_en": "Retiro Park",
+          "area_zh": "Centro",
+          "area_en": "Centro",
+          "price": "免费",
+          "tags": [
+            "公园",
+            "划船"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校选择多于巴塞，治安更好，西班牙文化沉浸适合双语家庭。",
+        "en": "More intl schools than BCN, safer, Spanish immersion for bilingual families."
+      },
+      "schools": [
+        {
+          "zh_name": "American School Madrid (ASM)",
+          "en_name": "ASM",
+          "type": "intl_top",
+          "price": "$22k-28k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "British Council School",
+          "en_name": "British Council",
+          "type": "intl_ib",
+          "price": "$18k-25k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "西班牙公立学校",
+          "en_name": "Spanish public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1200
   },
   {
     "id": "valletta",
@@ -4487,7 +8039,123 @@ const CITIES = [
         },
         "src": "https://www.visitmalta.com"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 3,
+        "art": 4,
+        "music": 3,
+        "food": 4,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "🏖️",
+          "name_zh": "Blue Lagoon + Gozo 岛",
+          "name_en": "Blue Lagoon + Gozo Island",
+          "area_zh": "Comino/Gozo",
+          "area_en": "Comino/Gozo",
+          "price": "€20 渡轮",
+          "tags": [
+            "海岛",
+            "潜水"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "MUŻA 国家美术馆",
+          "name_en": "MUŻA National Museum",
+          "area_zh": "Valletta",
+          "area_en": "Valletta",
+          "price": "€10",
+          "tags": [
+            "艺术",
+            "历史"
+          ],
+          "src": "https://heritagemalta.mt"
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "Manoel Theatre (1731 年)",
+          "name_en": "Manoel Theatre (1731)",
+          "area_zh": "Valletta",
+          "area_en": "Valletta",
+          "price": "€15-50",
+          "tags": [
+            "古剧院",
+            "欧洲最古老之一"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "Marsaxlokk 海鲜村",
+          "name_en": "Marsaxlokk Seafood Village",
+          "area_zh": "南部",
+          "area_en": "South",
+          "price": "€15-30/餐",
+          "tags": [
+            "海鲜"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌊",
+          "name_zh": "潜水 (Cirkewwa 等)",
+          "name_en": "Diving (Cirkewwa etc.)",
+          "area_zh": "全岛",
+          "area_en": "Islandwide",
+          "price": "€40-80/次",
+          "tags": [
+            "潜水",
+            "世界级"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🏰",
+          "name_zh": "Mdina 寂静之城",
+          "name_en": "Mdina Silent City",
+          "area_zh": "中部",
+          "area_en": "Central",
+          "price": "免费",
+          "tags": [
+            "古城",
+            "夜景"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "英语官方语言无语言障碍，国际学校少但 Verdala 优质，欧盟身份家庭吸引。",
+        "en": "English official no language barrier, few intl schools but Verdala top, EU residency draw."
+      },
+      "schools": [
+        {
+          "zh_name": "Verdala International",
+          "en_name": "Verdala Intl",
+          "type": "intl_top",
+          "price": "$15k-22k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地英文学校",
+          "en_name": "Local English schools",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1100
   },
   {
     "id": "tbilisi",
@@ -4626,7 +8294,136 @@ const CITIES = [
         },
         "src": "https://georgia.travel"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 3,
+        "art": 3,
+        "music": 4,
+        "food": 4,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "outdoor",
+        "music"
+      ],
+      "venues": [
+        {
+          "emoji": "⛰️",
+          "name_zh": "高加索山脉徒步 (Kazbegi)",
+          "name_en": "Caucasus Hiking (Kazbegi)",
+          "area_zh": "北部",
+          "area_en": "North",
+          "price": "€20-50/日",
+          "tags": [
+            "徒步",
+            "世界级"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍷",
+          "name_zh": "格鲁吉亚葡萄酒品鉴",
+          "name_en": "Georgian Wine Tasting",
+          "area_zh": "Kakheti/Tbilisi",
+          "area_en": "Kakheti/Tbilisi",
+          "price": "€10-30",
+          "tags": [
+            "葡萄酒发源地"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Bassiani 地下夜店",
+          "name_en": "Bassiani Underground Club",
+          "area_zh": "Saburtalo",
+          "area_en": "Saburtalo",
+          "price": "€10-15",
+          "tags": [
+            "Techno",
+            "世界知名"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "Khinkali 饺子 + Khachapuri",
+          "name_en": "Khinkali + Khachapuri",
+          "area_zh": "市内",
+          "area_en": "Citywide",
+          "price": "€3-8/餐",
+          "tags": [
+            "格鲁吉亚菜"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "♨️",
+          "name_zh": "Abanotubani 硫磺温泉",
+          "name_en": "Abanotubani Sulphur Baths",
+          "area_zh": "老城",
+          "area_en": "Old Town",
+          "price": "€10-30",
+          "tags": [
+            "温泉",
+            "传统"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "Fabrika 创意园 + 街艺",
+          "name_en": "Fabrika + Street Art",
+          "area_zh": "Marjanishvili",
+          "area_en": "Marjanishvili",
+          "price": "免费",
+          "tags": [
+            "创意",
+            "街艺"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校选择有限但 BSG/QSI 可用，365 天免签全家适合短期试住。",
+        "en": "Limited intl options but BSG/QSI exist, 365-day visa-free great for trial."
+      },
+      "schools": [
+        {
+          "zh_name": "British School Tbilisi",
+          "en_name": "BST",
+          "type": "intl_top",
+          "price": "$10k-15k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "QSI Tbilisi",
+          "en_name": "QSI",
+          "type": "intl_ib",
+          "price": "$8k-12k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "格鲁吉亚公立学校",
+          "en_name": "Georgian public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "ok",
+        "regular": "ok",
+        "fat": "poor",
+        "barista": "ok",
+        "coast": "ok"
+      }
+    },
+    "eduPerKid": 500
   },
   {
     "id": "budapest",
@@ -4781,7 +8578,130 @@ const CITIES = [
         },
         "src": "https://ef.com/epi"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 4,
+        "art": 4,
+        "music": 4,
+        "food": 4,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "performance"
+      ],
+      "venues": [
+        {
+          "emoji": "♨️",
+          "name_zh": "Széchenyi 温泉浴场",
+          "name_en": "Széchenyi Thermal Baths",
+          "area_zh": "市中心",
+          "area_en": "City Park",
+          "price": "€20-25",
+          "tags": [
+            "温泉",
+            "地标"
+          ],
+          "src": "https://www.szechenyibath.com"
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "匈牙利国家歌剧院",
+          "name_en": "Hungarian State Opera",
+          "area_zh": "Andrássy",
+          "area_en": "Andrássy",
+          "price": "€10-80",
+          "tags": [
+            "歌剧",
+            "顶级"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "匈牙利国家美术馆 + 民族博物馆",
+          "name_en": "National Gallery + Ethnographic",
+          "area_zh": "Buda Castle",
+          "area_en": "Buda Castle",
+          "price": "€8-15",
+          "tags": [
+            "艺术"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "Central Market + 古拉什汤",
+          "name_en": "Central Market + Goulash",
+          "area_zh": "市中心",
+          "area_en": "Centro",
+          "price": "€5-12/餐",
+          "tags": [
+            "市场",
+            "本地"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Szimpla Kert 废墟酒吧",
+          "name_en": "Szimpla Kert Ruin Bar",
+          "area_zh": "Erzsébetváros",
+          "area_en": "Erzsébetváros",
+          "price": "€3-8/杯",
+          "tags": [
+            "夜生活",
+            "废墟"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "Margit-sziget 玛格丽特岛",
+          "name_en": "Margaret Island",
+          "area_zh": "多瑙河",
+          "area_en": "Danube",
+          "price": "免费",
+          "tags": [
+            "公园",
+            "跑步"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校选择多（AISB、BISB），中欧文化氛围适合家庭。",
+        "en": "Many intl schools (AISB, BISB), Central EU culture good for families."
+      },
+      "schools": [
+        {
+          "zh_name": "American Intl School (AISB)",
+          "en_name": "AISB",
+          "type": "intl_top",
+          "price": "$20k-28k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "British Intl School (BISB)",
+          "en_name": "BISB",
+          "type": "intl_ib",
+          "price": "$15k-22k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "匈牙利公立学校",
+          "en_name": "Hungarian public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1100
   },
   {
     "id": "prague",
@@ -4927,7 +8847,128 @@ const CITIES = [
         },
         "src": "https://www.prague.eu"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 4,
+        "art": 4,
+        "music": 4,
+        "food": 4,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "performance"
+      ],
+      "venues": [
+        {
+          "emoji": "🎭",
+          "name_zh": "国家剧院 + Estates Theatre (莫扎特)",
+          "name_en": "National + Estates Theatre",
+          "area_zh": "市中心",
+          "area_en": "Centro",
+          "price": "€15-80",
+          "tags": [
+            "歌剧",
+            "莫扎特"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "国家美术馆 + DOX 当代",
+          "name_en": "National Gallery + DOX",
+          "area_zh": "市内",
+          "area_en": "Citywide",
+          "price": "€8-12",
+          "tags": [
+            "艺术"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍺",
+          "name_zh": "啤酒酒吧 (U Fleku 自 1499)",
+          "name_en": "Beer Halls (U Fleku since 1499)",
+          "area_zh": "Nové Město",
+          "area_en": "Nové Město",
+          "price": "€3-5/杯",
+          "tags": [
+            "啤酒",
+            "传统"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "⛪",
+          "name_zh": "Prague Castle + Charles Bridge",
+          "name_en": "Prague Castle + Charles Bridge",
+          "area_zh": "Hradčany",
+          "area_en": "Hradčany",
+          "price": "€10-15",
+          "tags": [
+            "历史地标"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Yoga Karlin / Beruna",
+          "name_en": "Yoga Karlin / Beruna",
+          "area_zh": "Karlín",
+          "area_en": "Karlín",
+          "price": "€12-18/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Jazz Dock 河上爵士",
+          "name_en": "Jazz Dock Floating Jazz",
+          "area_zh": "Smíchov",
+          "area_en": "Smíchov",
+          "price": "€10-15",
+          "tags": [
+            "爵士",
+            "河景"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校充足（PBIS、ISP），Zivno 签证家属程序需独立办理。",
+        "en": "Plenty intl schools (PBIS, ISP), Zivno visa family must apply separately."
+      },
+      "schools": [
+        {
+          "zh_name": "Prague British School (PBIS)",
+          "en_name": "PBIS",
+          "type": "intl_top",
+          "price": "$18k-25k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "Intl School Prague (ISP)",
+          "en_name": "ISP",
+          "type": "intl_ib",
+          "price": "$20k-28k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "捷克公立学校",
+          "en_name": "Czech public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1200
   },
   {
     "id": "merida",
@@ -5066,7 +9107,121 @@ const CITIES = [
         },
         "src": "https://www.yucatan.travel"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 3,
+        "art": 3,
+        "music": 3,
+        "food": 4,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "yoga"
+      ],
+      "venues": [
+        {
+          "emoji": "🧘",
+          "name_zh": "Yoga Studios (Mérida Yoga)",
+          "name_en": "Mérida Yoga Studios",
+          "area_zh": "Centro",
+          "area_en": "Centro",
+          "price": "$10-15/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🏛️",
+          "name_zh": "Chichén Itzá 玛雅遗址",
+          "name_en": "Chichén Itzá Maya Ruins",
+          "area_zh": "郊外",
+          "area_en": "Outskirts",
+          "price": "$30",
+          "tags": [
+            "玛雅",
+            "世遗"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "Cochinita Pibil + Mercado",
+          "name_en": "Cochinita Pibil + Mercado",
+          "area_zh": "Centro",
+          "area_en": "Centro",
+          "price": "$3-8/餐",
+          "tags": [
+            "尤卡坦菜"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌊",
+          "name_zh": "Cenotes 天然井游泳",
+          "name_en": "Cenote Swimming",
+          "area_zh": "郊区",
+          "area_en": "Outskirts",
+          "price": "$10-25",
+          "tags": [
+            "天然井",
+            "户外"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "Macay 当代美术馆",
+          "name_en": "Macay Contemporary Museum",
+          "area_zh": "Centro",
+          "area_en": "Centro",
+          "price": "免费",
+          "tags": [
+            "艺术",
+            "免费"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🏖️",
+          "name_zh": "Progreso 海滩 1 小时",
+          "name_en": "Progreso Beach 1hr",
+          "area_zh": "郊外",
+          "area_en": "Coast",
+          "price": "$10 公车",
+          "tags": [
+            "海滩"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "墨西哥最安全城市，临时居留签全家，国际学校少但 ASM 不错。",
+        "en": "Safest Mexican city, residency visa for family, few intl schools but ASM ok."
+      },
+      "schools": [
+        {
+          "zh_name": "American School Mérida",
+          "en_name": "ASM",
+          "type": "intl_top",
+          "price": "$10k-15k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "墨西哥公立学校",
+          "en_name": "Mexican public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 600
   },
   {
     "id": "mexico_city",
@@ -5205,7 +9360,130 @@ const CITIES = [
         },
         "src": "https://www.cdmxtravel.com"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 4,
+        "art": 5,
+        "music": 4,
+        "food": 5,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "art",
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🎨",
+          "name_zh": "Frida Kahlo 故居 + 国家人类学馆",
+          "name_en": "Frida Kahlo + Nat'l Anthropology",
+          "area_zh": "Coyoacán/Chapultepec",
+          "area_en": "Coyoacán/Chapultepec",
+          "price": "$8-15",
+          "tags": [
+            "艺术",
+            "玛雅文化"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "Pujol / Quintonil / Tacos",
+          "name_en": "Pujol / Quintonil / Tacos",
+          "area_zh": "Polanco/Roma",
+          "area_en": "Polanco/Roma",
+          "price": "$3-200/餐",
+          "tags": [
+            "米其林",
+            "墨西哥菜"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "Palacio de Bellas Artes",
+          "name_en": "Palacio de Bellas Artes",
+          "area_zh": "Centro",
+          "area_en": "Centro",
+          "price": "$5-30",
+          "tags": [
+            "剧院",
+            "壁画"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Vajra Yoga / Sivananda",
+          "name_en": "Vajra Yoga / Sivananda",
+          "area_zh": "Roma/Condesa",
+          "area_en": "Roma/Condesa",
+          "price": "$12-18/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Mariachi @ Plaza Garibaldi",
+          "name_en": "Mariachi @ Plaza Garibaldi",
+          "area_zh": "Centro",
+          "area_en": "Centro",
+          "price": "$5-15",
+          "tags": [
+            "传统音乐"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "Chapultepec 公园 + 特奥蒂瓦坎",
+          "name_en": "Chapultepec + Teotihuacán",
+          "area_zh": "市内/郊外",
+          "area_en": "City/Outskirts",
+          "price": "免费 / $10",
+          "tags": [
+            "公园",
+            "金字塔"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校丰富（ASF、Colegio Eton），文化中心 + 安全区域（Polanco/Roma）。",
+        "en": "Many intl schools (ASF, Eton), cultural hub + safe areas (Polanco/Roma)."
+      },
+      "schools": [
+        {
+          "zh_name": "American School Foundation (ASF)",
+          "en_name": "ASF",
+          "type": "intl_top",
+          "price": "$15k-22k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "Colegio Eton",
+          "en_name": "Colegio Eton",
+          "type": "intl_ib",
+          "price": "$12k-18k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "墨西哥公立学校",
+          "en_name": "Mexican public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 900
   },
   {
     "id": "medellin",
@@ -5360,7 +9638,123 @@ const CITIES = [
         },
         "src": "https://www.colombia.co"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 3,
+        "art": 3,
+        "music": 5,
+        "food": 4,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "music",
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "💃",
+          "name_zh": "Salsa 课 + Son Havana 舞厅",
+          "name_en": "Salsa Classes + Son Havana",
+          "area_zh": "El Poblado",
+          "area_en": "El Poblado",
+          "price": "$10-15/课",
+          "tags": [
+            "Salsa",
+            "舞蹈"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "Guatapé 周末游 + 攀岩",
+          "name_en": "Guatapé Weekend + Rock Climb",
+          "area_zh": "郊区",
+          "area_en": "Outskirts",
+          "price": "$30-50",
+          "tags": [
+            "攀岩",
+            "湖光"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Yoga Vida / Bhakti",
+          "name_en": "Yoga Vida / Bhakti",
+          "area_zh": "El Poblado",
+          "area_en": "El Poblado",
+          "price": "$8-12/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "Comuna 13 街艺 Tour",
+          "name_en": "Comuna 13 Street Art Tour",
+          "area_zh": "Comuna 13",
+          "area_en": "Comuna 13",
+          "price": "$15-25",
+          "tags": [
+            "街艺",
+            "故事"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "☕",
+          "name_zh": "Pergamino 咖啡 + 农庄游",
+          "name_en": "Pergamino Coffee + Farm Tour",
+          "area_zh": "El Poblado/郊区",
+          "area_en": "El Poblado",
+          "price": "$5-50",
+          "tags": [
+            "咖啡",
+            "原产地"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Reggaeton + Club El Patio",
+          "name_en": "Reggaeton + Club El Patio",
+          "area_zh": "El Poblado",
+          "area_en": "El Poblado",
+          "price": "$15-25",
+          "tags": [
+            "夜生活"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "低成本 Pensionado 签证全家覆盖，El Poblado 区国际学校优质（TCS）。",
+        "en": "Low-cost Pensionado covers family, El Poblado area has good intl schools (TCS)."
+      },
+      "schools": [
+        {
+          "zh_name": "The Columbus School (TCS)",
+          "en_name": "TCS",
+          "type": "intl_top",
+          "price": "$12k-18k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "Colombian public schools",
+          "en_name": "Colombian public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 700
   },
   {
     "id": "buenos_aires",
@@ -5515,7 +9909,131 @@ const CITIES = [
         },
         "src": "https://whc.unesco.org"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 5,
+        "art": 4,
+        "music": 5,
+        "food": 5,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "performance",
+        "music",
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "💃",
+          "name_zh": "探戈 @ La Catedral / Milonga",
+          "name_en": "Tango @ La Catedral / Milongas",
+          "area_zh": "Almagro/全市",
+          "area_en": "Almagro/Citywide",
+          "price": "$10-30",
+          "tags": [
+            "探戈",
+            "夜场"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "Teatro Colón 歌剧院",
+          "name_en": "Teatro Colón Opera House",
+          "area_zh": "Centro",
+          "area_en": "Centro",
+          "price": "$10-100",
+          "tags": [
+            "歌剧",
+            "世界级"
+          ],
+          "src": "https://teatrocolon.org.ar"
+        },
+        {
+          "emoji": "🥩",
+          "name_zh": "阿根廷烤肉 (Don Julio)",
+          "name_en": "Argentine Asado (Don Julio)",
+          "area_zh": "Palermo",
+          "area_en": "Palermo",
+          "price": "$25-50/人",
+          "tags": [
+            "牛排",
+            "顶级"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "MALBA + Recoleta 墓园",
+          "name_en": "MALBA + Recoleta Cemetery",
+          "area_zh": "Palermo/Recoleta",
+          "area_en": "Palermo/Recoleta",
+          "price": "$8-15",
+          "tags": [
+            "拉美艺术"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "📚",
+          "name_zh": "El Ateneo Grand Splendid 书店",
+          "name_en": "El Ateneo Bookstore",
+          "area_zh": "Recoleta",
+          "area_en": "Recoleta",
+          "price": "免费",
+          "tags": [
+            "书店",
+            "全球最美"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Yoga Buenos Aires / Mandala",
+          "name_en": "Yoga BA / Mandala",
+          "area_zh": "Palermo",
+          "area_en": "Palermo",
+          "price": "$10-15/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校多（Lincoln、Asociación），但阿根廷经济波动需谨慎。",
+        "en": "Many intl schools (Lincoln, Asociación), but volatile economy needs caution."
+      },
+      "schools": [
+        {
+          "zh_name": "Lincoln School",
+          "en_name": "Lincoln",
+          "type": "intl_top",
+          "price": "$10k-15k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "Asociación Escuelas Lincoln",
+          "en_name": "Asociación Lincoln",
+          "type": "intl_ib",
+          "price": "$8k-12k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "阿根廷公立学校",
+          "en_name": "Argentine public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 600
   },
   {
     "id": "santiago",
@@ -5654,7 +10172,128 @@ const CITIES = [
         },
         "src": "https://chile.travel"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 4,
+        "art": 3,
+        "music": 3,
+        "food": 4,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "⛷️",
+          "name_zh": "Valle Nevado 滑雪 (1 小时)",
+          "name_en": "Valle Nevado Ski (1hr)",
+          "area_zh": "Andes",
+          "area_en": "Andes",
+          "price": "$40-80/天",
+          "tags": [
+            "滑雪",
+            "安第斯"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍷",
+          "name_zh": "Casablanca 葡萄酒谷",
+          "name_en": "Casablanca Wine Valley",
+          "area_zh": "郊外 1.5 小时",
+          "area_en": "1.5h Outskirts",
+          "price": "$50-100/日",
+          "tags": [
+            "葡萄酒",
+            "酒庄"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "Teatro Municipal de Santiago",
+          "name_en": "Teatro Municipal",
+          "area_zh": "Centro",
+          "area_en": "Centro",
+          "price": "$15-80",
+          "tags": [
+            "歌剧",
+            "古典"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🍳",
+          "name_zh": "Mercado Central 海鲜",
+          "name_en": "Mercado Central Seafood",
+          "area_zh": "Centro",
+          "area_en": "Centro",
+          "price": "$15-30/餐",
+          "tags": [
+            "海鲜"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Yoga Studios (Las Condes)",
+          "name_en": "Yoga Studios (Las Condes)",
+          "area_zh": "Las Condes",
+          "area_en": "Las Condes",
+          "price": "$12-18/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "Cerro San Cristóbal 缆车",
+          "name_en": "Cerro San Cristóbal Funicular",
+          "area_zh": "Centro",
+          "area_en": "Centro",
+          "price": "$5",
+          "tags": [
+            "全城景"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "拉美最安全首都，国际学校选择多（NIDO、Lincoln），适合家庭。",
+        "en": "Safest LatAm capital, many intl schools (NIDO, Lincoln), family-friendly."
+      },
+      "schools": [
+        {
+          "zh_name": "Nido de Aguilas",
+          "en_name": "NIDO",
+          "type": "intl_top",
+          "price": "$18k-25k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "Lincoln Intl Academy",
+          "en_name": "Lincoln Intl",
+          "type": "intl_ib",
+          "price": "$15k-22k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "智利公立学校",
+          "en_name": "Chilean public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 900
   },
   {
     "id": "lima",
@@ -5800,7 +10439,134 @@ const CITIES = [
         },
         "src": "https://www.peru.travel"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 3,
+        "performance": 3,
+        "art": 3,
+        "music": 4,
+        "food": 5,
+        "outdoor": 4
+      },
+      "greenStars": [
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🍳",
+          "name_zh": "Central / Maido (世界 50 佳)",
+          "name_en": "Central / Maido (World 50 Best)",
+          "area_zh": "Miraflores/Barranco",
+          "area_en": "Miraflores/Barranco",
+          "price": "$100-200/人",
+          "tags": [
+            "米其林",
+            "全球前列"
+          ],
+          "src": "https://www.theworlds50best.com"
+        },
+        {
+          "emoji": "🌊",
+          "name_zh": "Miraflores 海岸冲浪",
+          "name_en": "Miraflores Coastal Surf",
+          "area_zh": "Miraflores",
+          "area_en": "Miraflores",
+          "price": "$30-40/课",
+          "tags": [
+            "冲浪"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "MALI 美术馆 + Larco 博物馆",
+          "name_en": "MALI + Larco Museum",
+          "area_zh": "Centro/Pueblo Libre",
+          "area_en": "Centro",
+          "price": "$10",
+          "tags": [
+            "艺术",
+            "考古"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🥘",
+          "name_zh": "Ceviche + Surquillo 市场",
+          "name_en": "Ceviche + Surquillo Market",
+          "area_zh": "Miraflores",
+          "area_en": "Miraflores",
+          "price": "$5-15/餐",
+          "tags": [
+            "Ceviche"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "Barranco 现场音乐 + 酒吧",
+          "name_en": "Barranco Live Music + Bars",
+          "area_zh": "Barranco",
+          "area_en": "Barranco",
+          "price": "$10-20",
+          "tags": [
+            "现场音乐",
+            "艺术区"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "Sivananda Yoga / Yogi Tribe",
+          "name_en": "Sivananda / Yogi Tribe",
+          "area_zh": "Miraflores",
+          "area_en": "Miraflores",
+          "price": "$10-15/次",
+          "tags": [
+            "瑜伽"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校在 Miraflores/Surco 区集中（FDR、Markham），免签 183 天试住方便。",
+        "en": "Intl schools clustered Miraflores/Surco (FDR, Markham), 183-day visa-free for trial."
+      },
+      "schools": [
+        {
+          "zh_name": "Colegio Roosevelt (FDR)",
+          "en_name": "FDR Lima",
+          "type": "intl_top",
+          "price": "$15k-22k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "Markham College",
+          "en_name": "Markham",
+          "type": "intl_ib",
+          "price": "$12k-18k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "秘鲁公立学校",
+          "en_name": "Peruvian public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "ok",
+        "regular": "ok",
+        "fat": "poor",
+        "barista": "ok",
+        "coast": "ok"
+      }
+    },
+    "eduPerKid": 800
   },
   {
     "id": "costa_rica",
@@ -5955,7 +10721,131 @@ const CITIES = [
         },
         "src": "https://www.visitcostarica.com"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 5,
+        "performance": 2,
+        "art": 2,
+        "music": 3,
+        "food": 3,
+        "outdoor": 5
+      },
+      "greenStars": [
+        "yoga",
+        "outdoor"
+      ],
+      "venues": [
+        {
+          "emoji": "🧘",
+          "name_zh": "Nosara 瑜伽圣地 + Pranamar",
+          "name_en": "Nosara Yoga + Pranamar",
+          "area_zh": "Guanacaste 海岸",
+          "area_en": "Guanacaste",
+          "price": "$20-30/次",
+          "tags": [
+            "瑜伽圣地",
+            "世界级"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌳",
+          "name_zh": "Manuel Antonio + Arenal 火山",
+          "name_en": "Manuel Antonio + Arenal Volcano",
+          "area_zh": "国家公园",
+          "area_en": "National Parks",
+          "price": "$15-25",
+          "tags": [
+            "雨林",
+            "动物"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🏄",
+          "name_zh": "Tamarindo / Santa Teresa 冲浪",
+          "name_en": "Tamarindo / Santa Teresa Surf",
+          "area_zh": "太平洋岸",
+          "area_en": "Pacific Coast",
+          "price": "$50-100/课",
+          "tags": [
+            "冲浪",
+            "顶级"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "☕",
+          "name_zh": "咖啡农庄 (Hacienda Alsacia)",
+          "name_en": "Coffee Farm Tours",
+          "area_zh": "Central Valley",
+          "area_en": "Central Valley",
+          "price": "$30-50",
+          "tags": [
+            "咖啡"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🦥",
+          "name_zh": "树懒救助中心",
+          "name_en": "Sloth Sanctuary",
+          "area_zh": "Limón",
+          "area_en": "Limón",
+          "price": "$25",
+          "tags": [
+            "树懒",
+            "公益"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🌊",
+          "name_zh": "Whale + 海龟观察季",
+          "name_en": "Whale + Turtle Watching",
+          "area_zh": "两岸",
+          "area_en": "Both coasts",
+          "price": "$60-100",
+          "tags": [
+            "自然",
+            "季节性"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "国际学校多（Country Day、CDS），Pura Vida 文化 + 户外天堂对孩子极佳。",
+        "en": "Many intl schools (Country Day, CDS), Pura Vida + outdoor heaven ideal for kids."
+      },
+      "schools": [
+        {
+          "zh_name": "Country Day School",
+          "en_name": "CDS Costa Rica",
+          "type": "intl_top",
+          "price": "$15k-22k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "European School (CR)",
+          "en_name": "European School CR",
+          "type": "intl_ib",
+          "price": "$12k-18k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "哥斯达黎加公立学校",
+          "en_name": "Costa Rican public",
+          "type": "local",
+          "price": "免费",
+          "src": ""
+        }
+      ],
+      "fit_override": null
+    },
+    "eduPerKid": 1200
   },
   {
     "id": "dubai",
@@ -6110,19 +11000,177 @@ const CITIES = [
         },
         "src": "https://u.ae/en"
       }
-    ]
+    ],
+    "vibe": {
+      "scores": {
+        "yoga": 4,
+        "performance": 4,
+        "art": 4,
+        "music": 4,
+        "food": 5,
+        "outdoor": 3
+      },
+      "greenStars": [
+        "food"
+      ],
+      "venues": [
+        {
+          "emoji": "🍳",
+          "name_zh": "Nobu / Pierchic / 米其林餐厅群",
+          "name_en": "Nobu / Pierchic / Michelin",
+          "area_zh": "Marina/Palm",
+          "area_en": "Marina/Palm",
+          "price": "$100-500/人",
+          "tags": [
+            "米其林",
+            "国际"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎭",
+          "name_zh": "Dubai Opera 歌剧院",
+          "name_en": "Dubai Opera",
+          "area_zh": "Downtown",
+          "area_en": "Downtown",
+          "price": "$50-300",
+          "tags": [
+            "歌剧",
+            "顶级"
+          ],
+          "src": "https://www.dubaiopera.com"
+        },
+        {
+          "emoji": "🎨",
+          "name_zh": "Louvre Abu Dhabi (1hr) + Alserkal",
+          "name_en": "Louvre Abu Dhabi + Alserkal",
+          "area_zh": "AUH/Al Quoz",
+          "area_en": "AUH/Al Quoz",
+          "price": "$25",
+          "tags": [
+            "艺术",
+            "国际"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🧘",
+          "name_zh": "PURE Yoga + Inspire Yoga",
+          "name_en": "PURE Yoga + Inspire",
+          "area_zh": "DIFC/Marina",
+          "area_en": "DIFC/Marina",
+          "price": "$25-40/次",
+          "tags": [
+            "瑜伽顶级"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🏜️",
+          "name_zh": "沙漠 Safari + 直升机游",
+          "name_en": "Desert Safari + Helicopter",
+          "area_zh": "郊外",
+          "area_en": "Outskirts",
+          "price": "$60-300",
+          "tags": [
+            "沙漠",
+            "户外"
+          ],
+          "src": ""
+        },
+        {
+          "emoji": "🎵",
+          "name_zh": "全球巡演场地 (Coca-Cola Arena 等)",
+          "name_en": "Global Tour Venues (Coca-Cola Arena)",
+          "area_zh": "Downtown",
+          "area_en": "Downtown",
+          "price": "$50-500",
+          "tags": [
+            "演唱会",
+            "国际"
+          ],
+          "src": ""
+        }
+      ]
+    },
+    "family": {
+      "summary": {
+        "zh": "Fat FIRE 家庭天堂——零所得税 + 顶级国际学校（GEMS、JESS）+ 极致安全。需高资产签证。",
+        "en": "Fat FIRE family heaven—zero tax + top intl schools (GEMS, JESS) + extreme safety. High-asset visa."
+      },
+      "schools": [
+        {
+          "zh_name": "GEMS Wellington Intl",
+          "en_name": "GEMS Wellington",
+          "type": "intl_top",
+          "price": "$22k-32k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "JESS Dubai (British)",
+          "en_name": "JESS",
+          "type": "intl_ib",
+          "price": "$18k-28k/年",
+          "src": ""
+        },
+        {
+          "zh_name": "本地阿语学校",
+          "en_name": "Local Arabic",
+          "type": "local",
+          "price": "免费 (公民)",
+          "src": ""
+        }
+      ],
+      "fit_override": {
+        "lean": "poor",
+        "regular": "poor",
+        "fat": "great",
+        "barista": "ok",
+        "coast": "poor"
+      }
+    },
+    "eduPerKid": 2000
   }
 ];
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function parseCostUSD(v) {
+  // Extract number from strings like "$1,100" or "¥3.0M" etc; fallback returns null
+  const m = String(v).match(/[\d,]+\.?\d*/);
+  if (!m) return null;
+  return parseFloat(m[0].replace(/,/g, ""));
+}
+function formatCost(v, key, mult) {
+  // Returns the adjusted cost string preserving currency symbol
+  const num = parseCostUSD(v);
+  if (num === null) return v;
+  const adjusted = num * (mult[key] || 1);
+  // Use original prefix (e.g. "$" or "¥" or "€")
+  const prefix = String(v).match(/^[^\d]+/)?.[0] || "$";
+  // Round nicely
+  const rounded = adjusted >= 1000 ? Math.round(adjusted / 10) * 10 : Math.round(adjusted);
+  return prefix + rounded.toLocaleString();
+}
+function getFamilyFit(city, fireType, hh) {
+  // Use familyFit if household has children; otherwise base fit
+  const hasChildren = hh === "family3" || hh === "family4";
+  if (hasChildren && city.family && city.family.fit_override) {
+    return city.family.fit_override[fireType] || city.fit[fireType];
+  }
+  return city.fit[fireType];
+}
 
 export default function App() {
   const [lang, setLang] = useState("zh");
   const [fireType, setFireType] = useState("lean");
+  const [household, setHousehold] = useState("single");
+  const [hhOpen, setHhOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
-  const [conversation, setConversation] = useState([]); // { role:"user"|"assistant", text }
+  const [conversation, setConversation] = useState([]);
   const [aiLoading, setAiLoading] = useState(false);
-  const [followInput, setFollowInput] = useState("");
   const [aiExpanded, setAiExpanded] = useState(true);
+  const [followInput, setFollowInput] = useState("");
   const [communityData, setCommunityData] = useState(null);
   const [communityLoading, setCommunityLoading] = useState(false);
   const mapRef = useRef(null);
@@ -6130,6 +11178,9 @@ export default function App() {
   const markersRef = useRef({});
   const labelsRef = useRef({});
   const t = T[lang];
+  const mult = MULTIPLIERS[household];
+  const hh = HOUSEHOLDS[household];
+  const hasChildren = household === "family3" || household === "family4";
 
   // Init Leaflet map
   useEffect(() => {
@@ -6150,7 +11201,6 @@ export default function App() {
     leafletMap.current = map;
 
     CITIES.forEach(city => {
-      // Marker dot
       const wrapper = document.createElement("div");
       wrapper.style.cssText = "position:relative;width:30px;height:30px;cursor:pointer;";
       const glow = document.createElement("div");
@@ -6164,7 +11214,6 @@ export default function App() {
       const marker = L.marker([city.lat, city.lng], { icon }).addTo(map);
       marker.on("click", () => selectCity(city));
 
-      // Visible city label (always shown, not just on hover)
       const labelEl = document.createElement("div");
       labelEl.style.cssText = "padding:2px 7px;border-radius:3px;font-size:10px;font-family:'Inter','PingFang SC',sans-serif;font-weight:500;letter-spacing:0.3px;white-space:nowrap;pointer-events:none;transition:all 0.3s ease;backdrop-filter:blur(4px);";
       const labelIcon = L.divIcon({ html: labelEl, className:"", iconSize:[60,16], iconAnchor:[30,28] });
@@ -6177,13 +11226,13 @@ export default function App() {
     return () => { map.remove(); leafletMap.current = null; };
   }, []);
 
-  // Update markers and labels by fit/lang
+  // Update markers/labels by fit/lang/household
   useEffect(() => {
     CITIES.forEach(city => {
       const m = markersRef.current[city.id];
       const labelEl = labelsRef.current[city.id];
       if (!m || !labelEl) return;
-      const fitKey = city.fit[fireType];
+      const fitKey = getFamilyFit(city, fireType, household);
       const fit = FIT_CONFIG[fitKey];
       const isSelected = selected?.id === city.id;
 
@@ -6224,7 +11273,7 @@ export default function App() {
 
       labelEl.textContent = city.name[lang];
     });
-  }, [fireType, selected, lang]);
+  }, [fireType, selected, lang, household]);
 
   function selectCity(city) {
     setSelected(city);
@@ -6237,26 +11286,24 @@ export default function App() {
   async function callAI(userMsg, isFollowUp = false) {
     if (aiLoading || !selected) return;
     setAiLoading(true);
-    const newConv = isFollowUp
-      ? [...conversation, { role:"user", text: userMsg }]
-      : [];
+    const newConv = isFollowUp ? [...conversation, { role:"user", text: userMsg }] : [];
     if (isFollowUp) setConversation(newConv);
 
     const p = FIRE_TYPES[fireType];
-    const fit = FIT_CONFIG[selected.fit[fireType]];
-    const fitLabel = t[selected.fit[fireType]];
+    const fitKey = getFamilyFit(selected, fireType, household);
+    const fitLabel = t[fitKey];
+    const hhLabel = hh.label[lang];
 
     let prompt;
     if (!isFollowUp) {
       prompt = lang === "zh"
-        ? `FIRE 专家。用户 ${p.label} FIRE（${t.fireRange[fireType]}），考虑 ${selected.name.zh}（${fitLabel}，月 ${selected.costs[0].val}）。\n\n用中文 120 字回答：1) 为何"${fitLabel}" 2) 签证建议 3) 实用提示。简洁有料。`
-        : `FIRE expert. User ${p.label} FIRE (${t.fireRange[fireType]}), considering ${selected.name.en} (${fitLabel}, ${selected.costs[0].val}/mo).\n\nIn 120 words English: 1) Why "${fitLabel}" 2) Visa tip 3) Practical insight. Concise.`;
+        ? `FIRE 专家。用户：${p.label} FIRE（${t.fireRange[fireType]}）+ ${hhLabel}，考虑 ${selected.name.zh}（${fitLabel}，单身月 ${selected.costs[0].val}）。\n\n用中文 120 字回答：1) 为何"${fitLabel}" 2) 签证建议（${hasChildren ? '含家属附签' : ''}）3) 实用提示。简洁有料。`
+        : `FIRE expert. User: ${p.label} FIRE (${t.fireRange[fireType]}) + ${hhLabel}, considering ${selected.name.en} (${fitLabel}, single mo ${selected.costs[0].val}).\n\nIn 120 words English: 1) Why "${fitLabel}" 2) Visa tip ${hasChildren ? '(incl. family)' : ''} 3) Practical insight. Concise.`;
     } else {
-      // Compact context: only send latest user question + brief city context (not full history)
       const lastUserMsg = newConv[newConv.length - 1].text;
       const compactPrompt = lang === "zh"
-        ? `城市 ${selected.name.zh}（${p.label} FIRE，月 ${selected.costs[0].val}）。问题：${lastUserMsg}\n\n用中文 120 字内回答。`
-        : `City ${selected.name.en} (${p.label} FIRE, ${selected.costs[0].val}/mo). Q: ${lastUserMsg}\n\nAnswer in English, under 120 words.`;
+        ? `城市 ${selected.name.zh}（${p.label} FIRE + ${hhLabel}，月 ${selected.costs[0].val}）。问题：${lastUserMsg}\n\n用中文 120 字内回答。`
+        : `City ${selected.name.en} (${p.label} FIRE + ${hhLabel}, ${selected.costs[0].val}/mo). Q: ${lastUserMsg}\n\nUnder 120 words.`;
 
       try {
         const res = await fetch("/api/chat", {
@@ -6299,8 +11346,8 @@ export default function App() {
     setCommunityData(null);
 
     const prompt = lang === "zh"
-      ? `用 web_search 找 ${selected.name.en} 关于 FIRE/退休/旅居/数字游民的讨论帖、文章、博客（任何来源都可以）。\n\n返回 JSON 数组（2-6 个结果即可），每个对象：source（"reddit"/"blog"/"forum"/"news"/"other"），title（原标题），snippet（30 字中文简述），url（真实链接），date（如"2024"或"最近"，没有就空字符串），stats（如"thread"，没有就空字符串）。\n\n只输出 JSON。找到几个返回几个。`
-      : `Use web_search to find ANY threads, articles, or blogs about ${selected.name.en} FIRE/retire/expat/nomad living.\n\nReturn JSON array (2-6 results is fine), each: source ("reddit"/"blog"/"forum"/"news"/"other"), title, snippet (30 words), url (real), date (e.g. "2024" or "recent" or ""), stats ("thread" or "").\n\nJSON only. Return whatever you find.`;
+      ? `用 web_search 找 ${selected.name.en} 关于 FIRE/退休/旅居/数字游民的讨论帖、文章、博客（任何来源都可以）。\n\n返回 JSON 数组（2-6 个结果即可），每个对象：source（"reddit"/"blog"/"forum"/"news"/"other"），title（原标题），snippet（30 字中文简述），url（真实链接），date（如"2024"或""），stats（"thread" 或 ""）。\n\n只输出 JSON。`
+      : `Use web_search to find ANY threads/articles/blogs about ${selected.name.en} FIRE/retire/expat/nomad.\n\nReturn JSON array (2-6 results), each: source ("reddit"/"blog"/"forum"/"news"/"other"), title, snippet (30 words), url (real), date ("2024" or ""), stats ("thread" or "").\n\nJSON only.`;
 
     try {
       const res = await fetch("/api/chat", {
@@ -6309,13 +11356,10 @@ export default function App() {
       });
       const data = await res.json();
       if (!res.ok || !data.text) {
-        setCommunityData({ error: data?.error || "网络错误 / Network error", raw: "" });
+        setCommunityData({ error: data?.error || "网络错误", raw: "" });
       } else {
-        // Robust JSON extraction: handle markdown code fences, extra text
         let text = data.text.trim();
-        // Strip ```json ... ``` or ``` ... ``` wrappers
         text = text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "").trim();
-        // Find first [ and last ]
         const start = text.indexOf("[");
         const end = text.lastIndexOf("]");
         if (start !== -1 && end !== -1 && end > start) {
@@ -6325,22 +11369,21 @@ export default function App() {
             if (Array.isArray(parsed) && parsed.length > 0) {
               setCommunityData(parsed);
             } else {
-              setCommunityData({ error: "AI 返回了空数组", raw: data.text });
+              setCommunityData({ error: "空数组", raw: data.text });
             }
           } catch (e) {
-            setCommunityData({ error: "JSON 解析失败 / Parse failed", raw: data.text });
+            setCommunityData({ error: "JSON 解析失败", raw: data.text });
           }
         } else {
-          setCommunityData({ error: "AI 未返回 JSON 格式 / Not JSON", raw: data.text });
+          setCommunityData({ error: "未返回 JSON", raw: data.text });
         }
       }
     } catch (err) {
-      setCommunityData({ error: "请求失败 / Request failed", raw: String(err) });
+      setCommunityData({ error: "请求失败", raw: String(err) });
     }
     setCommunityLoading(false);
   }
 
-  // Auto-load community when tab activated
   useEffect(() => {
     if (activeTab === 4 && selected && !communityData && !communityLoading) {
       loadCommunity();
@@ -6351,7 +11394,6 @@ export default function App() {
     setFollowInput("");
     callAI(question, true);
   }
-
   function handleSendFollow() {
     if (!followInput.trim() || aiLoading) return;
     const q = followInput.trim();
@@ -6359,8 +11401,9 @@ export default function App() {
     callAI(q, true);
   }
 
-  const fit = selected ? FIT_CONFIG[selected.fit[fireType]] : null;
-  const fitLabel = selected ? t[selected.fit[fireType]] : "";
+  const fitKey = selected ? getFamilyFit(selected, fireType, household) : null;
+  const fit = fitKey ? FIT_CONFIG[fitKey] : null;
+  const fitLabel = fitKey ? t[fitKey] : "";
   const fitNote = selected ? selected.fitNote[lang][fireType] : "";
 
   function renderTabContent() {
@@ -6372,20 +11415,23 @@ export default function App() {
       link: { color:"#6b6864", fontSize:10, textDecoration:"none", flexShrink:0 },
     };
 
-    const renderList = (items) => items.map((item, i) => (
+    const renderList = (items, emoji = "—") => items.map((item, i) => (
       <div key={i} style={ss.row}>
-        <span style={ss.arr}>—</span>
+        <span style={ss.arr}>{emoji}</span>
         <span style={{ flex:1 }}>{typeof item.t === "object" ? item.t[lang] : item.t}</span>
         {item.src && <a href={item.src} target="_blank" rel="noopener noreferrer" style={ss.link}>↗</a>}
       </div>
     ));
 
+    // TAB 0: FINANCE — Cost grid (above) + Tips + Tax
     if (activeTab === 0) return (
       <div>
         <div style={ss.sec}>{t.sec.tips}</div>
         {renderList(selected.tips)}
       </div>
     );
+
+    // TAB 1: RESIDENCY — Visa + Family visa
     if (activeTab === 1) return (
       <div>
         <div style={ss.sec}>{t.sec.visa}</div>
@@ -6403,24 +11449,115 @@ export default function App() {
             </div>
           );
         })}
+        {(household === "couple" || hasChildren) && selected.family && (
+          <>
+            <div style={{ ...ss.sec, marginTop:18 }}>{t.sec.family_visa}</div>
+            <div style={{ ...ss.row, color:"#c8c5bd", fontStyle:"italic" }}>
+              <span style={ss.arr}>👨‍👩‍👧</span>
+              <span style={{ flex:1 }}>{selected.family.summary[lang]}</span>
+            </div>
+          </>
+        )}
       </div>
     );
+
+    // TAB 2: LIVING — Health + Insurance + (Education if family) + Safety + Culture
     if (activeTab === 2) return (
       <div>
         <div style={ss.sec}>{t.sec.health}</div>
         {renderList(selected.health)}
         <div style={{ ...ss.sec, marginTop:18 }}>{t.sec.ins}</div>
         {renderList(selected.ins)}
-      </div>
-    );
-    if (activeTab === 3) return (
-      <div>
-        <div style={ss.sec}>{t.sec.safety}</div>
+        {hasChildren && selected.family?.schools && (
+          <>
+            <div style={{ ...ss.sec, marginTop:18 }}>{t.sec.education}</div>
+            {selected.family.schools.map((s, i) => {
+              const typeColor = s.type === "local" ? TAG_STYLE.green : TAG_STYLE.yellow;
+              const typeLabel = s.type === "local" ? (lang==="zh"?"免费 · 本地":"Free · Local") : s.type === "intl_top" ? (lang==="zh"?"国际 · 顶级":"Intl · Top") : (lang==="zh"?"国际 · IB":"Intl · IB");
+              return (
+                <div key={i} style={ss.row}>
+                  <span style={ss.arr}>🎓</span>
+                  <div style={{ flex:1 }}>
+                    <strong style={{ color:"#e8e6df", fontWeight:500 }}>{lang === "zh" ? s.zh_name : s.en_name}</strong><br/>
+                    <span>{s.price}</span><br/>
+                    <span style={{ display:"inline-block", padding:"2px 9px", borderRadius:100, fontSize:9, fontWeight:500, marginTop:5, background:typeColor.background, color:typeColor.color, border:`0.5px solid ${typeColor.border}`, letterSpacing:1, textTransform:"uppercase" }}>{typeLabel}</span>
+                  </div>
+                  {s.src && <a href={s.src} target="_blank" rel="noopener noreferrer" style={ss.link}>↗</a>}
+                </div>
+              );
+            })}
+          </>
+        )}
+        <div style={{ ...ss.sec, marginTop:18 }}>{t.sec.safety}</div>
         {renderList(selected.safety)}
         <div style={{ ...ss.sec, marginTop:18 }}>{t.sec.culture}</div>
         {renderList(selected.culture)}
       </div>
     );
+
+    // TAB 3: VIBE — Score grid + Curated venues
+    if (activeTab === 3) {
+      const scores = selected.vibe?.scores || {};
+      const venues = selected.vibe?.venues || [];
+      const greenStars = selected.vibe?.greenStars || [];
+      return (
+        <div>
+          <div style={ss.sec}>{t.sec.vibe_overview}</div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:7, marginBottom:18 }}>
+            {Object.entries(scores).map(([k, score]) => {
+              const isGreen = greenStars.includes(k);
+              const isHot = score >= 4;
+              return (
+                <div key={k} style={{
+                  background: isHot ? "rgba(212,175,55,0.08)" : "rgba(212,175,55,0.03)",
+                  border: `0.5px solid ${isHot ? "rgba(212,175,55,0.3)" : "rgba(212,175,55,0.12)"}`,
+                  borderRadius:3, padding:"9px 11px", position:"relative",
+                }}>
+                  <div style={{ fontSize:9, letterSpacing:1.5, color: isHot ? "#d4af37" : "#8a8884", textTransform:"uppercase", marginBottom:5, fontWeight:400 }}>
+                    {t.vibeLabels[k]}
+                  </div>
+                  <div style={{ display:"flex", gap:2 }}>
+                    {[1,2,3,4,5].map(i => (
+                      <div key={i} style={{
+                        flex:1, height:3, borderRadius:1,
+                        background: i <= score ? (isGreen ? "#7dd3a8" : "#d4af37") : "rgba(212,175,55,0.15)"
+                      }}/>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {venues.length > 0 && (
+            <>
+              <div style={ss.sec}>{t.sec.vibe_detail}</div>
+              {venues.map((v, i) => (
+                <div key={i} style={{ padding:"11px 0", borderBottom:"0.5px solid rgba(212,175,55,0.08)" }}>
+                  <div style={{ display:"flex", gap:10 }}>
+                    <span style={{ fontSize:14, flexShrink:0 }}>{v.emoji}</span>
+                    <div style={{ flex:1 }}>
+                      <strong style={{ color:"#e8e6df", fontWeight:500, fontSize:12 }}>{lang === "zh" ? v.name_zh : v.name_en}</strong><br/>
+                      <span style={{ fontSize:11, color:"#a8a59f", lineHeight:1.6, fontWeight:300 }}>{lang === "zh" ? v.desc_zh : v.desc_en}</span>
+                      {v.tags && v.tags.length > 0 && (
+                        <div style={{ marginTop:6, display:"flex", gap:4, flexWrap:"wrap" }}>
+                          {v.tags.map((tag, j) => (
+                            <span key={j} style={{ fontSize:9, padding:"2px 7px", borderRadius:100, background:"rgba(212,175,55,0.12)", color:"#d4af37", border:"0.5px solid rgba(212,175,55,0.25)", letterSpacing:0.5, fontWeight:400 }}>{tag}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {v.src && <a href={v.src} target="_blank" rel="noopener noreferrer" style={ss.link}>↗</a>}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      );
+    }
+
+    // TAB 4: DISCUSSION
     if (activeTab === 4) return (
       <div>
         <div style={{ ...ss.sec, display:"flex", alignItems:"center", gap:8 }}>
@@ -6485,7 +11622,6 @@ export default function App() {
           </>
         )}
 
-        {/* ALWAYS-VISIBLE: Direct platform search links */}
         {!communityLoading && (
           <div style={{ marginTop: 20, paddingTop: 16, borderTop:"0.5px solid rgba(212,175,55,0.1)" }}>
             <div style={{ fontSize:9, letterSpacing:2.5, color:"#6b6864", textTransform:"uppercase", marginBottom:10, fontWeight:300 }}>
@@ -6530,11 +11666,10 @@ export default function App() {
       `}</style>
 
       {/* HEADER */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 22px", borderBottom:"0.5px solid rgba(212,175,55,0.12)", background:"linear-gradient(180deg,#131315 0%,#0e0e10 100%)", flexShrink:0, gap:12 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12, flexShrink:0 }}>
-          <div style={{ width:32, height:32, border:"0.5px solid rgba(212,175,55,0.4)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", position:"relative" }}>
-            <div style={{ position:"absolute", inset:4, border:"0.5px solid rgba(212,175,55,0.2)", borderRadius:"50%" }}/>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"flex-start", padding:"10px 18px", borderBottom:"0.5px solid rgba(212,175,55,0.12)", background:"linear-gradient(180deg,#131315 0%,#0e0e10 100%)", flexShrink:0, gap:10, flexWrap:"wrap" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
+          <div style={{ width:30, height:30, border:"0.5px solid rgba(212,175,55,0.4)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", position:"relative" }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="9" stroke="#d4af37" strokeWidth="0.8" opacity="0.7"/>
               <path d="M12 3 Q 7 12 12 21 Q 17 12 12 3 Z" stroke="#d4af37" strokeWidth="0.6" fill="none" opacity="0.5"/>
               <line x1="3" y1="12" x2="21" y2="12" stroke="#d4af37" strokeWidth="0.6" opacity="0.5"/>
@@ -6542,17 +11677,18 @@ export default function App() {
             </svg>
           </div>
           <div>
-            <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:19, fontWeight:500, letterSpacing:0.8, color:"#d4af37" }}>
+            <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:17, fontWeight:500, letterSpacing:0.8, color:"#d4af37" }}>
               FIRE<span style={{ fontStyle:"italic", fontWeight:400, color:"#e8e6df" }}>nomad</span>
             </div>
-            <div style={{ fontSize:8, letterSpacing:3.5, color:"#6b6864", textTransform:"uppercase", marginTop:2, fontWeight:300 }}>{t.appTag} · {CITIES.length} {t.cities}</div>
+            <div style={{ fontSize:8, letterSpacing:3, color:"#6b6864", textTransform:"uppercase", marginTop:1, fontWeight:300 }}>{t.appTag} · {CITIES.length}</div>
           </div>
         </div>
 
-        <div style={{ display:"flex", gap:0, border:"0.5px solid rgba(212,175,55,0.15)", borderRadius:100, overflow:"hidden", background:"#131315" }}>
+        {/* FIRE PILLS */}
+        <div style={{ display:"flex", border:"0.5px solid rgba(212,175,55,0.15)", borderRadius:100, overflow:"hidden", background:"#131315" }}>
           {Object.entries(FIRE_TYPES).map(([k, v], i) => (
             <button key={k} onClick={() => setFireType(k)} style={{
-              padding:"5px 11px", border:"none",
+              padding:"4px 10px", border:"none",
               borderRight: i < 4 ? "0.5px solid rgba(212,175,55,0.08)" : "none",
               background: fireType===k ? "linear-gradient(180deg,#d4af37 0%,#b8941f 100%)" : "transparent",
               color: fireType===k ? "#0e0e10" : "#6b6864",
@@ -6562,14 +11698,55 @@ export default function App() {
           ))}
         </div>
 
-        {/* LANGUAGE TOGGLE */}
-        <div style={{ display:"flex", alignItems:"center", border:"0.5px solid rgba(212,175,55,0.3)", borderRadius:100, overflow:"hidden", background:"#131315" }}>
-          <button onClick={() => setLang("zh")} style={{ padding:"5px 11px", border:"none", background: lang==="zh" ? "rgba(212,175,55,0.18)" : "transparent", color: lang==="zh" ? "#d4af37" : "#6b6864", fontSize:10, fontWeight:500, cursor:"pointer", fontFamily:"inherit", letterSpacing:0.5 }}>中</button>
-          <div style={{ width:"0.5px", height:14, background:"rgba(212,175,55,0.2)" }}/>
-          <button onClick={() => setLang("en")} style={{ padding:"5px 11px", border:"none", background: lang==="en" ? "rgba(212,175,55,0.18)" : "transparent", color: lang==="en" ? "#d4af37" : "#6b6864", fontSize:10, fontWeight:500, cursor:"pointer", fontFamily:"inherit", letterSpacing:0.5 }}>EN</button>
+        {/* HOUSEHOLD DROPDOWN */}
+        <div style={{ position:"relative" }}>
+          <button onClick={() => setHhOpen(!hhOpen)} style={{
+            background:"#131315", border:"0.5px solid rgba(212,175,55,0.3)", borderRadius:100,
+            padding:"5px 11px 5px 13px", color:"#d4af37", fontSize:10, fontFamily:"inherit", fontWeight:500,
+            cursor:"pointer", display:"flex", alignItems:"center", gap:7, letterSpacing:0.3,
+          }}>
+            <span>{hh.emoji} {hh.label[lang]}</span>
+            <span style={{ fontSize:8, opacity:0.8 }}>▾</span>
+          </button>
+          {hhOpen && (
+            <>
+              <div onClick={() => setHhOpen(false)} style={{ position:"fixed", inset:0, zIndex:90 }}/>
+              <div style={{
+                position:"absolute", top:"calc(100% + 6px)", right:0,
+                width:220, background:"#131315",
+                border:"0.5px solid rgba(212,175,55,0.3)", borderRadius:6, overflow:"hidden",
+                boxShadow:"0 10px 30px rgba(0,0,0,0.5)", zIndex:100,
+              }}>
+                <div style={{ fontSize:8, letterSpacing:2.5, color:"#6b6864", textTransform:"uppercase", padding:"9px 14px 4px", fontWeight:400 }}>
+                  {t.hhSection}
+                </div>
+                {Object.entries(HOUSEHOLDS).map(([k, h]) => (
+                  <div key={k} onClick={() => { setHousehold(k); setHhOpen(false); }} style={{
+                    padding:"9px 14px", color: household===k ? "#d4af37" : "#a8a59f",
+                    background: household===k ? "rgba(212,175,55,0.1)" : "transparent",
+                    fontSize:11, cursor:"pointer", fontFamily:"inherit",
+                    fontWeight: household===k ? 500 : 400,
+                    display:"flex", alignItems:"center", gap:9,
+                  }}>
+                    <span style={{ fontSize:14 }}>{h.emoji}</span>
+                    <div>
+                      <div>{h.label[lang]}</div>
+                      <div style={{ fontSize:9, color: household===k ? "#d4af3799" : "#6b6864", marginTop:1 }}>{h.desc[lang]}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
-        <div style={{ display:"flex", alignItems:"center", gap:7, fontSize:9, color:"#6b6864", letterSpacing:2, textTransform:"uppercase", fontWeight:300 }}>
+        {/* LANG */}
+        <div style={{ display:"flex", alignItems:"center", border:"0.5px solid rgba(212,175,55,0.3)", borderRadius:100, overflow:"hidden", background:"#131315" }}>
+          <button onClick={() => setLang("zh")} style={{ padding:"4px 10px", border:"none", background: lang==="zh" ? "rgba(212,175,55,0.18)" : "transparent", color: lang==="zh" ? "#d4af37" : "#6b6864", fontSize:10, fontWeight:500, cursor:"pointer", fontFamily:"inherit" }}>中</button>
+          <button onClick={() => setLang("en")} style={{ padding:"4px 10px", border:"none", background: lang==="en" ? "rgba(212,175,55,0.18)" : "transparent", color: lang==="en" ? "#d4af37" : "#6b6864", fontSize:10, fontWeight:500, cursor:"pointer", fontFamily:"inherit" }}>EN</button>
+        </div>
+
+        <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:9, color:"#6b6864", letterSpacing:2, textTransform:"uppercase", fontWeight:300, marginLeft:"auto" }}>
           <span style={{ width:5, height:5, borderRadius:"50%", background:"#d4af37", boxShadow:"0 0 8px rgba(212,175,55,0.6)" }}/>
           {t.aiLive}
         </div>
@@ -6582,7 +11759,7 @@ export default function App() {
 
           <div style={{ position:"absolute", bottom:18, left:18, background:"rgba(14,14,16,0.92)", border:"0.5px solid rgba(212,175,55,0.18)", borderRadius:8, padding:"12px 16px", backdropFilter:"blur(10px)", zIndex:1000 }}>
             <div style={{ fontSize:9, letterSpacing:3, color:"#6b6864", textTransform:"uppercase", marginBottom:9, fontWeight:300 }}>
-              {FIRE_TYPES[fireType].label} {t.fitLegend}
+              {FIRE_TYPES[fireType].label} · {hh.emoji} {t.fitLegend}
             </div>
             {["great","ok","poor"].map(k => {
               const v = FIT_CONFIG[k];
@@ -6603,27 +11780,28 @@ export default function App() {
         </div>
 
         {/* SIDE PANEL */}
-        <div style={{ width: selected ? 380 : 0, background:"#0e0e10", borderLeft:"0.5px solid rgba(212,175,55,0.12)", display:"flex", flexDirection:"column", overflow:"hidden", transition:"width 0.3s ease", flexShrink:0 }}>
+        <div style={{ width: selected ? 400 : 0, background:"#0e0e10", borderLeft:"0.5px solid rgba(212,175,55,0.12)", display:"flex", flexDirection:"column", overflow:"hidden", transition:"width 0.3s ease", flexShrink:0 }}>
           {selected && (
-            <div style={{ width:380, display:"flex", flexDirection:"column", flex:1, overflow:"hidden" }}>
-              <div style={{ padding:"20px 24px 16px", borderBottom:"0.5px solid rgba(212,175,55,0.1)", flexShrink:0, position:"relative" }}>
+            <div style={{ width:400, display:"flex", flexDirection:"column", flex:1, overflow:"hidden" }}>
+              {/* Header */}
+              <div style={{ padding:"18px 22px 14px", borderBottom:"0.5px solid rgba(212,175,55,0.1)", flexShrink:0, position:"relative" }}>
                 <button onClick={() => setSelected(null)} style={{ position:"absolute", top:16, right:18, width:22, height:22, borderRadius:"50%", background:"transparent", border:"0.5px solid rgba(212,175,55,0.3)", color:"#8a8884", cursor:"pointer", fontSize:10, display:"flex", alignItems:"center", justifyContent:"center" }}>{t.close}</button>
 
                 <div style={{ fontSize:9, letterSpacing:4, color:"#6b6864", textTransform:"uppercase", marginBottom:6, fontWeight:300 }}>
                   {selected.country[lang]} · {selected.region[lang]}
                 </div>
-                <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:26, fontWeight:500, color:"#e8e6df", letterSpacing:0.5, lineHeight:1.1 }}>
+                <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:25, fontWeight:500, color:"#e8e6df", letterSpacing:0.5, lineHeight:1.1 }}>
                   {selected.name[lang]}
                 </div>
                 <div style={{ fontSize:11, color:"#8a8884", marginTop:6, fontWeight:300, lineHeight:1.5 }}>
                   {selected.sub[lang]}
                 </div>
 
-                <div style={{ height:"0.5px", background:"linear-gradient(90deg,transparent 0%,rgba(212,175,55,0.3) 50%,transparent 100%)", margin:"14px 0" }}/>
+                <div style={{ height:"0.5px", background:"linear-gradient(90deg,transparent 0%,rgba(212,175,55,0.3) 50%,transparent 100%)", margin:"12px 0" }}/>
 
-                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
                   <span style={{ fontSize:10, letterSpacing:1.5, color:"#8a8884", textTransform:"uppercase", fontWeight:400 }}>
-                    {FIRE_TYPES[fireType].icon} {FIRE_TYPES[fireType].label} FIRE
+                    {FIRE_TYPES[fireType].icon} {FIRE_TYPES[fireType].label} · {hh.emoji} {hh.label[lang]}
                   </span>
                   <span style={{ fontSize:9, letterSpacing:2, textTransform:"uppercase", fontWeight:500, border:`0.5px solid ${fit.border}`, padding:"3px 10px", borderRadius:100, color:fit.color, background:fit.bg }}>
                     {fitLabel}
@@ -6632,29 +11810,54 @@ export default function App() {
                 <div style={{ fontSize:11, color:"#a8a59f", lineHeight:1.7, fontWeight:300 }}>{fitNote}</div>
               </div>
 
-              {/* Cost grid */}
+              {/* COST GRID (with multipliers) */}
               <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1, padding:1, background:"rgba(212,175,55,0.08)", borderBottom:"0.5px solid rgba(212,175,55,0.1)", flexShrink:0 }}>
-                {selected.costs.map((c) => (
-                  <div key={c.key} style={{ background:"#0e0e10", padding:"13px 15px", position:"relative" }}>
-                    <div style={{ fontSize:8, letterSpacing:2.5, color:"#6b6864", textTransform:"uppercase", marginBottom:6, fontWeight:300 }}>{t.cost[c.key]}</div>
-                    <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:20, fontWeight:500, color:"#d4af37", letterSpacing:0.5 }}>{c.val}</div>
-                    <a href={c.src} target="_blank" rel="noopener noreferrer" style={{ position:"absolute", top:8, right:10, fontSize:9, color:"#6b6864", textDecoration:"none" }}>↗</a>
+                {selected.costs.map((c) => {
+                  const adjusted = formatCost(c.val, c.key, mult);
+                  const multValue = mult[c.key];
+                  const showMult = household !== "single" && multValue !== 1;
+                  return (
+                    <div key={c.key} style={{ background:"#0e0e10", padding:"12px 13px", position:"relative" }}>
+                      <div style={{ fontSize:8, letterSpacing:2.5, color:"#6b6864", textTransform:"uppercase", marginBottom:5, fontWeight:300 }}>{t.cost[c.key]}</div>
+                      <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:19, fontWeight:500, color:"#d4af37", letterSpacing:0.5 }}>{adjusted}</div>
+                      {showMult && (
+                        <div style={{ fontSize:9, color:"#6b6864", marginTop:2, textDecoration:"line-through" }}>{c.val}</div>
+                      )}
+                      {showMult && (
+                        <span style={{ position:"absolute", top:7, right:9, fontSize:8, color:"#7dd3a8", background:"rgba(125,211,168,0.15)", padding:"2px 5px", borderRadius:7, letterSpacing:0.3, fontWeight:500 }}>×{multValue.toFixed(1)}</span>
+                      )}
+                      <a href={c.src} target="_blank" rel="noopener noreferrer" style={{ position:"absolute", bottom:7, right:9, fontSize:9, color:"#6b6864", textDecoration:"none" }}>↗</a>
+                    </div>
+                  );
+                })}
+                {/* Education card — only if family with children */}
+                {hasChildren && selected.eduPerKid && (
+                  <div style={{ background:"#0e0e10", padding:"12px 13px", position:"relative" }}>
+                    <div style={{ fontSize:8, letterSpacing:2.5, color:"#6b6864", textTransform:"uppercase", marginBottom:5, fontWeight:300 }}>{t.cost.Education}</div>
+                    <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:19, fontWeight:500, color:"#d4af37", letterSpacing:0.5 }}>
+                      ${(selected.eduPerKid * mult.Education).toLocaleString()}
+                    </div>
+                    <div style={{ fontSize:9, color:"#7dd3a8", marginTop:2 }}>
+                      {mult.Education}× {lang === "zh" ? "孩子" : "child" + (mult.Education > 1 ? "ren" : "")}
+                    </div>
+                    <span style={{ position:"absolute", top:7, right:9, fontSize:8, color:"#d4af37", background:"rgba(212,175,55,0.15)", padding:"2px 5px", borderRadius:7, letterSpacing:0.3, fontWeight:500 }}>{t.newCategory}</span>
                   </div>
-                ))}
+                )}
               </div>
 
-              {/* Tabs */}
+              {/* 5 TABS */}
               <div style={{ display:"flex", borderBottom:"0.5px solid rgba(212,175,55,0.1)", flexShrink:0 }}>
                 {t.tabs.map((tabLabel, i) => (
                   <button key={i} onClick={() => setActiveTab(i)} style={{
-                    flex:1, padding:"11px 4px",
-                    fontSize:9, letterSpacing:1.5, textTransform:"uppercase",
+                    flex:1, padding:"11px 3px",
+                    fontSize:9, letterSpacing:1, textTransform:"uppercase",
                     color: activeTab===i ? "#d4af37" : "#6b6864",
                     cursor:"pointer", border:"none",
                     borderBottom: activeTab===i ? "1px solid #d4af37" : "1px solid transparent",
                     background:"none", fontFamily:"inherit", fontWeight:400,
+                    whiteSpace:"nowrap",
                   }}>
-                    {tabLabel}{i === 4 && <span style={{ color:"#d4af37", marginLeft:3 }}>✦</span>}
+                    {tabLabel}
                   </button>
                 ))}
               </div>
@@ -6663,7 +11866,7 @@ export default function App() {
                 {renderTabContent()}
               </div>
 
-              {/* AI CHAT SECTION */}
+              {/* AI SECTION */}
               <div style={{ padding:"14px 20px 16px", borderTop:"0.5px solid rgba(212,175,55,0.1)", flexShrink:0, background:"#0a0a0c", maxHeight: aiExpanded ? "45%" : "auto", overflowY: aiExpanded ? "auto" : "visible" }}>
                 <div style={{ fontSize:9, letterSpacing:3, color:"#d4af37", textTransform:"uppercase", marginBottom: aiExpanded ? 10 : 0, fontWeight:400, display:"flex", alignItems:"center", gap:8, cursor:"pointer" }} onClick={() => setAiExpanded(!aiExpanded)}>
                   <span>✦</span> {t.ai.title}
@@ -6673,27 +11876,21 @@ export default function App() {
                 </div>
 
                 {aiExpanded && (<>
-
-                {/* Initial Ask button (only show if no conversation yet) */}
                 {conversation.length === 0 && !aiLoading && (
                   <button onClick={() => callAI(null, false)} style={{
                     width:"100%", padding:11, background:"transparent",
                     color:"#d4af37", border:"0.5px solid rgba(212,175,55,0.4)",
                     borderRadius:2, fontFamily:"inherit", fontWeight:400, fontSize:10,
-                    letterSpacing:2.5, textTransform:"uppercase",
-                    cursor:"pointer", transition:"all 0.3s",
+                    letterSpacing:2.5, textTransform:"uppercase", cursor:"pointer",
                   }}>
                     ✦ {t.ai.askBtn} ✦
                   </button>
                 )}
-
                 {aiLoading && conversation.length === 0 && (
                   <div style={{ padding:"10px 12px", background:"rgba(212,175,55,0.04)", border:"0.5px solid rgba(212,175,55,0.15)", borderRadius:2, fontSize:11, color:"#d4af37", fontStyle:"italic" }}>
                     ✦ {t.ai.loading}...
                   </div>
                 )}
-
-                {/* Conversation history */}
                 {conversation.length > 0 && (
                   <div style={{ background:"rgba(212,175,55,0.04)", border:"0.5px solid rgba(212,175,55,0.15)", borderRadius:2, padding:"12px 14px", marginBottom:10, maxHeight:200, overflowY:"auto" }}>
                     {conversation.map((msg, i) => (
@@ -6709,8 +11906,6 @@ export default function App() {
                     )}
                   </div>
                 )}
-
-                {/* Suggested follow-ups (only after first AI response) */}
                 {conversation.length > 0 && conversation[conversation.length-1].role === "assistant" && !aiLoading && (
                   <div style={{ display:"flex", flexDirection:"column", gap:5, marginBottom:10 }}>
                     {t.suggested.slice(0, 2).map((q, i) => (
@@ -6725,8 +11920,6 @@ export default function App() {
                     ))}
                   </div>
                 )}
-
-                {/* Input box */}
                 {conversation.length > 0 && (
                   <div style={{ display:"flex", gap:5 }}>
                     <input
@@ -6750,7 +11943,6 @@ export default function App() {
                     }}>{t.ai.send}</button>
                   </div>
                 )}
-
                 </>)}
               </div>
             </div>
