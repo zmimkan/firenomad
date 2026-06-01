@@ -11700,7 +11700,7 @@ export default function App() {
 
         {/* HOUSEHOLD DROPDOWN */}
         <div style={{ position:"relative" }}>
-          <button onClick={() => setHhOpen(!hhOpen)} style={{
+          <button id="hh-trigger" onClick={() => setHhOpen(!hhOpen)} style={{
             background:"#131315", border:"0.5px solid rgba(212,175,55,0.3)", borderRadius:100,
             padding:"5px 11px 5px 13px", color:"#d4af37", fontSize:10, fontFamily:"inherit", fontWeight:500,
             cursor:"pointer", display:"flex", alignItems:"center", gap:7, letterSpacing:0.3,
@@ -11708,36 +11708,42 @@ export default function App() {
             <span>{hh.emoji} {hh.label[lang]}</span>
             <span style={{ fontSize:8, opacity:0.8 }}>▾</span>
           </button>
-          {hhOpen && (
-            <>
-              <div onClick={() => setHhOpen(false)} style={{ position:"fixed", inset:0, zIndex:90 }}/>
-              <div style={{
-                position:"absolute", top:"calc(100% + 6px)", right:0,
-                width:220, background:"#131315",
-                border:"0.5px solid rgba(212,175,55,0.3)", borderRadius:6, overflow:"hidden",
-                boxShadow:"0 10px 30px rgba(0,0,0,0.5)", zIndex:100,
-              }}>
-                <div style={{ fontSize:8, letterSpacing:2.5, color:"#6b6864", textTransform:"uppercase", padding:"9px 14px 4px", fontWeight:400 }}>
-                  {t.hhSection}
-                </div>
-                {Object.entries(HOUSEHOLDS).map(([k, h]) => (
-                  <div key={k} onClick={() => { setHousehold(k); setHhOpen(false); }} style={{
-                    padding:"9px 14px", color: household===k ? "#d4af37" : "#a8a59f",
-                    background: household===k ? "rgba(212,175,55,0.1)" : "transparent",
-                    fontSize:11, cursor:"pointer", fontFamily:"inherit",
-                    fontWeight: household===k ? 500 : 400,
-                    display:"flex", alignItems:"center", gap:9,
-                  }}>
-                    <span style={{ fontSize:14 }}>{h.emoji}</span>
-                    <div>
-                      <div>{h.label[lang]}</div>
-                      <div style={{ fontSize:9, color: household===k ? "#d4af3799" : "#6b6864", marginTop:1 }}>{h.desc[lang]}</div>
-                    </div>
+          {hhOpen && (() => {
+            const trigger = typeof document !== "undefined" ? document.getElementById("hh-trigger") : null;
+            const rect = trigger?.getBoundingClientRect();
+            const top = rect ? rect.bottom + 6 : 60;
+            const right = rect ? (window.innerWidth - rect.right) : 200;
+            return (
+              <>
+                <div onClick={() => setHhOpen(false)} style={{ position:"fixed", inset:0, zIndex:9998 }}/>
+                <div style={{
+                  position:"fixed", top: top + "px", right: right + "px",
+                  width:220, background:"#131315",
+                  border:"0.5px solid rgba(212,175,55,0.3)", borderRadius:6, overflow:"hidden",
+                  boxShadow:"0 10px 30px rgba(0,0,0,0.5)", zIndex:9999,
+                }}>
+                  <div style={{ fontSize:8, letterSpacing:2.5, color:"#6b6864", textTransform:"uppercase", padding:"9px 14px 4px", fontWeight:400 }}>
+                    {t.hhSection}
                   </div>
-                ))}
-              </div>
-            </>
-          )}
+                  {Object.entries(HOUSEHOLDS).map(([k, h]) => (
+                    <div key={k} onClick={() => { setHousehold(k); setHhOpen(false); }} style={{
+                      padding:"9px 14px", color: household===k ? "#d4af37" : "#a8a59f",
+                      background: household===k ? "rgba(212,175,55,0.1)" : "transparent",
+                      fontSize:11, cursor:"pointer", fontFamily:"inherit",
+                      fontWeight: household===k ? 500 : 400,
+                      display:"flex", alignItems:"center", gap:9,
+                    }}>
+                      <span style={{ fontSize:14 }}>{h.emoji}</span>
+                      <div>
+                        <div>{h.label[lang]}</div>
+                        <div style={{ fontSize:9, color: household===k ? "#d4af3799" : "#6b6864", marginTop:1 }}>{h.desc[lang]}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            );
+          })()}
         </div>
 
         {/* LANG */}
